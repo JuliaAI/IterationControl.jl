@@ -76,7 +76,7 @@ end
 function update!(s::Skip, model, verbosity, state)
     state_candidate = _state(s, model, verbosity, state.t)
     state_candidate isa Nothing &&
-        return (state.atomic_state, t = state.t + 1)
+        return (atomic_state = state.atomic_state, t = state.t + 1)
     return state_candidate
 end
 
