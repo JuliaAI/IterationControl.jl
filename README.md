@@ -42,13 +42,13 @@ julia> model.root
 ```
 
 Then we can replace the integer argument `n` in `train!(model, n)`
-with any number of more sophisticated *controls* by "lifting" the
-method `train!` to the `IterationControl.train!` method defined in
-this package:
+with a number of more sophisticated *controls* by "lifting" the method
+`train!` to the `IterationControl.train!` method defined in this
+package:
 
 ```julia
 using IterativeControl
-IterationControl.train!(model, n) =  train!(model, n)
+IterationControl.train!(model::SquareRooter, n) =  train!(model, n) # lifting
 ```
 The lifted `train!` has the same functionality as the original one:
 
@@ -82,7 +82,7 @@ train!(model, 1)
 julia> loss(model)
 2.25
 
-IterationControl.loss(model) = loss(model) # lifting
+IterationControl.loss(model::SquareRooter) = loss(model) # lifting
 
 losses = Float64[]
 callback(model) = push!(losses, loss(model))
@@ -100,9 +100,9 @@ julia> losses
 ```
 
 If training `model` generates user-inspectable "training losses" (one
-per iteration) then lifting the appropriate access function to
-`IterationControl.training_losses` enables Prechelt's
-progress-modified generalization loss stopping criterion, `PQ`. 
+per iteration) then similarly lifting the appropriate access function
+to `IterationControl.training_losses` enables Prechelt's
+progress-modified generalization loss stopping criterion, `PQ`.
 
 `PQ` is the only criterion from the
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) package

@@ -2,15 +2,16 @@
 
 # `StoppingCriterion`objects are defined in EarlyStopping.jl
 
-_err_loss() = error("`IterationControl.loss` not suitably overloaded "*
-              "for $(typeof(model)). ")
+_err_loss(model) = error("`IterationControl.loss(model)` "*
+                         "not suitably overloaded "*
+                         "for `typeof(model)=$(typeof(model))`. ")
 
 # initialization:
 function update!(c::StoppingCriterion,
                 model,
                 verbosity)
     _loss = loss(model)
-    _loss == nothing && _err_loss()
+    _loss == nothing && _err_loss(model)
     _training_losses = training_losses(model)
     if _training_losses === nothing || isempty(_training_losses)
         state = EarlyStopping.update(c, _loss)
@@ -30,7 +31,7 @@ function update!(c::StoppingCriterion,
                 verbosity,
                 state)
     _loss = loss(model)
-    _loss == nothing && _err_loss()
+    _loss == nothing && _err_loss(model)
     _training_losses = training_losses(model)
     if _training_losses === nothing || isempty(_training_losses)
         state = EarlyStopping.update(c, _loss, state)

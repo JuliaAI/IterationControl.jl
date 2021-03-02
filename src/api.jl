@@ -8,8 +8,8 @@
 # ## COMPULSORY
 
 # train `model` for another `Δn` iterations:
-train!(model, Δn::Integer) =
-    error("`IterationControl.fit!(model, ::Int)` not overloaded "*
+train!(model, Δn) =
+    error("`IterationControl.train!(model, ::Int)` not overloaded "*
           "for `typeof(model) = $(typeof(model))`. ")
 
 
