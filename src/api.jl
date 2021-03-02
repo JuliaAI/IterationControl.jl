@@ -9,7 +9,7 @@
 
 # train `model` for another `Δn` iterations:
 train!(model, Δn::Integer) =
-    error("`IterationControl.fit!(model, ::Int)` not overloaded "*
+    error("`IterationControl.train!(model, ::Int)` not overloaded "*
           "for `typeof(model) = $(typeof(model))`. ")
 
 

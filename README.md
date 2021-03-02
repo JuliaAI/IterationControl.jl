@@ -42,13 +42,13 @@ julia> model.root
 ```
 
 Then we can replace the integer argument `n` in `train!(model, n)`
-with any number of more sophisticated *controls* by "lifting" the
-method `train!` to the `IterationControl.train!` method defined in
-this package:
+with a number of more sophisticated *controls* by "lifting" the method
+`train!` to the `IterationControl.train!` method defined in this
+package:
 
 ```julia
 using IterativeControl
-IterationControl.train!(model::SquareRooter, n) =  train!(model, n)
+IterationControl.train!(model::SquareRooter, n) =  train!(model, n) # lifting
 ```
 The lifted `train!` has the same functionality as the original one:
 
