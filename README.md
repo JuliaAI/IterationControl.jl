@@ -193,7 +193,7 @@ Here's how `IterationControl.train!` calls these methods:
 ```julia
 function train!(model, controls...; verbosity::Int=1)
 
-    control = CompositeControl(controls...)
+    control = composite(controls...)
 
     # before training:
     verbosity > 1 && @info "Using these controls: $(flat(control)). "
