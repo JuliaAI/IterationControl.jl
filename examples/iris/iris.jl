@@ -39,7 +39,7 @@ Booster = MLJ.@load EvoTreeClassifier verbosity=0
 # these bind the model to train/test data and, in the case of
 # iterative models, can be trained using a warm-restart.
 
-# Binding data and hyper
+# Creating a machine:
 
 mach = MLJ.machine(Booster(nrounds=1), X, y);
 
