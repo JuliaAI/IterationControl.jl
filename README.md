@@ -72,7 +72,8 @@ julia> IterationControl.train!(model, Train(2), NumberLimit(3), Info(m->m.root))
 If `model` admits a method returning a loss (for example, the
 difference between `x` and the square of `root`), then we can lift
 that method to `IterationControl.loss` to enable control using
-loss-based stopping criteria, such as a threshold.
+loss-based stopping criteria, such as a loss threshold. In the
+demonstation below, we also include a callback:
 
 ```julia
 model = SquareRooter(4)
@@ -116,25 +117,26 @@ above.
 
 ## Controls provided
 
-Controls are repetitively applied in sequence until a control triggers
+Controls are repeatedly applied in sequence until a control triggers
 a stop. The first control in a sequence is generally
 `Train(...)`. Each control type has a detailed doc-string. Here is
 short summary, with some advanced options omitted:
 
-control                 | description                                                               | notation in Prechelt
-------------------------|---------------------------------------------------------------------------|---------------------
-`Train(n=1)`            | Train model for `n` iterations                                            |
-`Info(f=identity)`      | Log to `Info` the value of `f(model)`                                     |
-`Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds  |
-`Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |
-`Callback(f=_->nothing)`| Call `f(model)`                                                           |
-`NotANumber()`          | Stop when `NaN` encountered                                               |
-`TimeLimit(t=0.5)`      | Stop after `t` hours                                                      |
-`NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                     |
-`Threshold(value=0.0)`  | Stop when `loss < value`                                                  |
-`GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                          | ``GL_α``
-`PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                         | ``PQ_α``
-`Patience(n=5)`         | Stop after `n` consecutive loss increases                                 | ``UP_s``
+control                 | description                                                                             | enabled if these are overloaded   | notation in Prechelt
+------------------------|-----------------------------------------------------------------------------------------|-----------------------------------|----------------------
+`Train(n=1)`            | Train model for `n` iterations                                                          |`train!`                           |
+`Info(f=identity)`      | Log to `Info` the value of `f(model)`                                                   |`train!`                           |
+`Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds                |`train!`                           |
+`Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |`train!`                           |
+`Callback(f=_->nothing)`| Call `f(model)`                                                                         |`train!`                           |
+`TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           |
+`NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                                   |`train!`                           |
+`NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   |
+`Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   |
+`GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                                        |`train!`, `loss`                   | ``GL_α``
+`Patience(n=5)`         | Stop after `n` consecutive loss increases                                               |`train!`, `loss`                   | ``UP_s``
+`PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                                       |`train!`, `loss`, `training_losses`| ``PQ_α``
+
 
 > Table 1. Atomic controls
 
