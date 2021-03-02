@@ -125,6 +125,12 @@ this [tree boosting example](/examples/iris/) shows. An extension of
 the interface to handle online learning is planned.
 
 
+## Verbose logging
+
+The `IterationControl.train!` method can be given the keyword argument
+`verbosity=...`, defaulting to `1`. The larger `verbosity`, the noisier.
+
+
 ## Controls provided
 
 Controls are repeatedly applied in sequence until a control triggers
@@ -161,15 +167,9 @@ wrapper                                            | description
 > Table 2. Wrapped controls
 
 
-## Verbose logging
-
-The `IterationControl.train!` method can be given the keyword argument
-`verbosity=...`, defaulting to `1`. The larger `verbosity`, the noisier.
-
-
 ## Access to model through a wrapper
 
-Note that predicates ordinarily applied to `model` by some control
+Note that functions ordinarily applied to `model` by some control
 (e.g., a `Callback`) will instead be applied to
 `IterationControl.expose(model)` if `IterationControl.expose` is
 appropriately overloaded.
