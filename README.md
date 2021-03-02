@@ -86,7 +86,10 @@ IterationControl.loss(model) = loss(model) # lifting
 losses = Float64[]
 callback(model) = push!(losses, loss(model))
 
-julia> IterationControl.train!(model, Train(1), Threshold(0.0001), Callback(callback));
+julia> IterationControl.train!(model, 
+                               Train(1), 
+                               Threshold(0.0001), 
+                               Callback(callback));
 [ Info: Early stop triggered by Threshold(0.0001) stopping criterion.
 
 julia> losses
@@ -98,8 +101,9 @@ julia> losses
 If training `model` generates user-inspectable "training losses" (one
 per iteration) then lifting the appropriate access function to
 `IterationControl.training_losses` enables Prechelt's
-progress-modified generalization loss stopping criterion, `PQ`, the
-only criterion from the
+progress-modified generalization loss stopping criterion, `PQ`. 
+
+`PQ` is the only criterion from the
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) package
 not otherwise enabled when `IterationControl.loss` is overloaded as
 above.
