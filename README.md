@@ -4,10 +4,10 @@
 | :-----------: | :------: |
 | [![Build status](https://github.com/ablaom/IterationControl.jl/workflows/CI/badge.svg)](https://github.com/ablaom/IterationControl.jl/actions)| [![codecov.io](http://codecov.io/github/ablaom/IterationControl.jl/coverage.svg?branch=master)](http://codecov.io/github/ablaom/IterationControl.jl?branch=master) |
 
-Not registered and still experimental.
-Well tested with complete doc-strings.
-
 A package for controlling iterative algorithms.
+
+Not registered and still experimental.
+But well tested, with complete doc-strings.
 
 To do: Add data interface point.
 
@@ -63,7 +63,6 @@ But now we can also do this:
 
 ```julia
 julia> IterationControl.train!(model, Train(2), NumberLimit(3), Info(m->m.root));
-julia> IterationControl.train!(model, Train(2), NumberLimit(3), Info(m->m.root));
 [ Info: 3.4
 [ Info: 3.00009155413138
 [ Info: 3.0
@@ -73,7 +72,7 @@ julia> IterationControl.train!(model, Train(2), NumberLimit(3), Info(m->m.root))
 If `model` admits a method returning a loss (for example, the
 difference between `x` and the square of `root`), then we can lift
 that method to `IterationControl.loss` to enable control using
-loss-based stopping criteria, such as a threshold:
+loss-based stopping criteria, such as a threshold.
 
 ```julia
 model = SquareRooter(4)
@@ -84,43 +83,46 @@ julia> loss(model)
 
 IterationControl.loss(model) = loss(model) # lifting
 
-julia> IterationControl.train!(model, Train(1), Threshold(0.0001), Info(loss));
-julia> IterationControl.train!(model, Train(1), Threshold(0.0001), Info(loss));
-[ Info: 0.20249999999999968
-[ Info: 0.002439396192741583
-[ Info: 3.716891878724482e-7
+losses = Float64[]
+callback(model) = push!(losses, loss(model))
+
+julia> IterationControl.train!(model, Train(1), Threshold(0.0001), Callback(callback));
 [ Info: Early stop triggered by Threshold(0.0001) stopping criterion.
+
+julia> losses
+2-element Array{Float64,1}:
+ 0.002439396192741583
+ 3.716891878724482e-7
 ```
 
 If training `model` generates user-inspectable "training losses" (one
-per iteration), then lifting the appropriate access function to
+per iteration) then lifting the appropriate access function to
 `IterationControl.training_losses` enables Prechelt's
 progress-modified generalization loss stopping criterion, `PQ`, the
 only criterion from the
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) package
-not otherwise enabled (with a regular loss method lifted to
-`IterationControl.loss`).
+not otherwise enabled when `IterationControl.loss` is overloaded as
+above.
 
 *Reference.* [Prechelt, Lutz
  (1998)](https://link.springer.com/chapter/10.1007%2F3-540-49430-8_3):
  "Early Stopping - But When?", in *Neural Networks: Tricks of the
  Trade*, ed. G. Orr, Springer.
 
-     
+
 ## Controls provided
 
-Controls are repetitively applied until a stopping criterion is
-triggered. The first control in a call
-`IterativeControl.train!(models, controls...)` is ordinarily of type
-`Train`. Each control type has a detailed doc-string. Here is short
-summary (some advanced options not included):
+Controls are repetitively applied in sequence until a control triggers
+a stop. The first control in a sequence is generally
+`Train(...)`. Each control type has a detailed doc-string. Here is
+short summary, with some advanced options omitted:
 
 control                 | description                                                               | notation in Prechelt
 ------------------------|---------------------------------------------------------------------------|---------------------
 `Train(n=1)`            | Train model for `n` iterations                                            |
 `Info(f=identity)`      | Log to `Info` the value of `f(model)`                                     |
 `Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds  |
-`Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and stop |
+`Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |
 `Callback(f=_->nothing)`| Call `f(model)`
 `Never()`               | Never stop                                                                |
 `NotANumber()`          | Stop when `NaN` encountered                                               |
@@ -130,13 +132,68 @@ control                 | description                                           
 `GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                          | ``GL_α``
 `PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                         | ``PQ_α``
 `Patience(n=5)`         | Stop after `n` consecutive loss increases                                 | ``UP_s``
-   
+
 > Table 1. Atomic controls
 
-There are also three methods to modify a control's behavior:
+There are also three wrapping methods to modify a control's behavior:
 
 wrapper                                            | description
 ---------------------------------------------------|-------------------------------------------------------------------------
 `IterationControl.skip(control, predicate=1)`      | Apply `control` every `predicate` applications of the control wrapper (can also be a function; see doc-string)
 `IterationControl.debug(control)`                  | Apply `control` but also log its state to `Info` (at any `verbosity` level)
-`IterationControl.composite(controls...)`          | Apply each `control` in `controls` in sequence
+`IterationControl.composite(controls...)`          | Apply each `control` in `controls` in sequence; mostly for under-the-hood use
+
+> Table 2. Wrapped controls
+
+
+## Verbose logging
+
+The `IterationControl.train!` method can be given the keyword argument
+`verbosity=...`, defaulting to `1`. The larger `verbosity`, the noisier.
+
+
+## Access to model through a wrapper
+
+Note that predicates ordinarily applied to `model` by some control
+(e.g., a `Callback`) will instead be applied to
+`IterationControl.expose(model)` if `IterationControl.expose` is
+appropriately overloaded.
+
+
+## Implementing new controls
+
+There is no abstract control type; any object can be a
+control. Behaviour is implemented using a functional style interface
+with four methods. Only the first two are compulsory:
+
+```julia
+update!(control, model, verbosity) -> state  # initialization
+update!(control, model, verbosity, state) -> state
+done(control, state)::Bool
+takedown(control, verbosity, state) -> human_readable_named_tuple
+```
+
+Here's how `IterationControl.train!` calls these methods:
+
+```julia
+function train!(model, controls...; verbosity::Int=1)
+
+    control = CompositeControl(controls...)
+
+    # before training:
+    verbosity > 1 && @info "Using these controls: $(flat(control)). "
+
+    # first training event:
+    state = update!(control, model, verbosity - 1)
+    finished = done(control, state)
+
+    # subsequent training events:
+    while !finished
+        state = update!(control, model, verbosity - 1, state)
+        finished = done(control, state)
+    end
+
+    # finalization:
+    return takedown(control, verbosity, state)
+end
+```
