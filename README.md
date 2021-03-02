@@ -117,7 +117,7 @@ above.
 
 ## Controls provided
 
-Controls are repetitively applied in sequence until a control triggers
+Controls are repeatedly applied in sequence until a control triggers
 a stop. The first control in a sequence is generally
 `Train(...)`. Each control type has a detailed doc-string. Here is
 short summary, with some advanced options omitted:
