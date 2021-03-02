@@ -128,7 +128,7 @@ control                 | description                                           
 `Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds  |
 `Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |
 `Callback(f=_->nothing)`| Call `f(model)`
-`Never()`               | Never stop                                                                |
+
 `NotANumber()`          | Stop when `NaN` encountered                                               |
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                      |
 `NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                     |
