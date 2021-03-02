@@ -7,9 +7,8 @@
 A package for controlling iterative algorithms.
 
 Not registered and still experimental.
-But well tested, with complete doc-strings.
 
-To do: Add data interface point.
+To do: Add interface point for online learning
 
 
 ## Installation
@@ -69,6 +68,12 @@ julia> IterationControl.train!(model, Train(2), NumberLimit(3), Info(m->m.root))
 [ Info: Early stop triggered by NumberLimit(3) stopping criterion.
 ```
 
+Here each control is repeatedly applied until one of them triggers a
+stop. The first control `Train(2)` says "train the model two more
+iterations"; the second says "stop after 3 repetitions" (of the
+sequence of control applications); and the third, "log the value of
+the root to `Info`".
+
 If `model` admits a method returning a loss (for example, the
 difference between `x` and the square of `root`), then we can lift
 that method to `IterationControl.loss` to enable control using
@@ -87,9 +92,9 @@ IterationControl.loss(model::SquareRooter) = loss(model) # lifting
 losses = Float64[]
 callback(model) = push!(losses, loss(model))
 
-julia> IterationControl.train!(model, 
-                               Train(1), 
-                               Threshold(0.0001), 
+julia> IterationControl.train!(model,
+                               Train(1),
+                               Threshold(0.0001),
                                Callback(callback));
 [ Info: Early stop triggered by Threshold(0.0001) stopping criterion.
 
@@ -113,6 +118,11 @@ above.
  (1998)](https://link.springer.com/chapter/10.1007%2F3-540-49430-8_3):
  "Early Stopping - But When?", in *Neural Networks: Tricks of the
  Trade*, ed. G. Orr, Springer.
+
+The interface just described is sufficient for controlling
+conventional machine learning models with an iteration parameter, as
+this [tree boosting example](/examples/iris/) shows. An extension of
+the interface to handle online learning is planned.
 
 
 ## Controls provided
