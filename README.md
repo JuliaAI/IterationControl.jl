@@ -139,7 +139,7 @@ control                 | description                                           
 
 > Table 1. Atomic controls
 
-There are also three wrapping methods to modify a control's behavior:
+There are also three control wrappers to modify a control's behavior:
 
 wrapper                                            | description
 ---------------------------------------------------|-------------------------------------------------------------------------
