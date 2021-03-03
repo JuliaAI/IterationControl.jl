@@ -20,8 +20,9 @@ Pkg.add("IterativeControl")
 
 ## Basic idea
 
-Suppose you have some kind of object `SquareRooter(x)` for
-iteratively computing approximations to the square roots of `x`:
+Suppose you have [some kind of object](/examples/square_rooter.jl)
+`SquareRooter(x)` for iteratively computing approximations to the
+square roots of `x`:
 
 ```julia
 model = SquareRooter(9)
@@ -121,8 +122,8 @@ above.
 
 The interface just described is sufficient for controlling
 conventional machine learning models with an iteration parameter, as
-this [tree boosting example](/examples/iris/) ([![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ablaom/IterationControl.jl/master?filepath=https%3A%2F%2Fgithub.com%2Fablaom%2FIterationControl.jl%2Fblob%2Fdev%2Fexamples%2Firis%2Firis.ipynb)) shows. An extension of the interface to handle online learning is
-planned.
+this [tree boosting example](/examples/iris/) shows. An extension of
+the interface to handle online learning is planned.
 
 
 ## Verbose logging
