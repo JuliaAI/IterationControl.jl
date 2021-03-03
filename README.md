@@ -179,7 +179,9 @@ appropriately overloaded.
 
 There is no abstract control type; any object can be a
 control. Behaviour is implemented using a functional style interface
-with four methods. Only the first two are compulsory:
+with four methods. Only the first two are compulsory (the `done` and
+`takedown` fallbacks always return `false` and `NamedTuple()`
+respectively.):
 
 ```julia
 update!(control, model, verbosity) -> state  # initialization
