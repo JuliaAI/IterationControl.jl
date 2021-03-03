@@ -15,7 +15,7 @@ To do: Add interface point for online learning
 
 ```julia
 using Pkg
-Pkg.add("IterativeControl")
+Pkg.add("IterationControl")
 ```
 
 ## Basic idea
@@ -47,7 +47,7 @@ with a number of more sophisticated *controls* by "lifting" the method
 package:
 
 ```julia
-using IterativeControl
+using IterationControl
 IterationControl.train!(model::SquareRooter, n) =  train!(model, n) # lifting
 ```
 The lifted `train!` has the same functionality as the original one:
