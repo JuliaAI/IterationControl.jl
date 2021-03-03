@@ -24,9 +24,6 @@ using Statistics
 using Random
 Random.seed!(123)
 
-using Plots
-pyplot(size=(600, 300*(sqrt(5)-1)));
-
 MLJ.color_off()
 ```
 
@@ -100,7 +97,7 @@ IterationControl.train!(mach,
 ```
 
 ```
-((Train(5), NamedTuple()), (GL(2.0), (done = true, log = "Early stop triggered by GL(2.0) stopping criterion. ")), (Info{typeof(Main.##259.logging)}(Main.##259.logging), NamedTuple()))
+((Train(5), NamedTuple()), (GL(2.0), (done = true, log = "Early stop triggered by GL(2.0) stopping criterion. ")), (Info{typeof(Main.##261.logging)}(Main.##261.logging), NamedTuple()))
 ```
 
 Continuing iteration with a different stopping criterion:
@@ -113,7 +110,7 @@ IterationControl.train!(mach,
 ```
 
 ```
-((Train(5), NamedTuple()), (NumberLimit(10), (done = true, log = "Early stop triggered by NumberLimit(10) stopping criterion. ")), (Info{typeof(Main.##259.logging)}(Main.##259.logging), NamedTuple()))
+((Train(5), NamedTuple()), (NumberLimit(10), (done = true, log = "Early stop triggered by NumberLimit(10) stopping criterion. ")), (Info{typeof(Main.##261.logging)}(Main.##261.logging), NamedTuple()))
 ```
 
 ---

@@ -19,9 +19,6 @@ using Statistics
 using Random
 Random.seed!(123)
 
-using Plots
-pyplot(size=(600, 300*(sqrt(5)-1)));
-
 MLJ.color_off()
 
 # Loading some data and splitting observation indices into test/train:
