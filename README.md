@@ -1,4 +1,4 @@
-# IterationControl.jl
+IterationControl.jl
 
 | Linux | Coverage |
 | :-----------: | :------: |
@@ -121,8 +121,10 @@ above.
 
 The interface just described is sufficient for controlling
 conventional machine learning models with an iteration parameter, as
-this [tree boosting example](/examples/iris/) shows. An extension of
-the interface to handle online learning is planned.
+this [tree boosting example](/examples/iris/) ([binder
+notebook](https://mybinder.org/v2/gh/ablaom/IterationControl.jl/master?filepath=https%3A%2F%2Fgithub.com%2Fablaom%2FIterationControl.jl%2Fblob%2Fdev%2Fexamples%2Firis%2Firis.ipynb))
+shows. An extension of the interface to handle online learning is
+planned.
 
 
 ## Verbose logging
