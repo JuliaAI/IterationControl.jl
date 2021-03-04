@@ -125,8 +125,7 @@ above.
 
 The interface just described is sufficient for controlling
 conventional machine learning models with an iteration parameter, as
-this [tree boosting example](/examples/tree_booster/) shows. An extension of
-the interface to handle online learning is planned.
+this [tree boosting example](/examples/tree_booster/) shows.
 
 
 ## Online and incremental training
