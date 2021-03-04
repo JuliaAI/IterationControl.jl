@@ -3,11 +3,7 @@
 function detailed_doc_string(M; header="", example="", body="")
     ret = "    $header"
     ret *= "\n\n"
-    ret *= "A control strategy for use with the `IteratedModel` "*
-        "wrapper, as in\n\n"*
-    "    IteratedModel(model=NeuralNetworkRegressor(),\n"*
-    "                  control=$example,\n"*
-    "                  resampling=Holdout(fraction_train=0.7))"
+    ret *= "An iteration control, as in `$example`. "
     ret *= "\n\n"
     ret *= body
     return ret

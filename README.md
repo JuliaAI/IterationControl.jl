@@ -154,7 +154,7 @@ summary, with some advanced options omitted:
 
 control                 | description                                                                             | enabled if these are overloaded   | notation in Prechelt
 ------------------------|-----------------------------------------------------------------------------------------|-----------------------------------|----------------------
-`Step(n=1)`            | Step model for `n` iterations                                                          |`train!`                           |
+`Step(n=1)`            | Train model for `n` iterations                                                          |`train!`                           |
 `Info(f=identity)`      | Log to `Info` the value of `f(model)`                                                   |`train!`                           |
 `Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds                |`train!`                           |
 `Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |`train!`                           |
