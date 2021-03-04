@@ -147,7 +147,7 @@ end
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
         (done = true,
-         log="Stopping early stop triggered by a `Callback` control. ")
+         log="Early stop triggered by a `Callback` control. ")
 
     v = Float64[]
     f(model) = (push!(v, IC.loss(model)); last(v) < 0.02)
@@ -216,7 +216,8 @@ end
                        Threshold(0.01),
                        TimeLimit(0.0005),
                        Info(loss),
-                       Callback(callback!))
+                       Callback(callback!);
+                       verbosity=-1)
     @test !report[1][2].done
     @test report[3][2].done
     @test loss(model) < 0.01
@@ -229,7 +230,8 @@ end
                        Threshold(0.01),
                        TimeLimit(0.0005),
                        Info(loss),
-                       Callback(callback!))
+                       Callback(callback!),
+                       verbosity=-1)
     @test length(losses) == length(data) + 1
     @test loss(model) > 0.01
 end

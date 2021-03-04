@@ -169,7 +169,7 @@ done(c::Callback, state) = state.done
 function takedown(c::Callback, verbosity, state)
     if state.done
         message = c.stop_message === nothing ?
-            "Stopping early stop triggered by a `Callback` control. " :
+            "Early stop triggered by a `Callback` control. " :
             c.stop_message
         verbosity > 0 && @info message
         return (done = true, log = message)
