@@ -11,11 +11,11 @@ end
 
 # this test must happen before test of controls.jl:
 @testset "api" begin
-    include("api.jl")
+     include("api.jl")
 end
 
 @testset "controls" begin
-    include("controls.jl")
+#    include("controls.jl")
 end
 
 @testset "stopping_controls" begin

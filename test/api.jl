@@ -10,9 +10,9 @@ IC.train!(model::Particle, n) = train!(model, n)
              IC.train!(model, NotANumber(), NumberLimit(1)))
 
 # lifting loss!:
-IterationControl.loss(m::Particle) = abs(m.position)
+IterationControl.loss(m::Particle) = loss(m)
 
-IC.train!(model, NotANumber(), NumberLimit(1))
+IC.train!(model, NotANumber(), NumberLimit(1), verbosity=0)
 
 @test_throws(IC.err_training_losses(PQ(), model),
              IC.train!(model, PQ(), NumberLimit(1)))
@@ -20,7 +20,7 @@ IC.train!(model, NotANumber(), NumberLimit(1))
 # lifting training_losses:
 IterationControl.training_losses(m::Particle) = training_losses(m)
 
-IC.train!(model, Train(2), PQ(), NumberLimit(1))
+IC.train!(model, Train(2), PQ(), NumberLimit(1), verbosity=0)
 
 @test_throws(IC.err_ingest(model),
              IC.train!(model, Data(1:2), NumberLimit(1)))
@@ -28,4 +28,4 @@ IC.train!(model, Train(2), PQ(), NumberLimit(1))
 #lifting ingest!:
 IC.ingest!(model::Particle, datum) = ingest!(model, datum)
 
-IC.train!(model, Data(1:1), NumberLimit(1));
+IC.train!(model, Data(1:1), NumberLimit(1), verbosity=0);

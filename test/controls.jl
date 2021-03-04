@@ -204,15 +204,32 @@ end
     end
 end
 
-# @testset "Data integration" begin
-#     model = Particle(0.1)
-#     data = repeat([-1, 1], outer=4)
-#     losses = Float64[]
-#     callback!(model) = push!(losses, loss(model))
-#     IC.train!(model,
-#               Data(data),
-#               Train(5),
-#               Threshold(0.001),
-#               TimeLimit(0.005),
-#               Info(loss),
-#               Callback(callback!))
+@testset "integration test" begin
+    data = repeat([-1, 1], outer=5);
+
+    model = Particle(0.1)
+    losses = Float64[]
+    callback!(model) = push!(losses, model.position)
+    report = IC.train!(model,
+                       Data(data),
+                       Train(5),
+                       Threshold(0.01),
+                       TimeLimit(0.0005),
+                       Info(loss),
+                       Callback(callback!))
+    @test !report[1][2].done
+    @test report[3][2].done
+    @test loss(model) < 0.01
+
+    model = Particle(0.1)
+    losses = Float64[]
+    report = IC.train!(model,
+                       Data(data, stop_when_exhausted=true),
+                       Train(5),
+                       Threshold(0.01),
+                       TimeLimit(0.0005),
+                       Info(loss),
+                       Callback(callback!))
+    @test length(losses) == length(data) + 1
+    @test loss(model) > 0.01
+end

@@ -188,6 +188,10 @@ end
 Data(; data=(), stop_when_exhausted=false) = Data(data, stop_when_exhausted)
 Data(data; kwargs...) = Data(data=data; kwargs...)
 
+Base.show(io::IO, d::Data{S}) where S =
+    print(io, "Data{$S}(<omitted data>; "*
+          "stop_when_exhausted=$(d.stop_when_exhausted))")
+
 @create_docs(Data,
              header="Data(data; stop_when_exhausted=false)",
              example="Data(rand(100))",
