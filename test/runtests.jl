@@ -15,7 +15,7 @@ end
 end
 
 @testset "controls" begin
-#    include("controls.jl")
+    include("controls.jl")
 end
 
 @testset "stopping_controls" begin
