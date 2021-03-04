@@ -20,6 +20,7 @@ end
 include("utilities.jl")
 include("api.jl")
 include("controls.jl")
+include("stopping_controls.jl")
 include("composite_controls.jl")
 include("wrapped_controls.jl")
 include("train.jl")

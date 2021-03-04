@@ -13,6 +13,10 @@ end
     include("controls.jl")
 end
 
+@testset "stopping_controls" begin
+    include("stopping_controls.jl")
+end
+
 @testset "composite_controls" begin
     include("composite_controls.jl")
 end
