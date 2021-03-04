@@ -135,9 +135,7 @@ The `IterationControl.train!` method can be given the keyword argument
 ## Controls provided
 
 Controls are repeatedly applied in sequence until a control triggers a
-stop. The first control in a sequence is generally `Train(...)` or
-`skip(Train(...), ...)` (`skip` a wrapper described in Table 2
-below). Each control type has a detailed doc-string. Here is a short
+stop. Each control type has a detailed doc-string. Here is a short
 summary, with some advanced options omitted:
 
 control                 | description                                                                             | enabled if these are overloaded   | notation in Prechelt
@@ -149,6 +147,7 @@ control                 | description                                           
 `Callback(f=_->nothing)`| Call `f(model)`                                                                         |`train!`                           |
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           |
 `NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                                   |`train!`                           |
+`Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`                           |
 `NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   |
 `Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   |
 `GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                                        |`train!`, `loss`                   | ``GL_α``

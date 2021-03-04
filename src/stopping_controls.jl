@@ -8,13 +8,14 @@
 for f in [:loss, :training_losses]
     g = Symbol(string(:get_, f))
     e = Symbol(string(:err_, f))
+    t = Symbol(string(:needs_, f))
     eval(quote
          $e(c, model) =
              ArgumentError("Use of `$c` control here requires that "*
                            "`IterationControl.loss(model)` be "*
                            "overloaded for `typeof(model)=$(typeof(model))`. ")
 
-         $g(c, model) = $g(c, model, Val(ES.needs_loss(c)))
+         $g(c, model) = $g(c, model, Val(ES.$t(c)))
          $g(c, model, ::Val{false}) = nothing
          @inline function $g(c, model, ::Val{true})
              it = $f(model)
