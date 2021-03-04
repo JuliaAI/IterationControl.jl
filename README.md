@@ -8,10 +8,9 @@ A package for controlling iterative algorithms with a view to
 applications to training and optimization of machine learning models.
 
 Builds on
-[EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl). An alternative to 
-[LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl). 
-
-Not registered and still experimental.
+[EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl). Inspired
+by
+[LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl).
 
 
 ## Installation
@@ -159,7 +158,7 @@ control                 | description                                           
 `Info(f=identity)`      | Log to `Info` the value of `f(model)`                                                   |`train!`                           |
 `Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds                |`train!`                           |
 `Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |`train!`                           |
-`Callback(f=_->nothing)`| Call `f(model)`                                                                         |`train!`                           |
+`Callback(f=_->nothing, stop_if_true=false)`| Call `f(model)`                                                     |`train!`                           |
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           |
 `NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                                   |`train!`                           |
 `Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                |
