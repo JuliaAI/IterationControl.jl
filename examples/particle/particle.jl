@@ -1,4 +1,5 @@
-# # Using IterationControl.jl to control a particle tracker
+# Using IterationControl.jl to control a particle tracker
+
 
 using Pkg
 Pkg.activate(@__DIR__)
@@ -87,7 +88,7 @@ end
 
 IterationControl.train!(model,
                         Data(data),
-                        Train(5),
+                        Step(5),
                         Callback(callback!),
                         Threshold(0.01),
                         TimeLimit(0.005));
@@ -106,7 +107,7 @@ data = [-1,]
 
 IterationControl.train!(model,
                         Data(data),
-                        Train(5),
+                        Step(5),
                         Callback(callback!),
                         Threshold(0.01),
                         TimeLimit(0.005));
@@ -116,5 +117,5 @@ scatter!(particle_positions, label="particle", ms=6)
 
 
 using Literate #src
-Literate.markdown(@__FILE__, @__DIR__, execute=false) #src
+Literate.markdown(@__FILE__, @__DIR__, execute=true) #src
 Literate.notebook(@__FILE__, @__DIR__, execute=true) #src

@@ -20,7 +20,7 @@ IC.train!(model, NotANumber(), NumberLimit(1), verbosity=0)
 # lifting training_losses:
 IterationControl.training_losses(m::Particle) = training_losses(m)
 
-IC.train!(model, Train(2), PQ(), NumberLimit(1), verbosity=0)
+IC.train!(model, Step(2), PQ(), NumberLimit(1), verbosity=0)
 
 @test_throws(IC.err_ingest(model),
              IC.train!(model, Data(1:2), NumberLimit(1)))

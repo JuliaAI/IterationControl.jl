@@ -1,21 +1,21 @@
 # # TRAIN
 
-struct Train
+struct Step
     n::Int
 end
 
 # constructor:
-Train(; n=5) = Train(n)
+Step(; n=5) = Step(n)
 
-@create_docs(Train,
-             header="Train(; n=1)",
-             example="Train(2)",
-             body="Train the model for `n` iterations. "*
+@create_docs(Step,
+             header="Step(; n=1)",
+             example="Step(2)",
+             body="Step the model for `n` iterations. "*
              "Will never trigger a stop. ")
 
-function update!(c::Train, model, verbosity, args...)
+function update!(c::Step, model, verbosity, args...)
     if verbosity > 0
-        @info "Training model for $(c.n) iterations. "
+        @info "Steping model for $(c.n) iterations. "
     else
         nothing
     end

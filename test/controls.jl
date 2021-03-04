@@ -1,10 +1,10 @@
-@testset "Train" begin
+@testset "Step" begin
     m = SquareRooter(4)
     IC.train!(m, 10)
     all_training_losses = m.training_losses
 
     m = SquareRooter(4)
-    c = Train(n=2)
+    c = Step(n=2)
     state = IC.update!(c, m, 0)
     @test state === nothing
     @test m.training_losses == all_training_losses[1:2]
@@ -212,7 +212,7 @@ end
     callback!(model) = push!(losses, model.position)
     report = IC.train!(model,
                        Data(data),
-                       Train(5),
+                       Step(5),
                        Threshold(0.01),
                        TimeLimit(0.0005),
                        Info(loss),
@@ -226,7 +226,7 @@ end
     losses = Float64[]
     report = IC.train!(model,
                        Data(data, stop_when_exhausted=true),
-                       Train(5),
+                       Step(5),
                        Threshold(0.01),
                        TimeLimit(0.0005),
                        Info(loss),

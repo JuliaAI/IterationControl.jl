@@ -64,7 +64,7 @@ julia> model.root
 But now we can also do this:
 
 ```julia
-julia> IterationControl.train!(model, Train(2), NumberLimit(3), Info(m->m.root));
+julia> IterationControl.train!(model, Step(2), NumberLimit(3), Info(m->m.root));
 [ Info: 3.4
 [ Info: 3.00009155413138
 [ Info: 3.0
@@ -72,10 +72,10 @@ julia> IterationControl.train!(model, Train(2), NumberLimit(3), Info(m->m.root))
 ```
 
 Here each control is repeatedly applied until one of them triggers a
-stop. The first control `Train(2)` says "train the model two more
+stop. The first control `Step(2)` says "train the model two more
 iterations"; the second says "stop after 3 repetitions" (of the
 sequence of control applications); and the third, "log the value of
-the root to `Info`".
+the function `m -> m.root`, evaluated on `model`, to `Info`".
 
 If `model` admits a method returning a loss (for example, the
 difference between `x` and the square of `root`), then we can lift
@@ -96,7 +96,7 @@ losses = Float64[]
 callback(model) = push!(losses, loss(model))
 
 julia> IterationControl.train!(model,
-                               Train(1),
+                               Step(1),
                                Threshold(0.0001),
                                Callback(callback));
 [ Info: Early stop triggered by Threshold(0.0001) stopping criterion.
@@ -154,7 +154,7 @@ summary, with some advanced options omitted:
 
 control                 | description                                                                             | enabled if these are overloaded   | notation in Prechelt
 ------------------------|-----------------------------------------------------------------------------------------|-----------------------------------|----------------------
-`Train(n=1)`            | Train model for `n` iterations                                                          |`train!`                           |
+`Step(n=1)`            | Step model for `n` iterations                                                          |`train!`                           |
 `Info(f=identity)`      | Log to `Info` the value of `f(model)`                                                   |`train!`                           |
 `Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds                |`train!`                           |
 `Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |`train!`                           |

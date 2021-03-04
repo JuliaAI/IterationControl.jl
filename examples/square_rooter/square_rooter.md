@@ -73,12 +73,12 @@ model.root
 But now we can also do this:
 
 ```@example square_rooter
-IterationControl.train!(model, Train(2), NumberLimit(3), Info(m->m.root));
+IterationControl.train!(model, Step(2), NumberLimit(3), Info(m->m.root));
 nothing #hide
 ```
 
 Here each control is repeatedly applied until one of them triggers a
-stop. The first control `Train(2)` says "train the model two more
+stop. The first control `Step(2)` says "train the model two more
 iterations"; the second says "stop after 3 repetitions" (of the
 sequence of control applications); and the third, "log the value of
 the root to `Info`".
@@ -102,7 +102,7 @@ losses = Float64[]
 callback(model) = push!(losses, loss(model))
 
 IterationControl.train!(model,
-                        Train(1),
+                        Step(1),
                         Threshold(0.0001),
                         Callback(callback));
 nothing #hide
