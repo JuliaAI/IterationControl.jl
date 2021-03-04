@@ -139,7 +139,7 @@ the `Data` control becomes passive after `data` is exhausted. Do
 `?Data` for details.
 
 A simple particle tracking example is given
-[here](/example/particle/).
+[here](/examples/particle/).
 
 
 ## Verbose logging
