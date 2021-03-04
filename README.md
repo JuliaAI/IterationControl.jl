@@ -122,8 +122,17 @@ above.
 
 The interface just described is sufficient for controlling
 conventional machine learning models with an iteration parameter, as
-this [tree boosting example](/examples/iris/) shows. An extension of
+this [tree boosting example](/examples/tree_booster/) shows. An extension of
 the interface to handle online learning is planned.
+
+
+## Online and incremental training
+
+For online or incremental training, lift the method for ingesting data
+into the model to `IterationControl.ingest!(model, datum)` and use the
+control `Data(data)`, where `data` is any iterator over the `datum`
+items to be ingested (one per application of the control). Any simple
+particle tracking example is given [here](/example/particle/).
 
 
 ## Verbose logging
