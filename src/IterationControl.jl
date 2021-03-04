@@ -8,7 +8,7 @@ using EarlyStopping
 const ES = EarlyStopping
 
 # controls:
-export Train, Info, Warn, Error, Callback
+export Train, Info, Warn, Error, Callback, Data
 
 
 # re-export stopping criterion from EarlyStopping.jl:
@@ -20,6 +20,7 @@ end
 include("utilities.jl")
 include("api.jl")
 include("controls.jl")
+include("stopping_controls.jl")
 include("composite_controls.jl")
 include("wrapped_controls.jl")
 include("train.jl")

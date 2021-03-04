@@ -47,7 +47,7 @@ model.root
 # package:
 
 using IterationControl
-IterationControl.train!(model::SquareRooter, n) =  train!(model, n) # lifting
+IterationControl.train!(model::SquareRooter, n) =  train!(model, n)
 
 # The lifted `train!` has the same functionality as the original one:
 
@@ -78,15 +78,15 @@ loss(model)
 
 #-
 
-IterationControl.loss(model::SquareRooter) = loss(model) # lifting
+IterationControl.loss(model::SquareRooter) = loss(model)
 
 losses = Float64[]
 callback(model) = push!(losses, loss(model))
 
 IterationControl.train!(model,
-                               Train(1),
-                               Threshold(0.0001),
-                               Callback(callback));
+                        Train(1),
+                        Threshold(0.0001),
+                        Callback(callback));
 #-
 
 losses
@@ -109,9 +109,9 @@ losses
 # The interface just described is sufficient for controlling
 # conventional machine learning models with an iteration parameter, as
 # this [tree boosting
-# example](https://github.com/ablaom/IterationControl.jl/tree/master/examples/iris)
+# example](https://github.com/ablaom/IterationControl.jl/tree/master/examples/tree_booster)
 # shows.
 
 using Literate #src
-Literate.markdown(@__FILE__, @__DIR__, execute=true) #src
+Literate.markdown(@__FILE__, @__DIR__) #src
 Literate.notebook(@__FILE__, @__DIR__, execute=true) #src

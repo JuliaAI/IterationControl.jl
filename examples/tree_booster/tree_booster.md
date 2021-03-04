@@ -1,3 +1,7 @@
+```@meta
+EditURL = "<unknown>/../examples/tree_booster/tree_booster.jl"
+```
+
 # Using IterativeControl to train a tree-booster on the iris data set
 
 In this demonstration we show how to the controls in
@@ -8,7 +12,7 @@ our bare hands. (MLJ will ultimately provide its own canned
 `IteratedModel` wrapper to make this more convenient and
 compositional.)
 
-```julia
+```@example tree_booster
 using Pkg
 Pkg.activate(@__DIR__)
 Pkg.instantiate()
@@ -23,29 +27,17 @@ Random.seed!(123)
 MLJ.color_off()
 ```
 
-```
-false
-```
-
 Loading some data and splitting observation indices into test/train:
 
-```julia
+```@example tree_booster
 X, y = MLJ.@load_iris;
 train, test = MLJ.partition(eachindex(y), 0.7, shuffle=true)
 ```
 
-```
-([125, 100, 130, 9, 70, 148, 39, 64, 6, 107, 73, 50, 4, 126, 116, 131, 121, 48, 94, 143, 149, 68, 89, 128, 25, 10, 56, 16, 7, 49, 82, 120, 42, 33, 19, 62, 103, 43, 1, 35, 88, 76, 104, 123, 87, 67, 66, 22, 28, 17, 119, 77, 141, 60, 136, 95, 23, 105, 69, 51, 53, 115, 3, 32, 142, 63, 15, 150, 75, 111, 132, 127, 86, 81, 29, 2, 113, 99, 38, 20, 138, 54, 11, 31, 117, 58, 55, 145, 65, 133, 84, 93, 146, 45, 8, 134, 114, 52, 74, 44, 61, 83, 18, 122, 26], [97, 78, 30, 108, 101, 24, 85, 91, 135, 96, 124, 92, 71, 102, 129, 27, 36, 46, 118, 57, 12, 90, 137, 98, 14, 13, 80, 37, 40, 79, 34, 110, 59, 139, 21, 112, 144, 140, 72, 109, 41, 106, 147, 47, 5])
-```
-
 Import an model type:
 
-```julia
+```@example tree_booster
 Booster = MLJ.@load EvoTreeClassifier verbosity=0
-```
-
-```
-EvoTrees.EvoTreeClassifier
 ```
 
 Note that in MLJ a "model" is just a container for
@@ -56,14 +48,14 @@ iterative models, can be trained using a warm-restart.
 
 Creating a machine:
 
-```julia
+```@example tree_booster
 mach = MLJ.machine(Booster(nrounds=1), X, y);
 nothing #hide
 ```
 
 Lifting MLJ's `fit!(::Machine)` method to `IterativeControl.train!`:
 
-```julia
+```@example tree_booster
 function IterationControl.train!(mach::MLJ.Machine{<:Booster}, n::Int)
     mlj_model = mach.model
     mlj_model.nrounds = mlj_model.nrounds + n
@@ -73,7 +65,7 @@ end
 
 Lifting the out-of-sample loss:
 
-```julia
+```@example tree_booster
 function IterationControl.loss(mach::MLJ.Machine{<:Booster})
     mlj_model = mach.model
     yhat = MLJ.predict(mach, rows=test)
@@ -83,7 +75,7 @@ end
 
 Iterating with controls:
 
-```julia
+```@example tree_booster
 logging(mach) = "loss: $(IterationControl.loss(mach))"
 
 IterationControl.train!(mach,
@@ -92,21 +84,13 @@ IterationControl.train!(mach,
                         Info(logging))
 ```
 
-```
-((Train(5), NamedTuple()), (GL(2.0), (done = true, log = "Early stop triggered by GL(2.0) stopping criterion. ")), (Info{typeof(Main.##261.logging)}(Main.##261.logging), NamedTuple()))
-```
-
 Continuing iteration with a different stopping criterion:
 
-```julia
+```@example tree_booster
 IterationControl.train!(mach,
                         Train(5),
                         NumberLimit(10),
                         Info(logging))
-```
-
-```
-((Train(5), NamedTuple()), (NumberLimit(10), (done = true, log = "Early stop triggered by NumberLimit(10) stopping criterion. ")), (Info{typeof(Main.##261.logging)}(Main.##261.logging), NamedTuple()))
 ```
 
 ---
