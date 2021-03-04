@@ -73,5 +73,5 @@ IterationControl.train!(mach,
                         Info(logging))
 
 using Literate #src
-Literate.markdown(@__FILE__, @__DIR__, execute=true) #src
+Literate.markdown(@__FILE__, @__DIR__, execute=false) #src
 Literate.notebook(@__FILE__, @__DIR__, execute=true) #src
