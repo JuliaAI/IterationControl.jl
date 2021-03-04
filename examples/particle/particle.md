@@ -2,7 +2,7 @@
 EditURL = "<unknown>/../examples/particle/particle.jl"
 ```
 
-# Using IterationControl in a baby online learning example
+# Using IterationControl.jl to control a particle tracker
 
 ```@example particle
 using Pkg
@@ -18,7 +18,7 @@ using IterationControl
 Consider an object that tracks a particle in one dimension, moving
 in discrete time at a speed proportional to the distance away from
 some moving target. We are viewing this particle as a toy example of
-online learning and call the constant of proportionality `η` the
+online learning and call the constant of proportionality `η` as a
 *learning rate*.
 
 The particle is initially at rest at the origin, which is also where
@@ -26,7 +26,7 @@ the target begins.
 
 Calling `train!` on the particle moves it along for the specified
 number of time steps, while calling `ingest!` updates the target
-position (which models "online learning").
+position ("data ingestion").
 
 ```@example particle
 mutable struct Particle
@@ -60,7 +60,11 @@ function train!(model, n)
     end
     return nothing
 end
+```
 
+A method for updating the target:
+
+```@example particle
 function ingest!(model::Particle, target)
     model.target = target
     return nothing
@@ -107,7 +111,9 @@ IterationControl.train!(model,
 
 scatter(target_positions, label="target", ms=6)
 scatter!(particle_positions, label="particle", ms=6)
+```
 
+```@example particle
 loss(model)
 ```
 
