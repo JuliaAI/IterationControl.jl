@@ -125,8 +125,7 @@ above.
 
 The interface just described is sufficient for controlling
 conventional machine learning models with an iteration parameter, as
-this [tree boosting example](/examples/tree_booster/) shows. An extension of
-the interface to handle online learning is planned.
+this [tree boosting example](/examples/tree_booster/) shows.
 
 
 ## Online and incremental training
@@ -163,7 +162,7 @@ control                 | description                                           
 `Callback(f=_->nothing)`| Call `f(model)`                                                                         |`train!`                           |
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           |
 `NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                                   |`train!`                           |
-`Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`                           |
+`Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                |
 `NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   |
 `Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   |
 `GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                                        |`train!`, `loss`                   | ``GL_α``
