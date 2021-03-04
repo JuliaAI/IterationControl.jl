@@ -4,11 +4,14 @@ IterationControl.jl
 | :-----------: | :------: |
 | [![Build status](https://github.com/ablaom/IterationControl.jl/workflows/CI/badge.svg)](https://github.com/ablaom/IterationControl.jl/actions)| [![codecov.io](http://codecov.io/github/ablaom/IterationControl.jl/coverage.svg?branch=master)](http://codecov.io/github/ablaom/IterationControl.jl?branch=master) |
 
-A package for controlling iterative algorithms.
+A package for controlling iterative algorithms with a view to
+applications to training and optimization of machine learning models.
+
+Builds on
+[EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl). An alternative to 
+[LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl). 
 
 Not registered and still experimental.
-
-To do: Add interface point for online learning
 
 
 ## Installation
