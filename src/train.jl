@@ -1,4 +1,9 @@
+const ERR_TRAIN = ArgumentError("`IterationControl.train!` needs at "*
+    "least two arguments. ")
+
 function train!(model, controls...; verbosity::Int=1)
+
+    isempty(controls) && throw(ERR_TRAIN)
 
     control = CompositeControl(controls...)
 

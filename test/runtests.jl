@@ -3,7 +3,7 @@ using Test
 
 const IC = IterationControl
 
-include("_square_rooter.jl")
+include("_models_for_testing.jl")
 
 @testset "utilities" begin
     include("utilities.jl")
@@ -23,4 +23,8 @@ end
 
 @testset "train!" begin
     include("train.jl")
+end
+
+@testset "api" begin
+    include("api.jl")
 end

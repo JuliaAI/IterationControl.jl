@@ -15,7 +15,7 @@ To do: Add interface point for online learning
 
 ```julia
 using Pkg
-Pkg.add("IterativeControl")
+Pkg.add("IterationControl")
 ```
 
 ## Basic idea
@@ -47,7 +47,7 @@ with a number of more sophisticated *controls* by "lifting" the method
 package:
 
 ```julia
-using IterativeControl
+using IterationControl
 IterationControl.train!(model::SquareRooter, n) =  train!(model, n) # lifting
 ```
 The lifted `train!` has the same functionality as the original one:
@@ -134,10 +134,11 @@ The `IterationControl.train!` method can be given the keyword argument
 
 ## Controls provided
 
-Controls are repeatedly applied in sequence until a control triggers
-a stop. The first control in a sequence is generally
-`Train(...)`. Each control type has a detailed doc-string. Here is
-short summary, with some advanced options omitted:
+Controls are repeatedly applied in sequence until a control triggers a
+stop. The first control in a sequence is generally `Train(...)` or
+`skip(Train(...), ...)` (`skip` a wrapper described in Table 2
+below). Each control type has a detailed doc-string. Here is a short
+summary, with some advanced options omitted:
 
 control                 | description                                                                             | enabled if these are overloaded   | notation in Prechelt
 ------------------------|-----------------------------------------------------------------------------------------|-----------------------------------|----------------------

@@ -1,7 +1,3 @@
-```@meta
-EditURL = "<unknown>/iris.jl"
-```
-
 # Using IterativeControl to train a tree-booster on the iris data set
 
 In this demonstration we show how to the controls in

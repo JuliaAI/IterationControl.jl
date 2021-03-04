@@ -4,13 +4,15 @@
 # *models* are externally defined objects with certain functionality
 # that is exposed by overloading these methods:
 
+err_train(model) =
+    ArgumentError("`IterationControl.train!(model, ::Int)` "*
+                                    "not overloaded "*
+                                    "for `typeof(model) = $(typeof(model))`. ")
 
 # ## COMPULSORY
 
 # train `model` for another `Δn` iterations:
-train!(model, Δn) =
-    error("`IterationControl.train!(model, ::Int)` not overloaded "*
-          "for `typeof(model) = $(typeof(model))`. ")
+train!(model, Δn) = throw(err_train(model))
 
 
 # ## REQUIRED FOR SOME CONTROL
