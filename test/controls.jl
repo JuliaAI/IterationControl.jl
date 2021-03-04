@@ -1,42 +1,3 @@
-@testset "stopping criteria as controls" begin
-
-    # A stopping criterion than ignores training losses:
-
-    m = SquareRooter(4)
-    c = NumberLimit(2)
-
-    IC.train!(m, 3)
-    state = IC.update!(c, m, 0)
-    @test state == 1
-    @test !IC.done(c, state)
-    IC.train!(m, 3)
-    state = IC.update!(c, m, 0, state)
-    @test state == 2
-    @test IC.done(c, state)
-    report = @test_logs (:info, r"NumberLimit\(2\)") IC.takedown(c, 1, state)
-    @test report.done
-    @test report.log ==
-        "Early stop triggered by NumberLimit(2) stopping criterion. "
-
-    # A stopping criterion than uses training losses:
-
-    m = SquareRooter(4)
-    c = PQ()
-
-    IC.train!(m, 3)
-    state = IC.update!(c, m, 0)
-    @test state.training_losses == reverse(m.training_losses)
-    @test !IC.done(c, state)
-    IC.train!(m, 2)
-    state = IC.update!(c, m, 0, state)
-    @test state.training_losses == reverse(m.training_losses)
-    @test !IC.done(c, state)
-    report = IC.takedown(c, 1, state)
-    @test !report.done
-    @test report.log == ""
-
-end
-
 @testset "Train" begin
     m = SquareRooter(4)
     IC.train!(m, 10)
@@ -205,4 +166,70 @@ end
         (done = true,
          log="foo")
 
+end
+
+@testset "Data" begin
+    data = Float64[1.0, -0.9, 0]
+
+    for option in [true, false]
+        model = Particle(0.1)
+        c = Data(data, stop_when_exhausted=option)
+
+        state = IC.update!(c, model, 0)
+        IC.train!(model, 1)
+        @test loss(model) ≈ 0.9
+
+        state = IC.update!(c, model, 0, state)
+        IC.train!(model, 1)
+        @test loss(model) ≈ 0.9
+
+        state = IC.update!(c, model, 0, state)
+        IC.train!(model, 1)
+        @test loss(model) ≈ 0.0
+
+        @test !IC.done(c, state)
+
+        if option
+            state = IC.update!(c, model, 0, state)
+            @test IC.done(c, state)
+            report = @test_logs (:info, IC.DATA_STOP) IC.takedown(c, 1, state)
+            @test report == (done = true, log = IC.DATA_STOP)
+        else
+            state = @test_logs IC.update!(c, model, 0, state)
+            @test !IC.done(c, state)
+            report = IC.takedown(c, 1, state)
+            @test report == (done = false, log = "")
+        end
+
+    end
+end
+
+@testset "integration test" begin
+    data = repeat([-1, 1], outer=5);
+
+    model = Particle(0.1)
+    losses = Float64[]
+    callback!(model) = push!(losses, model.position)
+    report = IC.train!(model,
+                       Data(data),
+                       Train(5),
+                       Threshold(0.01),
+                       TimeLimit(0.0005),
+                       Info(loss),
+                       Callback(callback!))
+    @test !report[1][2].done
+    @test report[3][2].done
+    @test loss(model) < 0.01
+
+    model = Particle(0.1)
+    losses = Float64[]
+    report = IC.train!(model,
+                       Data(data, stop_when_exhausted=true),
+                       Train(5),
+                       Threshold(0.01),
+                       TimeLimit(0.0005),
+                       Info(loss),
+                       Callback(callback!))
+    @test length(losses) == length(data) + 1
+    @test loss(model) > 0.01
 end

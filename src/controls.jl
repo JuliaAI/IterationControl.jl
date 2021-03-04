@@ -1,78 +1,3 @@
-# # STOPPING CRIITERIA, AS CONTROLS
-
-# `StoppingCriterion`objects are defined in ES.jl
-
-
-# ## LOSS GETTERS
-
-for f in [:loss, :training_losses]
-    g = Symbol(string(:get_, f))
-    e = Symbol(string(:err_, f))
-    eval(quote
-         $e(c, model) =
-             ArgumentError("Use of `$c` control here requires that "*
-                           "`IterationControl.loss(model)` be "*
-                           "overloaded for `typeof(model)=$(typeof(model))`. ")
-
-         $g(c, model) = $g(c, model, Val(ES.needs_loss(c)))
-         $g(c, model, ::Val{false}) = nothing
-         @inline function $g(c, model, ::Val{true})
-             it = $f(model)
-             it isa Nothing && throw($e(c, model))
-             return it
-         end
-         end)
-end
-
-
-# ## API IMPLEMENTATION
-
-function update!(c::StoppingCriterion,
-                model,
-                verbosity)
-    _loss = get_loss(c, model)
-    _training_losses = get_training_losses(c, model)
-    if _training_losses === nothing || isempty(_training_losses)
-        state = ES.update(c, _loss)
-    else # first consume all training losses, then update! loss:
-        state = ES.update_training(c, first(_training_losses))
-        for tloss in _training_losses[2:end]
-            state = ES.update_training(c, tloss, state)
-        end
-        state = ES.update(c, _loss, state)
-    end
-    return state
-end
-
-# regular update!:
-function update!(c::StoppingCriterion,
-                model,
-                verbosity,
-                state)
-    _loss = get_loss(c, model)
-    _training_losses = get_training_losses(c, model)
-    if _training_losses === nothing || isempty(_training_losses)
-        state = ES.update(c, _loss, state)
-    else # first consume all training losses, then update! loss:
-        for tloss in _training_losses
-            state = ES.update_training(c, tloss, state)
-        end
-        state = ES.update(c, _loss, state)
-    end
-    return state
-end
-
-function takedown(c::StoppingCriterion, verbosity, state)
-    if done(c, state)
-        message =  ES.message(c, state)
-        verbosity > 0 && @info message
-        return (done = true, log = message)
-    else
-        return (done = false, log = "")
-    end
-end
-
-
 # # TRAIN
 
 struct Train
@@ -198,7 +123,7 @@ function update!(c::Error,
     if c.predicate(model)
         error = _log_eval(c.f, model)
         @error error
-        c.exception isa Nothing || throw(c.exception)
+        c.exception === nothing || throw(c.exception)
         state = (done = true, error=error)
     end
     return state
@@ -209,7 +134,7 @@ done(c::Error, state) = state.done
 takedown(c::Error, verbosity, state) = state
 
 
-# # Callback
+# # CALLBACK
 
 struct Callback{F<:Function}
     f::F
@@ -243,11 +168,85 @@ done(c::Callback, state) = state.done
 
 function takedown(c::Callback, verbosity, state)
     if state.done
-        message = c.stop_message isa Nothing ?
+        message = c.stop_message === nothing ?
             "Stopping early stop triggered by a `Callback` control. " :
             c.stop_message
         verbosity > 0 && @info message
         return (done = true, log = message)
+    else
+        return (done = false, log = "")
+    end
+end
+
+
+# # DATA
+
+struct Data{S}
+    data::S
+    stop_when_exhausted::Bool
+end
+Data(; data=(), stop_when_exhausted=false) = Data(data, stop_when_exhausted)
+Data(data; kwargs...) = Data(data=data; kwargs...)
+
+Base.show(io::IO, d::Data{S}) where S =
+    print(io, "Data{$S}(<omitted data>; "*
+          "stop_when_exhausted=$(d.stop_when_exhausted))")
+
+@create_docs(Data,
+             header="Data(data; stop_when_exhausted=false)",
+             example="Data(rand(100))",
+             body="In each application of this control a new `item` from the "*
+             "iterable, `data`, is retrieved (using `iterate`) and "*
+             "`IterationControl.ingest!(model, item)` is called.\n\n"*
+             "A control becomes passive once the `data` iterable is done. "*
+             "To trigger "*
+             "a stop *after one passive application of the control*, set "*
+             "`stop_when_exhausted=true`. ")
+
+const DATA_EXHAUSTED = "Data exhausted. "
+const DATA_STOP ="Stop triggered because data exhausted ."
+
+function update!(c::Data, model, verbosity)
+    iter = c.data
+    data_exhausted = true
+    next = iter_state = iterate(iter)
+    if next !== nothing
+        data_exhausted = false
+        item, iter_state = next
+    end
+    data_exhausted && verbosity > -1 && !c.stop_when_exhausted &&
+        @info DATA_EXHAUSTED
+    data_exhausted || ingest!(model, item)
+    done = data_exhausted && c.stop_when_exhausted
+    return (iter_state = iter_state, done = done)
+end
+
+function update!(c::Data, model, verbosity, state)
+    iter = c.data
+    iter_state = state.iter_state
+    data_exhausted = true
+    if iter_state !== nothing
+        next = iterate(iter, iter_state)
+        if next === nothing
+            iter_state = nothing
+        else
+            data_exhausted = false
+            item, iter_state = next
+        end
+    end
+    data_exhausted && verbosity > -1 && !c.stop_when_exhausted &&
+        iter_state !== nothing && @info DATA_EXHAUSTED
+    data_exhausted || ingest!(model, item)
+    done = data_exhausted && c.stop_when_exhausted
+    return (iter_state = iter_state, done = done)
+end
+
+done(c::Data, state) = state.done
+
+function takedown(c::Data, verbosity, state)
+    if state.done
+        verbosity > 0 && @info DATA_STOP
+        return (done = true, log = DATA_STOP)
     else
         return (done = false, log = "")
     end

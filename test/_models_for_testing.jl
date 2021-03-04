@@ -34,31 +34,61 @@ IterationControl.train!(model, 100)
     abs.([41/20 - 5/2, 3281/1640 - 41/20])
 
 
-# ## PARTICLE TRACKER
+# ## PARTICLE TRACKER (without methods lifted)
 
-# Consider a model that tracks a particle in one dimension, moving at
-# a speed that is corrected whenever a new target position is injected
-# into the model. The velocity correction is the difference between
-# current position and the newly reported one, multiplied by a
-# fixed learning rate.
+# Consider an object that tracks a particle in one dimension, moving,
+# in discrete time, at a speed proportional to the distance away from
+# some moving target. The particle is initially at rest at the origin,
+# which is where the target also begins.
 
-mutable struct WhatsNext
+# Calling `train!` on the object moves it along for the specified
+# number of time steps, while calling `ingest!` updates the target
+# position.
+
+mutable struct Particle
     position::Float64
+    target::Float64
     velocity::Float64
     η::Float64 # learning rate
-    training_losses::Vector{Float64} # successive speeds
-    WhatsNext(position) = new(position, 0.0, 0.1, Float64[])
+    training_losses::Vector{Float64}
+    Particle(η) = new(0.0, 0.0, 0.0, η, Float64[])
 end
 
-WhatsNext(; position=0.0) = WhatsNext(0.0)
+Particle(; η=0.1) = Particle(η)
 
 # native train!
-train!(model::WhatsNext) = model.position = model.position + model.velocity
+function train!(model::Particle)
+    model.velocity = model.η*(model.target - model.position)
+    model.position = model.position + model.velocity
+end
+
+loss(model::Particle) =  abs(model.target - model.position)
+
 function train!(model, n)
     training_losses = map(1:n) do _
         train!(model)
-        abs(model.velocity)
+        loss(model)
     end
     model.training_losses = training_losses
     return nothing
 end
+
+training_losses(model::Particle) = model.training_losses
+
+function ingest!(model::Particle, target)
+    model.target = target
+    return nothing
+end
+
+model = Particle()
+ingest!(model, 1)
+train!(model, 1)
+@assert loss(model) ≈ 0.9
+ingest!(model, -0.9)
+train!(model, 1)
+@assert loss(model) ≈ 0.9
+
+model = Particle()
+ingest!(model, 1)
+train!(model, 2)
+@assert training_losses(model) ≈ [0.9, 0.81]

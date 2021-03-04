@@ -6,8 +6,14 @@
 
 err_train(model) =
     ArgumentError("`IterationControl.train!(model, ::Int)` "*
-                                    "not overloaded "*
-                                    "for `typeof(model) = $(typeof(model))`. ")
+                  "not overloaded "*
+                  "for `typeof(model) = $(typeof(model))`. ")
+
+err_ingest(model) =
+    ArgumentError("Cannot use `Data` control here, as "*
+                  "`IterationControl.ingest!(model)` "*
+                  "not overloaded "*
+                  "for `typeof(model) = $(typeof(model))`. ")
 
 # ## COMPULSORY
 
@@ -21,12 +27,12 @@ train!(model, Δn) = throw(err_train(model))
 # as an out-of-sample loss; smaller is understood to be better:
 loss(model) = nothing
 
-# inject new data:
-inject!(model, data) = nothing
-
 # extract a vector of per-iteration "training" losses, accumulated in
 # the last `train!(model, Δn)` call; this will have length `Δn`:
 training_losses(model) = nothing
+
+# ingest data:
+ingest!(model, data) = throw(err_ingest(model))
 
 
 # ## OPTIONAL
@@ -58,3 +64,4 @@ done(control, state) = false
 # named tuple, except for composite controls which return a tuple of
 # named tuples (see composite_controls.jl):
 takedown(control, verbosity, state) = NamedTuple()
+

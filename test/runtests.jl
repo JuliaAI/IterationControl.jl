@@ -9,8 +9,17 @@ include("_models_for_testing.jl")
     include("utilities.jl")
 end
 
+# this test must happen before test of controls.jl:
+@testset "api" begin
+     include("api.jl")
+end
+
 @testset "controls" begin
-    include("controls.jl")
+#    include("controls.jl")
+end
+
+@testset "stopping_controls" begin
+    include("stopping_controls.jl")
 end
 
 @testset "composite_controls" begin
@@ -25,6 +34,3 @@ end
     include("train.jl")
 end
 
-@testset "api" begin
-    include("api.jl")
-end
