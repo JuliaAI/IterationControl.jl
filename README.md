@@ -134,10 +134,11 @@ The `IterationControl.train!` method can be given the keyword argument
 
 ## Controls provided
 
-Controls are repeatedly applied in sequence until a control triggers
-a stop. The first control in a sequence is generally
-`Train(...)`. Each control type has a detailed doc-string. Here is
-short summary, with some advanced options omitted:
+Controls are repeatedly applied in sequence until a control triggers a
+stop. The first control in a sequence is generally `Train(...)` or
+`skip(Train(...), ...)` (`skip` a wrapper described in Table 2
+below). Each control type has a detailed doc-string. Here is a short
+summary, with some advanced options omitted:
 
 control                 | description                                                                             | enabled if these are overloaded   | notation in Prechelt
 ------------------------|-----------------------------------------------------------------------------------------|-----------------------------------|----------------------

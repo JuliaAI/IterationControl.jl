@@ -1,9 +1,11 @@
 module IterationControl
 
 import Base.*
-using EarlyStopping
 import EarlyStopping: done, StoppingCriterion, StoppingCriterion
 using InteractiveUtils
+using EarlyStopping
+
+const ES = EarlyStopping
 
 # controls:
 export Train, Info, Warn, Error, Callback
