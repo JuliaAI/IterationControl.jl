@@ -13,7 +13,7 @@ using IterationControl
 # Consider an object that tracks a particle in one dimension, moving
 # in discrete time at a speed proportional to the distance away from
 # some moving target. We are viewing this particle as a toy example of
-# online learning and call the constant of proportionality `η` as a
+# online learning and call the constant of proportionality `η` a
 # *learning rate*.
 
 # The particle is initially at rest at the origin, which is also where

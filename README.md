@@ -4,13 +4,12 @@ IterationControl.jl
 | :-----------: | :------: |
 | [![Build status](https://github.com/ablaom/IterationControl.jl/workflows/CI/badge.svg)](https://github.com/ablaom/IterationControl.jl/actions)| [![codecov.io](http://codecov.io/github/ablaom/IterationControl.jl/coverage.svg?branch=master)](http://codecov.io/github/ablaom/IterationControl.jl?branch=master) |
 
-A package for controlling iterative algorithms with a view to
-applications to training and optimization of machine learning models.
+A package for controlling iterative algorithms, with a view to
+training and optimizing machine learning models.
 
 Builds on
-[EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl). Inspired
-by
-[LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl).
+[EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) and inspired
+by [LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl).
 
 
 ## Installation
@@ -22,8 +21,8 @@ Pkg.add("IterationControl")
 
 ## Basic idea
 
-Suppose you have [some kind of object](/examples/square_rooter.jl)
-`SquareRooter(x)` for iteratively computing approximations to the
+Suppose you have [some kind of object](/examples/square_rooter.jl),
+`SquareRooter(x)`, for iteratively computing approximations to the
 square roots of `x`:
 
 ```julia
@@ -52,7 +51,7 @@ package:
 using IterationControl
 IterationControl.train!(model::SquareRooter, n) =  train!(model, n) # lifting
 ```
-The lifted `train!` has the same functionality as the original one:
+By definitiion, the lifted `train!` has the same functionality as the original one:
 
 ```julia
 model = SquareRooter(9)
@@ -71,14 +70,15 @@ julia> IterationControl.train!(model, Step(2), NumberLimit(3), Info(m->m.root));
 [ Info: Early stop triggered by NumberLimit(3) stopping criterion.
 ```
 
-Here each control is repeatedly applied until one of them triggers a
-stop. The first control `Step(2)` says "train the model two more
-iterations"; the second says "stop after 3 repetitions" (of the
+Here each control is repeatedly applied in sequence until one of them
+triggers a stop. The first control `Step(2)` says "train the model two
+more iterations"; the second says "stop after 3 repetitions" (of the
 sequence of control applications); and the third, "log the value of
-the function `m -> m.root`, evaluated on `model`, to `Info`".
+the function `m -> m.root`, evaluated on `model`, to `Info`". In this
+example only the second control can stop the training.
 
-If `model` admits a method returning a loss (for example, the
-difference between `x` and the square of `root`), then we can lift
+If `model` admits a method returning a loss (in this case the
+difference between `x` and the square of `root`) then we can lift
 that method to `IterationControl.loss` to enable control using
 loss-based stopping criteria, such as a loss threshold. In the
 demonstation below, we also include a callback:
@@ -107,9 +107,11 @@ julia> losses
  3.716891878724482e-7
 ```
 
-If training `model` generates user-inspectable "training losses" (one
-per iteration) then similarly lifting the appropriate access function
-to `IterationControl.training_losses` enables Prechelt's
+I many appliations to machine learning, "loss" will be an
+out-of-sample loss, computed after some iterations. If `model`
+additionally generates user-inspectable "training losses" (one per
+iteration) then similarly lifting the appropriate access function to
+`IterationControl.training_losses` enables Prechelt's
 progress-modified generalization loss stopping criterion, `PQ`.
 
 `PQ` is the only criterion from the
@@ -124,17 +126,17 @@ above.
 
 The interface just described is sufficient for controlling
 conventional machine learning models with an iteration parameter, as
-this [tree boosting example](/examples/tree_booster/) shows.
+[this](/examples/tree_booster/) tree boosting example shows.
 
 
 ## Online and incremental training
 
 For online or incremental training, lift the method for ingesting data
 into the model to `IterationControl.ingest!(model, datum)` and use the
-control `Data(data)`, where `data` is any iterator over the `datum`
-items to be ingested (one per application of the control). By default,
-the `Data` control becomes passive after `data` is exhausted. Do
-`?Data` for details.
+control `Data(data)`. Here `data` is any iterator generating the
+`datum` items to be ingested (one per application of the control). By
+default, the `Data` control becomes passive after `data` is
+exhausted. Do `?Data` for details.
 
 A simple particle tracking example is given
 [here](/examples/particle/).
@@ -152,21 +154,21 @@ Controls are repeatedly applied in sequence until a control triggers a
 stop. Each control type has a detailed doc-string. Here is a short
 summary, with some advanced options omitted:
 
-control                 | description                                                                             | enabled if these are overloaded   | notation in Prechelt
-------------------------|-----------------------------------------------------------------------------------------|-----------------------------------|----------------------
-`Step(n=1)`            | Train model for `n` iterations                                                          |`train!`                           |
-`Info(f=identity)`      | Log to `Info` the value of `f(model)`                                                   |`train!`                           |
-`Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds                |`train!`                           |
-`Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |`train!`                           |
-`Callback(f=_->nothing, stop_if_true=false)`| Call `f(model)`                                                     |`train!`                           |
-`TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           |
-`NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                                   |`train!`                           |
-`Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                |
-`NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   |
-`Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   |
-`GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                                        |`train!`, `loss`                   | ``GL_α``
-`Patience(n=5)`         | Stop after `n` consecutive loss increases                                               |`train!`, `loss`                   | ``UP_s``
-`PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                                       |`train!`, `loss`, `training_losses`| ``PQ_α``
+control                 | description                                                                             | enabled if these are overloaded   | can trigger a stop | notation in Prechelt
+------------------------|-----------------------------------------------------------------------------------------|-----------------------------------|-------|---------------
+`Step(n=1)`             | Train model for `n` iterations                                                          |`train!`                           | no    |
+`Info(f=identity)`      | Log to `Info` the value of `f(model)`                                                   |`train!`                           | no    |
+`Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds                |`train!`                           | no    |
+`Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |`train!`                           | yes   |
+`Callback(f=_->nothing, stop_if_true=false)`| Call `f(model)`                                                     |`train!`                           | yes   |
+`TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           | yes   |
+`NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                                   |`train!`                           | yes   |
+`Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                | yes   |
+`NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   | yes   |
+`Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   | yes   |
+`GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                                        |`train!`, `loss`                   | yes   | ``GL_α``
+`Patience(n=5)`         | Stop after `n` consecutive loss increases                                               |`train!`, `loss`                   | yes   | ``UP_s``
+`PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                                       |`train!`, `loss`, `training_losses`| yes   | ``PQ_α``
 
 
 > Table 1. Atomic controls
