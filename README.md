@@ -4,8 +4,8 @@ IterationControl.jl
 | :-----------: | :------: |
 | [![Build status](https://github.com/ablaom/IterationControl.jl/workflows/CI/badge.svg)](https://github.com/ablaom/IterationControl.jl/actions)| [![codecov.io](http://codecov.io/github/ablaom/IterationControl.jl/coverage.svg?branch=master)](http://codecov.io/github/ablaom/IterationControl.jl?branch=master) |
 
-A package for controlling iterative algorithms, with a view to
-training and optimizing machine learning models.
+A lightweight package for controlling iterative algorithms, with a
+view to training and optimizing machine learning models.
 
 Builds on
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) and inspired
@@ -107,12 +107,13 @@ julia> losses
  3.716891878724482e-7
 ```
 
-I many appliations to machine learning, "loss" will be an
+In many appliations to machine learning, "loss" will be an
 out-of-sample loss, computed after some iterations. If `model`
 additionally generates user-inspectable "training losses" (one per
 iteration) then similarly lifting the appropriate access function to
 `IterationControl.training_losses` enables Prechelt's
-progress-modified generalization loss stopping criterion, `PQ`.
+progress-modified generalization loss stopping criterion, `PQ` (see
+Table 1 below).
 
 `PQ` is the only criterion from the
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) package
