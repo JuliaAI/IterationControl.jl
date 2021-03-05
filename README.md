@@ -72,11 +72,11 @@ julia> IterationControl.train!(model, Step(2), NumberLimit(3), Info(m->m.root));
 
 Here each control is repeatedly applied in sequence until one of them
 triggers a stop. The first control `Step(2)` says, "Train the model
-two more iterations"; the second asks, "Have I been applied 3
-times yet?", signalling a stop (at the end of the current control
-cycle) if so; and the third logs the value of the function `m ->
-m.root`, evaluated on `model`, to `Info`". In this example only the
-second control can stop the training.
+two more iterations"; the second asks, "Have I been applied 3 times
+yet?", signalling a stop (at the end of the current control cycle) if
+so; and the third logs the value of the function `m -> m.root`,
+evaluated on `model`, to `Info`. In this example only the second
+control can stop terminate model iteration.
 
 If `model` admits a method returning a loss (in this case the
 difference between `x` and the square of `root`) then we can lift
