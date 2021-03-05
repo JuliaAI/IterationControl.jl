@@ -9,7 +9,7 @@
     d = IC.composite(c1, c2, Never(), c3, c1)
     show(d)
     println()
-    @test IC._flat(d) == (c1, c2, c3)
+    @test IC.flat(d) == (c1, c2, c3)
 
     # codecov:
     @test IC._in(Never(), c1)
