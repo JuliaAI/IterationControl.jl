@@ -138,7 +138,9 @@ into the model to `IterationControl.ingest!(model, datum)` and use the
 control `Data(data)`. Here `data` is any iterator generating the
 `datum` items to be ingested (one per application of the control). By
 default, the `Data` control becomes passive after `data` is
-exhausted. Do `?Data` for details.
+exhausted. Do `?Data` for details. (See [Access to model through a
+wrapper](#access-to-model-through-a-wrapper) below on dealing with any
+model wrapping necessary to implement data ingestion.)
 
 A simple particle tracking example is given
 [here](/examples/particle/).
