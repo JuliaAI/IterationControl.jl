@@ -21,7 +21,7 @@ Pkg.add("IterationControl")
 
 ## Basic idea
 
-Suppose you have [some kind of object](/examples/square_rooter.jl),
+Suppose you have [some kind of object](/examples/square_rooter/),
 `SquareRooter(x)`, for iteratively computing approximations to the
 square roots of `x`:
 
