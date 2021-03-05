@@ -61,14 +61,14 @@ end
 logging(mach) = "loss: $(IterationControl.loss(mach))"
 
 IterationControl.train!(mach,
-                        Train(5),
+                        Step(5),
                         GL(),
                         Info(logging))
 
 # Continuing iteration with a different stopping criterion:
 
 IterationControl.train!(mach,
-                        Train(5),
+                        Step(5),
                         NumberLimit(10),
                         Info(logging))
 

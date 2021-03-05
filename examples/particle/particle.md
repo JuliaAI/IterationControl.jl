@@ -1,10 +1,10 @@
 ```@meta
-EditURL = "<unknown>/../examples/particle/particle.jl"
+EditURL = "<unknown>/particle.jl"
 ```
 
 # Using IterationControl.jl to control a particle tracker
 
-```@example particle
+```julia
 using Pkg
 Pkg.activate(@__DIR__)
 Pkg.instantiate()
@@ -13,6 +13,11 @@ using Plots
 pyplot(size = (600, 300*(sqrt(5) -1)))
 
 using IterationControl
+```
+
+```
+ Activating environment at `~/Dropbox/Julia7/MLJ/IterationControl/examples/particle/Project.toml`
+
 ```
 
 Consider an object that tracks a particle in one dimension, moving
@@ -28,7 +33,7 @@ Calling `train!` on the particle moves it along for the specified
 number of time steps, while calling `ingest!` updates the target
 position ("data ingestion").
 
-```@example particle
+```julia
 mutable struct Particle
     position::Float64
     target::Float64
@@ -42,18 +47,26 @@ Particle(; η=0.1) = Particle(η)
 loss(model::Particle) =  abs(model.target - model.position)
 ```
 
+```
+loss (generic function with 1 method)
+```
+
 A train method for one time step:
 
-```@example particle
+```julia
 function train!(model::Particle)
     model.velocity = model.η*(model.target - model.position)
     model.position = model.position + model.velocity
 end
 ```
 
+```
+train! (generic function with 1 method)
+```
+
 And for multiple time steps:
 
-```@example particle
+```julia
 function train!(model, n)
     foreach(1:n) do _
         train!(model)
@@ -62,18 +75,26 @@ function train!(model, n)
 end
 ```
 
+```
+train! (generic function with 2 methods)
+```
+
 A method for updating the target:
 
-```@example particle
+```julia
 function ingest!(model::Particle, target)
     model.target = target
     return nothing
 end
 ```
 
+```
+ingest! (generic function with 1 method)
+```
+
 Lifting the `train!`, `loss` and `ingest!` methods:
 
-```@example particle
+```julia
 IterationControl.train!(model::Particle, n) = train!(model, n)
 IterationControl.loss(model::Particle) = loss(model)
 IterationControl.ingest!(model::Particle, datum) = ingest!(model, datum)
@@ -88,12 +109,24 @@ particle is with 0.01 of the target.
 
 We use a learning rate of 0.1.
 
-```@example particle
+```julia
 model = Particle(0.1)
 data = repeat([-1, 1], outer=4)
 ```
 
-```@example particle
+```
+8-element Array{Int64,1}:
+ -1
+  1
+ -1
+  1
+ -1
+  1
+ -1
+  1
+```
+
+```julia
 target_positions = Float64[]
 particle_positions = Float64[]
 
@@ -104,7 +137,7 @@ end
 
 IterationControl.train!(model,
                         Data(data),
-                        Train(5),
+                        Step(5),
                         Callback(callback!),
                         Threshold(0.01),
                         TimeLimit(0.005));
@@ -112,20 +145,25 @@ IterationControl.train!(model,
 scatter(target_positions, label="target", ms=6)
 scatter!(particle_positions, label="particle", ms=6)
 ```
+![](3776900894.png)
 
-```@example particle
+```julia
 loss(model)
+```
+
+```
+0.006513954865740357
 ```
 
 Switching the target just once more to the -1 position and
 continuing training until the particle and target are withing 0.01:
 
-```@example particle
+```julia
 data = [-1,]
 
 IterationControl.train!(model,
                         Data(data),
-                        Train(5),
+                        Step(5),
                         Callback(callback!),
                         Threshold(0.01),
                         TimeLimit(0.005));
@@ -133,6 +171,7 @@ IterationControl.train!(model,
 scatter(target_positions, label="target", ms=6)
 scatter!(particle_positions, label="particle", ms=6)
 ```
+![](4097192124.png)
 
 ---
 

@@ -2,7 +2,7 @@
     @test IC.composite() == Never()
     c1 = Patience(1)
     c2 = NotANumber()
-    c3 = Train(1)
+    c3 = Step(1)
 
     @test IC.composite(c1) == c1
 
@@ -17,7 +17,7 @@
 end
 
 @testset "behaviour" begin
-    a = Train(4)
+    a = Step(4)
     b = NumberLimit(2)
     c = NotANumber()
     d = IC.composite(a, b, c)

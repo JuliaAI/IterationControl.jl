@@ -11,15 +11,16 @@ end
 CompositeControl() = Never()
 CompositeControl(a) = a
 CompositeControl(a, b, c...) = CompositeControl(CompositeControl(a,b), c...)
-composite(controls...) = CompositeControl(controls...)
 
-@create_docs(CompositeControl,
-             header = "CompositeControl(controls...)",
-             example = "CompositeControl(Next(step=3), Patience(n=5))",
-             body = "Apply the specified "*
-             "`controls` in sequence.\n\n"*
-             "**Syntactic sugar.** `c1 * c2 * ...` is equivalent to"*
-             "`CompositeControl(c1, c2, ...)`. ")
+
+"""
+    composite(controls...)
+
+Construct an iteration control that applies the specified `controls`
+in sequence.
+
+"""
+composite(controls...) = CompositeControl(controls...)
 
 update!(c::CompositeControl, m, v) =
     (a = update!(c.a, m, v), b = update!(c.b, m, v))

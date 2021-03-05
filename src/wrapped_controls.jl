@@ -8,7 +8,8 @@ end
     IterationControl.debug(control)
 
 Wrap `control` for debugging purposes. Acts exactly like `control`
-except that the internal state of is logged to `Info` at every update.
+except that the internal state of `control` is logged to `Info` at
+every update.
 
 """
 debug(c) = Debug(c)
@@ -38,16 +39,16 @@ _pred(predicate) = predicate
 _pred(predicate::Int) = t -> mod(t + 1, predicate) == 0
 
 """
-   IterationControl.skip(control, predicate::Union{Function,Int}=1)
+    IterationControl.skip(control, predicate::Union{Function,Int}=1)
 
 An iteration control wrapper.
 
-If `p` is a **function**: Apply `control` as usual, unless `predicate(t +
-1)` is `true`, where `t` is the number of calls to update the wrapper
-so far.
+If `predicate` is a **function**: Apply `control` as usual when
+`predicate(t + 1)` is `true` but otherwise skip. Here `t` is the
+number of calls to apply the wrapper so far.
 
 If `predicate` is an **integer**, `n`: Apply `control` on every `n`
-calls to update the wrapper, starting with the `n`th call.
+calls to apply the wrapper, starting with the `n`th call.
 
 """
 skip(control; predicate::Int=1) = Skip(control, _pred(predicate))

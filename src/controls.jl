@@ -1,21 +1,21 @@
 # # TRAIN
 
-struct Train
+struct Step
     n::Int
 end
 
 # constructor:
-Train(; n=5) = Train(n)
+Step(; n=5) = Step(n)
 
-@create_docs(Train,
-             header="Train(; n=1)",
-             example="Train(2)",
-             body="Train the model for `n` iterations. "*
+@create_docs(Step,
+             header="Step(; n=1)",
+             example="Step(2)",
+             body="Train the model for `n` more iterations. "*
              "Will never trigger a stop. ")
 
-function update!(c::Train, model, verbosity, args...)
+function update!(c::Step, model, verbosity, args...)
     if verbosity > 0
-        @info "Training model for $(c.n) iterations. "
+        @info "Steping model for $(c.n) iterations. "
     else
         nothing
     end
@@ -33,7 +33,7 @@ Info(; f::Function=identity) = Info(f)
 
 @create_docs(Info,
              header="Info(f=identity)",
-             example="Info()",
+             example="Info(my_loss_function)",
              body="Log at the `Info` level the value of `f(model)`, "*
              "where `model` "*
              "is the object being iterated. If "*
@@ -60,14 +60,14 @@ end
 Warn(predicate; f="") = Warn(predicate, f)
 
 @create_docs(Warn,
-             header="Warn(predicate; f=(_ -> \"\"))",
-             example="Warn(m->length(m.cache) > 100, f=\"Memory low\")",
-             body="Log at the `Warn` level the value of `f(model)` "*
-             "(or just `f` if `f` is a string) "*
-             "whenever `predicate(model)` is `true`. Here `model` "*
-             "is the object being iterated. `If "*
-             "`IterativeControl.expose(model)` has been overloaded, then "*
-             "log `f(expose(model))` instead.\n\n"*
+             header="Warn(predicate; f=\"\")",
+             example="Warn(model -> length(model.cache) > 100, "*
+             "f=\"Memory low\")",
+             body="If `predicate(model)` is `true`, then "*
+             "log at the `Warn` level the value of `f` "*
+             "(or `f(IterationControl.expose(model))` if `f` is a function). "*
+             "Here `model` "*
+             "is the object being iterated.\n\n"*
              "Can be suppressed by setting the global verbosity level "*
              "sufficiently low.\n\n"*
              "See also [`Info`](@ref), [`Error`](@ref). ")
@@ -104,16 +104,17 @@ end
 Error(predicate; f="", exception=nothing) = Error(predicate, f, exception)
 
 @create_docs(Error,
-             header="Error(predicate; f=\"\"))",
-             example="Error(m->length(m.cache) > 100, f=\"Memory low\")",
-             body="Log at the `Error` level the value of `f(model)` "*
-             "(or just `f` if `f` is a string) "*
-             "whenever `predicate(model)` is `true`, in which case "*
-             "stop iteration early. Here `model` "*
-             "is the object being iterated. `If "*
-             "`IterativeControl.expose(model)` has been overloaded, then "*
-             "log `f(expose(model))` instead.\n\n"*
-             "Specify `exception=...` to throw an execption.\n\n"*
+             header="Error(predicate; f=\"\", exception=nothing))",
+             example="Error(model -> isnan(model.bias), f=\"Bias overflow!\")",
+             body="If `predicate(model)` is `true`, then "*
+             "log at the `Error` level the value of `f` "*
+             "(or `f(IterationControl.expose(model))` if `f` is a function) "*
+             "and stop iteration at the end of the current control cycle. "*
+             "Here `model` "*
+             "is the object being iterated.\n\n"*
+             "Specify `exception=...` to throw an immediate "*
+             "execption, without "*
+             "waiting to the end of the control cycle.\n\n"*
              "See also [`Info`](@ref), [`Warn`](@ref). ")
 
 function update!(c::Error,
@@ -149,11 +150,12 @@ Callback(f::Function;
 Callback(; f=identity, kwargs...) = Callback(f, kwargs...)
 
 @create_docs(Callback,
-             header="Callback(f= _->nothing, stop_if_true=false, "*
+             header="Callback(f=_->nothing, stop_if_true=false, "*
              "stop_message=nothing)",
-             example="Callback(m->put!(v, loss(m))",
-             body="Call `f(model)`, or `f(expose(model))` if "*
-             "`IterativeControl.expose(model)` has been overloaded. "*
+             example="Callback(m->put!(v, my_loss_function(m))",
+             body="Call `f(IterationControl.expose(model))`, where "*
+             "`model` is the object being iterated. "*
+             "(If not overloaded, `expose` falls back to `identity`.) "*
              "If `stop_if_true` is `true`, then trigger an early stop "*
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
@@ -169,7 +171,7 @@ done(c::Callback, state) = state.done
 function takedown(c::Callback, verbosity, state)
     if state.done
         message = c.stop_message === nothing ?
-            "Stopping early stop triggered by a `Callback` control. " :
+            "Early stop triggered by a `Callback` control. " :
             c.stop_message
         verbosity > 0 && @info message
         return (done = true, log = message)
@@ -197,7 +199,8 @@ Base.show(io::IO, d::Data{S}) where S =
              example="Data(rand(100))",
              body="In each application of this control a new `item` from the "*
              "iterable, `data`, is retrieved (using `iterate`) and "*
-             "`IterationControl.ingest!(model, item)` is called.\n\n"*
+             "`IterationControl.ingest!(model, item)` is called. Here "*
+             "`model` is the object being iterated. \n\n"*
              "A control becomes passive once the `data` iterable is done. "*
              "To trigger "*
              "a stop *after one passive application of the control*, set "*
