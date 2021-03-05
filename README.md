@@ -76,7 +76,7 @@ two more iterations"; the second asks, "Have I been applied 3 times
 yet?", signalling a stop (at the end of the current control cycle) if
 so; and the third logs the value of the function `m -> m.root`,
 evaluated on `model`, to `Info`. In this example only the second
-control can stop terminate model iteration.
+control can terminate model iteration.
 
 If `model` admits a method returning a loss (in this case the
 difference between `x` and the square of `root`) then we can lift
