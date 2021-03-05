@@ -23,7 +23,7 @@ Pkg.add("IterationControl")
 
 Suppose you have [some kind of object](/examples/square_rooter/),
 `SquareRooter(x)`, for iteratively computing approximations to the
-square roots of `x`:
+square root of `x`:
 
 ```julia
 model = SquareRooter(9)
