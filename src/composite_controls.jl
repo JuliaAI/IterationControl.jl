@@ -29,28 +29,23 @@ update!(c::CompositeControl, m, v, state) =
      b = update!(c.b, m, v, state.b))
 
 
-## RECURSION TO FLATTEN STATE FOR INSPECTION
+## RECURSION TO FLATTEN A CONTROL OR ITS STATE
 
 flat(state) = (state,)
 flat(state::NamedTuple{(:a,:b)}) = tuple(flat(state.a)..., flat(state.b)...)
-
-
-## RECURSION TO EXTRACT COMPONENTS AND TEST MEMBERSHIP
-
-_flat(control) = (control, )
-_flat(d::CompositeControl) = tuple(_flat(d.a)..., _flat(d.b)...)
+flat(d::CompositeControl) = tuple(flat(d.a)..., flat(d.b)...)
 
 _in(::Never, ::Any) = true
 _in(::Never, ::CompositeControl) = true
 _in(c1::Any, c2::Any) = c1 == c2
-_in(c::Any, d::CompositeControl) = c in _flat(d)
+_in(c::Any, d::CompositeControl) = c in flat(d)
 _in(::CompositeControl, ::Any) = false
 
 
 ## DISPLAY
 
 function Base.show(io::IO, c::CompositeControl)
-    list = join(string.(_flat(c)), ", ")
+    list = join(string.(flat(c)), ", ")
     print(io, "CompositeControl($list)")
 end
 
