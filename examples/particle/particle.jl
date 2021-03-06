@@ -65,11 +65,11 @@ IterationControl.loss(model::Particle) = loss(model)
 IterationControl.ingest!(model::Particle, datum) = ingest!(model, datum)
 
 # Lets `train` our particle by alternatively setting the target
-# position to -1 or +1 every 5 time-steps, for a total of 40 (4 -1/+1
-# cycles) and then allow our particle to "cruise" with the target
-# fixed thereafter (the provided `data` iterator having
-# been exhausted). This cruising is allowed to continue until the
-# particle is with 0.01 of the target.
+# position to -1 or +1 every 5 time steps, for a total of 40 time
+# steps (four -1/+1 cycles). We will then then allow our particle to "cruise"
+# with the target fixed thereafter (the provided `data` iterator
+# having been exhausted). This cruising is allowed to continue until
+# the particle is within 0.01 of the target.
 
 # We use a learning rate of 0.1.
 
@@ -117,5 +117,5 @@ scatter!(particle_positions, label="particle", ms=6)
 
 
 using Literate #src
-Literate.markdown(@__FILE__, @__DIR__, execute=true) #src
+Literate.markdown(@__FILE__, @__DIR__, execute=false) #src
 Literate.notebook(@__FILE__, @__DIR__, execute=true) #src
