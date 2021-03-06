@@ -4,8 +4,8 @@ IterationControl.jl
 | :-----------: | :------: |
 | [![Build status](https://github.com/ablaom/IterationControl.jl/workflows/CI/badge.svg)](https://github.com/ablaom/IterationControl.jl/actions)| [![codecov.io](http://codecov.io/github/ablaom/IterationControl.jl/coverage.svg?branch=master)](http://codecov.io/github/ablaom/IterationControl.jl?branch=master) |
 
-A package for controlling iterative algorithms, with a view to
-training and optimizing machine learning models.
+A lightweight package for controlling iterative algorithms, with a
+view to training and optimizing machine learning models.
 
 Builds on
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) and inspired
@@ -21,9 +21,9 @@ Pkg.add("IterationControl")
 
 ## Basic idea
 
-Suppose you have [some kind of object](/examples/square_rooter.jl),
+Suppose you have [some kind of object](/examples/square_rooter/),
 `SquareRooter(x)`, for iteratively computing approximations to the
-square roots of `x`:
+square root of `x`:
 
 ```julia
 model = SquareRooter(9)
@@ -71,11 +71,12 @@ julia> IterationControl.train!(model, Step(2), NumberLimit(3), Info(m->m.root));
 ```
 
 Here each control is repeatedly applied in sequence until one of them
-triggers a stop. The first control `Step(2)` says "train the model two
-more iterations"; the second says "stop after 3 repetitions" (of the
-sequence of control applications); and the third, "log the value of
-the function `m -> m.root`, evaluated on `model`, to `Info`". In this
-example only the second control can stop the training.
+triggers a stop. The first control `Step(2)` says, "Train the model
+two more iterations"; the second asks, "Have I been applied 3 times
+yet?", signalling a stop (at the end of the current control cycle) if
+so; and the third logs the value of the function `m -> m.root`,
+evaluated on `model`, to `Info`. In this example only the second
+control can terminate model iteration.
 
 If `model` admits a method returning a loss (in this case the
 difference between `x` and the square of `root`) then we can lift
@@ -107,12 +108,13 @@ julia> losses
  3.716891878724482e-7
 ```
 
-I many appliations to machine learning, "loss" will be an
+In many appliations to machine learning, "loss" will be an
 out-of-sample loss, computed after some iterations. If `model`
 additionally generates user-inspectable "training losses" (one per
 iteration) then similarly lifting the appropriate access function to
 `IterationControl.training_losses` enables Prechelt's
-progress-modified generalization loss stopping criterion, `PQ`.
+progress-modified generalization loss stopping criterion, `PQ` (see
+Table 1 below).
 
 `PQ` is the only criterion from the
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) package
@@ -136,7 +138,9 @@ into the model to `IterationControl.ingest!(model, datum)` and use the
 control `Data(data)`. Here `data` is any iterator generating the
 `datum` items to be ingested (one per application of the control). By
 default, the `Data` control becomes passive after `data` is
-exhausted. Do `?Data` for details.
+exhausted. Do `?Data` for details. (See [Access to model through a
+wrapper](#access-to-model-through-a-wrapper) below on dealing with any
+model wrapping necessary to implement data ingestion.)
 
 A simple particle tracking example is given
 [here](/examples/particle/).
