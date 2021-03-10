@@ -39,16 +39,16 @@ _pred(predicate) = predicate
 _pred(predicate::Int) = t -> mod(t + 1, predicate) == 0
 
 """
-    IterationControl.skip(control, predicate::Union{Function,Int}=1)
+    IterationControl.skip(control, predicate=1)
 
 An iteration control wrapper.
+
+If `predicate` is an **integer**, `n`: Apply `control` on every `n`
+calls to apply the wrapper, starting with the `n`th call.
 
 If `predicate` is a **function**: Apply `control` as usual when
 `predicate(t + 1)` is `true` but otherwise skip. Here `t` is the
 number of calls to apply the wrapper so far.
-
-If `predicate` is an **integer**, `n`: Apply `control` on every `n`
-calls to apply the wrapper, starting with the `n`th call.
 
 """
 skip(control; predicate::Int=1) = Skip(control, _pred(predicate))
