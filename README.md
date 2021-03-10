@@ -67,7 +67,7 @@ julia> IterationControl.train!(model, Step(2), NumberLimit(3), Info(m->m.root));
 [ Info: 3.4
 [ Info: 3.00009155413138
 [ Info: 3.0
-[ Info: Early stop triggered by NumberLimit(3) stopping criterion.
+[ Info: Stop triggered by NumberLimit(3) stopping criterion.
 ```
 
 Here each control is repeatedly applied in sequence until one of them
@@ -100,7 +100,7 @@ julia> IterationControl.train!(model,
                                Step(1),
                                Threshold(0.0001),
                                Callback(callback));
-[ Info: Early stop triggered by Threshold(0.0001) stopping criterion.
+[ Info: Stop triggered by Threshold(0.0001) stopping criterion.
 
 julia> losses
 2-element Array{Float64,1}:
