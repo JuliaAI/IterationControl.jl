@@ -7,9 +7,17 @@ using EarlyStopping
 
 const ES = EarlyStopping
 
-# controls:
-export Step, Info, Warn, Error, Callback, Data
+# make a list of all controls:
+const CONTROLS = [:Step, :Info, :Warn, :Error, :Callback, :Data]
+for criterion in subtypes(StoppingCriterion)
+    control = split(string(criterion), ".") |> last |> Symbol
+    push!(CONTROLS, control)
+end
 
+# export controls:
+for control in CONTROLS
+    eval(:(export $control))
+end
 
 # re-export stopping criterion from EarlyStopping.jl:
 for criterion in subtypes(StoppingCriterion)
