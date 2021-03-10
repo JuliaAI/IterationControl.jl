@@ -141,27 +141,30 @@ struct Callback{F<:Function}
     f::F
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
+    raw::Bool
 end
 
 # constructor:
 Callback(f::Function;
          stop_if_true=false,
-         stop_message=nothing) = Callback(f, stop_if_true, stop_message)
+         stop_message=nothing,
+         raw=false) = Callback(f, stop_if_true, stop_message, raw)
 Callback(; f=identity, kwargs...) = Callback(f, kwargs...)
 
 @create_docs(Callback,
              header="Callback(f=_->nothing, stop_if_true=false, "*
-             "stop_message=nothing)",
+             "stop_message=nothing, raw=false)",
              example="Callback(m->put!(v, my_loss_function(m))",
              body="Call `f(IterationControl.expose(model))`, where "*
-             "`model` is the object being iterated. "*
-             "(If not overloaded, `expose` falls back to `identity`.) "*
+             "`model` is the object being iterated, unless `raw=true`, in "*
+             "which case call `f(model)` (guaranteed if `expose` has not been "*
+             "overloaded.) "*
              "If `stop_if_true` is `true`, then trigger an early stop "*
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
 
 function update!(c::Callback, model, verbosity, state=(done=false, ))
-    r = c.f(expose(model))
+    r = c.f(expose(model, c.raw))
     done = (c.stop_if_true && r isa Bool && r) ? true : false
     return (done=done,)
 end

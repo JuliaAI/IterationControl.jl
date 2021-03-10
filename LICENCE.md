@@ -1,4 +1,4 @@
-The MLJ.jl package is licensed under the MIT "Expat" License:
+The IterationControl.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2021: Anthony Blaom
 > 
