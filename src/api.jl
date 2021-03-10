@@ -41,6 +41,11 @@ ingest!(model, data) = throw(err_ingest(model))
 # internal part of the model, rather than `model` directly:
 expose(model) = model
 
+# switch for expose; not to be overloaded:
+expose(model, raw) = expose(model, Val(raw))
+expose(model, ::Val{true}) = model
+expose(model, ::Val{false}) = expose(model)
+
 
 # -------------------------------------------------------------------
 # # CONTROL METHODS
