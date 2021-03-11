@@ -5,21 +5,26 @@
 
 # ## LOSS GETTERS
 
+# `get_loss(control, model)` throws an error if control needs
+# `IC.loss` overloaded for `type(model)` and it has not been so
+# overloaded. If `control` does not need `IC.loss`, then `nothing` is
+# returned. In the other cases, the sought after loss is
+# returned. `get_training_losses` is similarly defined.
+
+err_getter(c, f, model) =
+    ArgumentError("Use of `$c` control here requires that "*
+                  "`IterationControl.$f(model)` be "*
+                  "overloaded for `typeof(model)=$(typeof(model))`. ")
+
 for f in [:loss, :training_losses]
     g = Symbol(string(:get_, f))
-    e = Symbol(string(:err_, f))
     t = Symbol(string(:needs_, f))
     eval(quote
-         $e(c, model) =
-             ArgumentError("Use of `$c` control here requires that "*
-                           "`IterationControl.loss(model)` be "*
-                           "overloaded for `typeof(model)=$(typeof(model))`. ")
-
          $g(c, model) = $g(c, model, Val(ES.$t(c)))
          $g(c, model, ::Val{false}) = nothing
          @inline function $g(c, model, ::Val{true})
              it = $f(model)
-             it isa Nothing && throw($e(c, model))
+             it isa Nothing && throw(err_getter(c, $f, model))
              return it
          end
          end)

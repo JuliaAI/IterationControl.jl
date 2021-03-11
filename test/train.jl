@@ -5,7 +5,7 @@
     @test report[2] == (NotANumber(), (done=false, log=""))
     report[3] == (NumberLimit(3),
                   (done=true,
-                   log="Early stop triggered by NumberLimit(3) "*
+                   log="Stop triggered by NumberLimit(3) "*
                    "stopping criterion. "))
 
     m = SquareRooter(4)

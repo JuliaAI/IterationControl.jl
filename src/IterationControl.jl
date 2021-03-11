@@ -8,7 +8,14 @@ using EarlyStopping
 const ES = EarlyStopping
 
 # make a list of all controls:
-const CONTROLS = [:Step, :Info, :Warn, :Error, :Callback, :Loss, :Data]
+const CONTROLS = [:Step,
+                  :Info,
+                  :Warn,
+                  :Error,
+                  :Callback,
+                  :Loss,
+                  :TrainingLosses,
+                  :Data]
 for criterion in subtypes(StoppingCriterion)
     control = split(string(criterion), ".") |> last |> Symbol
     push!(CONTROLS, control)

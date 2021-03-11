@@ -146,7 +146,7 @@ end
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
         (done = true,
-         log="Early stop triggered by a `Callback` control. ")
+         log="Stop triggered by a `Callback` control. ")
 
     v = Float64[]
     f(model) = (push!(v, IC.loss(model)); last(v) < 0.02)
@@ -197,7 +197,7 @@ end
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
         (done = true,
-         log="Early stop triggered by a `Loss` control. ")
+         log="Stop triggered by a `Loss` control. ")
 
     v = Float64[]
     f(loss) = (push!(v, loss); last(v) < 0.02)
@@ -215,6 +215,55 @@ end
         (done = true,
          log="foo")
 
+end
+
+@testset "TrainingLosses" begin
+
+    v = Float64[]
+    f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
+    c = TrainingLosses(f)
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v ≈ [1.5, ]
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0, state)
+    @test !state.done
+    @test v ≈ [1.5, 0.45]
+    @test IC.takedown(c, 0, state) == (done = false, log="")
+
+    v = Float64[]
+    f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
+    c = TrainingLosses(f, stop_if_true=true)
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v == [1.5, ]
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0, state)
+    @test state.done
+    @test v ≈ [1.5, 0.45]
+    @test IC.takedown(c, 0, state) ==
+        (done = true,
+         log="Stop triggered by a `TrainingLosses` control. ")
+
+    v = Float64[]
+    f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
+    c = TrainingLosses(f, stop_if_true=true, stop_message="foo")
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v == [1.5, ]
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0, state)
+    @test state.done
+    @test v ≈ [1.5, 0.45]
+    @test IC.takedown(c, 0, state) ==
+        (done = true,
+         log="foo")
 end
 
 @testset "Data" begin

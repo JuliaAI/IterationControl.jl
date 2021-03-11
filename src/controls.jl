@@ -174,7 +174,7 @@ done(c::Callback, state) = state.done
 function takedown(c::Callback, verbosity, state)
     if state.done
         message = c.stop_message === nothing ?
-            "Early stop triggered by a `Callback` control. " :
+            "Stop triggered by a `Callback` control. " :
             c.stop_message
         verbosity > 0 && @info message
         return (done = true, log = message)
@@ -286,8 +286,8 @@ Loss(; f=x->@info(x), kwargs...) = Loss(f, kwargs...)
 EarlyStopping.needs_loss(::Type{<:Loss}) = true
 
 function update!(c::Loss, model, verbosity, state=(done=false, ))
-    _loss = get_loss(c, model)
-    r = c.f(_loss)
+    loss = IterationControl.loss(model)
+    r = c.f(loss)
     done = (c.stop_if_true && r isa Bool && r) ? true : false
     return (done=done,)
 end
@@ -297,7 +297,55 @@ done(c::Loss, state) = state.done
 function takedown(c::Loss, verbosity, state)
     if state.done
         message = c.stop_message === nothing ?
-            "Early stop triggered by a `Loss` control. " :
+            "Stop triggered by a `Loss` control. " :
+            c.stop_message
+        verbosity > 0 && @info message
+        return (done = true, log = message)
+    else
+        return (done = false, log = "")
+    end
+end
+
+# # TrainingLosses
+
+struct TrainingLosses{F<:Function}
+    f::F
+    stop_if_true::Bool
+    stop_message::Union{String,Nothing}
+end
+
+# constructor:
+TrainingLosses(f::Function;
+     stop_if_true=false,
+     stop_message=nothing) = TrainingLosses(f, stop_if_true, stop_message)
+TrainingLosses(; f=v->@info(v), kwargs...) = TrainingLosses(f, kwargs...)
+
+@create_docs(TrainingLosses,
+             header="TrainingLosses(f=v->@info(v)), stop_if_true=false, "*
+             "stop_message=nothing)",
+             example="TrainingLosses(v->put!(my_losses, last(v))",
+             body="Call `f(training_losses)`, where "*
+             "`training_losses` is the vector of most recent batch "*
+             "of training losses.\n\n"*
+             "If `stop_if_true` is `true`, then trigger an early stop "*
+             "if the value returned by `f` is `true`, logging the "*
+             "`stop_message` if specified. ")
+
+EarlyStopping.needs_training_losses(::Type{<:TrainingLosses}) = true
+
+function update!(c::TrainingLosses, model, verbosity, state=(done=false, ))
+    losses = IterationControl.training_losses(model)
+    r = c.f(losses)
+    done = (c.stop_if_true && r isa Bool && r) ? true : false
+    return (done=done, )
+end
+
+done(c::TrainingLosses, state) = state.done
+
+function takedown(c::TrainingLosses, verbosity, state)
+    if state.done
+        message = c.stop_message === nothing ?
+            "Stop triggered by a `TrainingLosses` control. " :
             c.stop_message
         verbosity > 0 && @info message
         return (done = true, log = message)

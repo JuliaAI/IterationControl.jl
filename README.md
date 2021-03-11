@@ -167,12 +167,14 @@ control                 | description                                           
 `Callback(f=_->nothing, stop_if_true=false)`| Call `f(model)`                                                     |`train!`                           | yes   |
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           | yes   |
 `NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                                   |`train!`                           | yes   |
-`Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                | yes   |
+`Loss(f=x->@info(x), stop_if_true)`| Call `f(loss)` where `loss` is the current loss                              |`train!`, `loss`                   | yes   |
+`TrainingLosses(f=v->@info(v), stop_if_true)`| Call `f(v)` where `v` is the current batch of training losses      |`train!`, `training_loss`          | yes   |
 `NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   | yes   |
 `Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   | yes   |
 `GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                                        |`train!`, `loss`                   | yes   | ``GL_α``
 `Patience(n=5)`         | Stop after `n` consecutive loss increases                                               |`train!`, `loss`                   | yes   | ``UP_s``
 `PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                                       |`train!`, `loss`, `training_losses`| yes   | ``PQ_α``
+`Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                | yes   |
 
 
 > Table 1. Atomic controls
