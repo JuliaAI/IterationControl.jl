@@ -19,12 +19,13 @@ err_getter(c, f, model) =
 for f in [:loss, :training_losses]
     g = Symbol(string(:get_, f))
     t = Symbol(string(:needs_, f))
+    fstr = string(f)
     eval(quote
          $g(c, model) = $g(c, model, Val(ES.$t(c)))
          $g(c, model, ::Val{false}) = nothing
          @inline function $g(c, model, ::Val{true})
              it = $f(model)
-             it isa Nothing && throw(err_getter(c, $f, model))
+             it isa Nothing && throw(err_getter(c, $fstr, model))
              return it
          end
          end)
