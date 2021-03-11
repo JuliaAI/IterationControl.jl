@@ -276,7 +276,7 @@ Loss(; f=x->@info(x), kwargs...) = Loss(f, kwargs...)
 @create_docs(Loss,
              header="Loss(f=x->@info(x)), stop_if_true=false, "*
              "stop_message=nothing)",
-             example="Loss(m->put!(v, my_loss_function(m))",
+             example="Loss(x->put!(my_losses, x)",
              body="Call `f(loss)`, where "*
              "`loss` is current loss.\n\n"*
              "If `stop_if_true` is `true`, then trigger an early stop "*
