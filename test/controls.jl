@@ -115,7 +115,6 @@ end
 end
 
 @testset "Callback" begin
-    losses =
 
     v = Float64[]
     f(model) = (push!(v, IC.loss(model)); last(v) < 0.02)
@@ -153,6 +152,56 @@ end
     f(model) = (push!(v, IC.loss(model)); last(v) < 0.02)
 
     c = Callback(f, stop_if_true=true, stop_message="foo")
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v == [2.25, ]
+    IC.train!(m, 2)
+    state = IC.update!(c, m, 0, state)
+    @test state.done
+    @test v ≈ [2.25, (3281/1640)^2 - 4]
+    @test IC.takedown(c, 0, state) ==
+        (done = true,
+         log="foo")
+
+end
+
+@testset "Loss" begin
+
+    v = Float64[]
+    f(loss) = (push!(v, loss); last(v) < 0.02)
+    c = Loss(f)
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v == [2.25, ]
+    IC.train!(m, 2)
+    state = IC.update!(c, m, 0, state)
+    @test !state.done
+    @test v ≈ [2.25, (3281/1640)^2 - 4]
+    @test IC.takedown(c, 0, state) == (done = false, log="")
+
+    v = Float64[]
+    f(loss) = (push!(v, loss); last(v) < 0.02)
+    c = Loss(f, stop_if_true=true)
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v == [2.25, ]
+    IC.train!(m, 2)
+    state = IC.update!(c, m, 0, state)
+    @test state.done
+    @test v ≈ [2.25, (3281/1640)^2 - 4]
+    @test IC.takedown(c, 0, state) ==
+        (done = true,
+         log="Early stop triggered by a `Loss` control. ")
+
+    v = Float64[]
+    f(loss) = (push!(v, loss); last(v) < 0.02)
+    c = Loss(f, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)

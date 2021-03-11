@@ -8,7 +8,7 @@ using EarlyStopping
 const ES = EarlyStopping
 
 # make a list of all controls:
-const CONTROLS = [:Step, :Info, :Warn, :Error, :Callback, :Data]
+const CONTROLS = [:Step, :Info, :Warn, :Error, :Callback, :Loss, :Data]
 for criterion in subtypes(StoppingCriterion)
     control = split(string(criterion), ".") |> last |> Symbol
     push!(CONTROLS, control)
@@ -27,10 +27,10 @@ end
 
 include("utilities.jl")
 include("api.jl")
-include("controls.jl")
 include("stopping_controls.jl")
 include("composite_controls.jl")
 include("wrapped_controls.jl")
+include("controls.jl")
 include("train.jl")
 
 end # module

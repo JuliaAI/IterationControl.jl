@@ -257,3 +257,51 @@ function takedown(c::Data, verbosity, state)
         return (done = false, log = "")
     end
 end
+
+
+# # Loss
+
+struct Loss{F<:Function}
+    f::F
+    stop_if_true::Bool
+    stop_message::Union{String,Nothing}
+end
+
+# constructor:
+Loss(f::Function;
+     stop_if_true=false,
+     stop_message=nothing) = Loss(f, stop_if_true, stop_message)
+Loss(; f=x->@info(x), kwargs...) = Loss(f, kwargs...)
+
+@create_docs(Loss,
+             header="Loss(f=x->@info(x)), stop_if_true=false, "*
+             "stop_message=nothing)",
+             example="Loss(m->put!(v, my_loss_function(m))",
+             body="Call `f(loss)`, where "*
+             "`loss` is current loss.\n\n"*
+             "If `stop_if_true` is `true`, then trigger an early stop "*
+             "if the value returned by `f` is `true`, logging the "*
+             "`stop_message` if specified. ")
+
+EarlyStopping.needs_loss(::Type{<:Loss}) = true
+
+function update!(c::Loss, model, verbosity, state=(done=false, ))
+    _loss = get_loss(c, model)
+    r = c.f(_loss)
+    done = (c.stop_if_true && r isa Bool && r) ? true : false
+    return (done=done,)
+end
+
+done(c::Loss, state) = state.done
+
+function takedown(c::Loss, verbosity, state)
+    if state.done
+        message = c.stop_message === nothing ?
+            "Early stop triggered by a `Loss` control. " :
+            c.stop_message
+        verbosity > 0 && @info message
+        return (done = true, log = message)
+    else
+        return (done = false, log = "")
+    end
+end

@@ -16,7 +16,7 @@
     report = @test_logs (:info, r"NumberLimit\(2\)") IC.takedown(c, 1, state)
     @test report.done
     @test report.log ==
-        "Early stop triggered by NumberLimit(2) stopping criterion. "
+        "Stop triggered by NumberLimit(2) stopping criterion. "
 
     # A stopping criterion than uses training losses:
 
