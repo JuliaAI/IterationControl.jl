@@ -177,12 +177,12 @@ control                 | description                                           
 `PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                                       |`train!`, `loss`, `training_losses`| yes   | ``PQ_α``
 `Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                | yes   |
 
+> Table 1. Atomic controls
+
 **Stopping option.** All the following controls trigger a stop if the
 provided function `f` returns `true` and `stop_if_true=true` is
 specified in the constructor: `Callback`, `NumberCount`, `Loss`,
 `TrainingLosses`.
-
-> Table 1. Atomic controls
 
 There are also three control wrappers to modify a control's behavior:
 
