@@ -1,3 +1,17 @@
+@testset "loss getters" begin
+    model=SquareRooter(4)
+    @test IterationControl.get_loss(NotANumber(), model) ==
+        IterationControl.loss(model)
+    @test_throws(IterationControl.err_getter(NotANumber(), :loss, :junk),
+                 IterationControl.get_loss(NotANumber(), :junk))
+    IterationControl.train!(model, 2)
+    @test IterationControl.get_training_losses(PQ(), model) ==
+        IterationControl.training_losses(model)
+    @test_throws(
+        IterationControl.err_getter(PQ(), :training_losses, :junk),
+        IterationControl.get_training_losses(PQ(), :junk))
+end
+
 @testset "stopping criteria as controls" begin
 
     # A stopping criterion than ignores training losses:
@@ -16,7 +30,7 @@
     report = @test_logs (:info, r"NumberLimit\(2\)") IC.takedown(c, 1, state)
     @test report.done
     @test report.log ==
-        "Early stop triggered by NumberLimit(2) stopping criterion. "
+        "Stop triggered by NumberLimit(2) stopping criterion. "
 
     # A stopping criterion than uses training losses:
 
@@ -36,4 +50,3 @@
     @test report.log == ""
 
 end
-

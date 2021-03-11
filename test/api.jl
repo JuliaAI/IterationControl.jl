@@ -6,7 +6,7 @@ model = Particle()
 # lifting train!:
 IC.train!(model::Particle, n) = train!(model, n)
 
-@test_throws(IC.err_loss(NotANumber(), model),
+@test_throws(IC.err_getter(NotANumber(), :loss, model),
              IC.train!(model, NotANumber(), NumberLimit(1)))
 
 # lifting loss!:
@@ -14,7 +14,7 @@ IterationControl.loss(m::Particle) = loss(m)
 
 IC.train!(model, NotANumber(), NumberLimit(1), verbosity=0)
 
-@test_throws(IC.err_training_losses(PQ(), model),
+@test_throws(IC.err_getter(PQ(), :training_losses, model),
              IC.train!(model, PQ(), NumberLimit(1)))
 
 # lifting training_losses:
