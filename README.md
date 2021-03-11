@@ -166,7 +166,8 @@ control                 | description                                           
 `Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |`train!`                           | yes   |
 `Callback(f=_->nothing, stop_if_true=false)`| Call `f(model)`                                                     |`train!`                           | yes   |
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           | yes   |
-`NumberLimit(n=100)`    | Stop after `n` loss updates (excl. "training losses")                                   |`train!`                           | yes   |
+`NumberLimit(n=100)`    | Stop after `n` control cycles                                                           |`train!`                           | yes   |
+`NumberCount(f=n->@info(n))`    | Call `f(n)` where `n` is the control cycle count                                |`train!`                           | yes   |
 `Loss(f=x->@info(x), stop_if_true)`| Call `f(loss)` where `loss` is the current loss                              |`train!`, `loss`                   | yes   |
 `TrainingLosses(f=v->@info(v), stop_if_true)`| Call `f(v)` where `v` is the current batch of training losses      |`train!`, `training_loss`          | yes   |
 `NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   | yes   |

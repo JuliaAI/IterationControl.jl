@@ -266,6 +266,55 @@ end
          log="foo")
 end
 
+
+@testset "NumberCount" begin
+    v = Int[]
+    f(n) = (push!(v, n); last(n) > 1)
+    c = NumberCount(f)
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v == [1, ]
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0, state)
+    @test !state.done
+    @test v == [1, 2]
+    @test IC.takedown(c, 0, state) == (done = false, log="")
+
+    v = Int[]
+    f(n) = (push!(v, n); last(n) > 1)
+    c = NumberCount(f, stop_if_true=true)
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v == [1, ]
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0, state)
+    @test state.done
+    @test v == [1, 2]
+    @test IC.takedown(c, 0, state) ==
+        (done = true,
+         log="Stop triggered by a `NumberCount` control. ")
+
+    v = Int[]
+    f(n) = (push!(v, n); last(n) > 1)
+    c = NumberCount(f, stop_if_true=true, stop_message="foo")
+    m = SquareRooter(4)
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0)
+    @test !state.done
+    @test v == [1, ]
+    IC.train!(m, 1)
+    state = IC.update!(c, m, 0, state)
+    @test state.done
+    @test v == [1, 2]
+    @test IC.takedown(c, 0, state) ==
+        (done = true,
+         log="foo")
+end
+
 @testset "Data" begin
     data = Float64[1.0, -0.9, 0]
 

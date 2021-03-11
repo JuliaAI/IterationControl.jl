@@ -306,6 +306,7 @@ function takedown(c::Loss, verbosity, state)
     end
 end
 
+
 # # TrainingLosses
 
 struct TrainingLosses{F<:Function}
@@ -346,6 +347,53 @@ function takedown(c::TrainingLosses, verbosity, state)
     if state.done
         message = c.stop_message === nothing ?
             "Stop triggered by a `TrainingLosses` control. " :
+            c.stop_message
+        verbosity > 0 && @info message
+        return (done = true, log = message)
+    else
+        return (done = false, log = "")
+    end
+end
+
+
+# # NumberCount
+
+struct NumberCount{F<:Function}
+    f::F
+    stop_if_true::Bool
+    stop_message::Union{String,Nothing}
+end
+
+# constructor:
+NumberCount(f::Function;
+     stop_if_true=false,
+     stop_message=nothing) = NumberCount(f, stop_if_true, stop_message)
+NumberCount(; f=n->@info(n), kwargs...) = NumberCount(f, kwargs...)
+
+@create_docs(NumberCount,
+             header="NumberCount(f=n->@info(n)), stop_if_true=false, "*
+             "stop_message=nothing)",
+             example="NumberCount(n->put!(my_channel, n))",
+             body="Call `f(n)`, where "*
+             "`n` is one more than the number of previous applications "*
+             "of the control (so, `n = 1, 2, 3, ...`).\n\n"*
+             "If `stop_if_true` is `true`, then trigger an early stop "*
+             "if the value returned by `f` is `true`, logging the "*
+             "`stop_message` if specified. ")
+
+function update!(c::NumberCount, model, verbosity, state=(done = false, n = 0))
+    n = state.n
+    r = c.f(state.n + 1)
+    done = (c.stop_if_true && r isa Bool && r) ? true : false
+    return (done = done, n = n + 1)
+end
+
+done(c::NumberCount, state) = state.done
+
+function takedown(c::NumberCount, verbosity, state)
+    if state.done
+        message = c.stop_message === nothing ?
+            "Stop triggered by a `NumberCount` control. " :
             c.stop_message
         verbosity > 0 && @info message
         return (done = true, log = message)

@@ -15,6 +15,7 @@ const CONTROLS = [:Step,
                   :Callback,
                   :Loss,
                   :TrainingLosses,
+                  :NumberCount,
                   :Data]
 for criterion in subtypes(StoppingCriterion)
     control = split(string(criterion), ".") |> last |> Symbol
