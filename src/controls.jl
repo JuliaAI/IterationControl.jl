@@ -10,7 +10,7 @@ Step(; n=5) = Step(n)
 @create_docs(Step,
              header="Step(; n=1)",
              example="Step(2)",
-             body="Train the model for `n` more iterations. "*
+             body="Train for `n` more iterations. "*
              "Will never trigger a stop. ")
 
 function update!(c::Step, model, verbosity, args...)
@@ -34,11 +34,11 @@ Info(; f::Function=identity) = Info(f)
 @create_docs(Info,
              header="Info(f=identity)",
              example="Info(my_loss_function)",
-             body="Log at the `Info` level the value of `f(model)`, "*
-             "where `model` "*
+             body="Log at the `Info` level the value of `f(m)`, "*
+             "where `m` "*
              "is the object being iterated. If "*
-             "`IterativeControl.expose(model)` has been overloaded, then "*
-             "log `f(expose(model))` instead.\n\n"*
+             "`IterativeControl.expose(m)` has been overloaded, then "*
+             "log `f(expose(m))` instead.\n\n"*
              "Can be suppressed by setting the global verbosity level "*
              "sufficiently low. \n\n"*
              "See also [`Warn`](@ref), [`Error`](@ref). ")
@@ -61,12 +61,12 @@ Warn(predicate; f="") = Warn(predicate, f)
 
 @create_docs(Warn,
              header="Warn(predicate; f=\"\")",
-             example="Warn(model -> length(model.cache) > 100, "*
+             example="Warn(m -> length(m.cache) > 100, "*
              "f=\"Memory low\")",
-             body="If `predicate(model)` is `true`, then "*
+             body="If `predicate(m)` is `true`, then "*
              "log at the `Warn` level the value of `f` "*
-             "(or `f(IterationControl.expose(model))` if `f` is a function). "*
-             "Here `model` "*
+             "(or `f(IterationControl.expose(m))` if `f` is a function). "*
+             "Here `m` "*
              "is the object being iterated.\n\n"*
              "Can be suppressed by setting the global verbosity level "*
              "sufficiently low.\n\n"*
@@ -105,12 +105,12 @@ Error(predicate; f="", exception=nothing) = Error(predicate, f, exception)
 
 @create_docs(Error,
              header="Error(predicate; f=\"\", exception=nothing))",
-             example="Error(model -> isnan(model.bias), f=\"Bias overflow!\")",
-             body="If `predicate(model)` is `true`, then "*
+             example="Error(m -> isnan(m.bias), f=\"Bias overflow!\")",
+             body="If `predicate(m)` is `true`, then "*
              "log at the `Error` level the value of `f` "*
-             "(or `f(IterationControl.expose(model))` if `f` is a function) "*
+             "(or `f(IterationControl.expose(m))` if `f` is a function) "*
              "and stop iteration at the end of the current control cycle. "*
-             "Here `model` "*
+             "Here `m` "*
              "is the object being iterated.\n\n"*
              "Specify `exception=...` to throw an immediate "*
              "execption, without "*
@@ -155,9 +155,9 @@ Callback(; f=identity, kwargs...) = Callback(f, kwargs...)
              header="Callback(f=_->nothing, stop_if_true=false, "*
              "stop_message=nothing, raw=false)",
              example="Callback(m->put!(v, my_loss_function(m))",
-             body="Call `f(IterationControl.expose(model))`, where "*
-             "`model` is the object being iterated, unless `raw=true`, in "*
-             "which case call `f(model)` (guaranteed if `expose` has not been "*
+             body="Call `f(IterationControl.expose(m))`, where "*
+             "`m` is the object being iterated, unless `raw=true`, in "*
+             "which case call `f(m)` (guaranteed if `expose` has not been "*
              "overloaded.) "*
              "If `stop_if_true` is `true`, then trigger an early stop "*
              "if the value returned by `f` is `true`, logging the "*
@@ -198,12 +198,12 @@ Base.show(io::IO, d::Data{S}) where S =
           "stop_when_exhausted=$(d.stop_when_exhausted))")
 
 @create_docs(Data,
-             header="Data(data; stop_when_exhausted=false)",
+             header="Data(my_data; stop_when_exhausted=false)",
              example="Data(rand(100))",
              body="In each application of this control a new `item` from the "*
              "iterable, `data`, is retrieved (using `iterate`) and "*
-             "`IterationControl.ingest!(model, item)` is called. Here "*
-             "`model` is the object being iterated. \n\n"*
+             "`IterationControl.ingest!(m, item)` is called. Here "*
+             "`m` is the object being iterated. \n\n"*
              "A control becomes passive once the `data` iterable is done. "*
              "To trigger "*
              "a stop *after one passive application of the control*, set "*
@@ -271,12 +271,13 @@ end
 WithLossDo(f::Function;
      stop_if_true=false,
      stop_message=nothing) = WithLossDo(f, stop_if_true, stop_message)
-WithLossDo(; f=x->@info(x), kwargs...) = WithLossDo(f, kwargs...)
+WithLossDo(; f=x->@info("loss: $x"), kwargs...) = WithLossDo(f, kwargs...)
 
 @create_docs(WithLossDo,
-             header="WithLossDo(f=x->@info(x)), stop_if_true=false, "*
+             header="WithLossDo(f=x->@info(\"loss: \$x\"), "*
+             "stop_if_true=false, "*
              "stop_message=nothing)",
-             example="WithLossDo(x->put!(my_losses, x)",
+             example="WithLossDo(x->put!(my_losses, x))",
              body="Call `f(loss)`, where "*
              "`loss` is current loss.\n\n"*
              "If `stop_if_true` is `true`, then trigger an early stop "*
@@ -319,10 +320,12 @@ end
 WithTrainingLossesDo(f::Function;
      stop_if_true=false,
      stop_message=nothing) = WithTrainingLossesDo(f, stop_if_true, stop_message)
-WithTrainingLossesDo(; f=v->@info(v), kwargs...) = WithTrainingLossesDo(f, kwargs...)
+WithTrainingLossesDo(; f=v->@info("training: $v"), kwargs...) =
+    WithTrainingLossesDo(f, kwargs...)
 
 @create_docs(WithTrainingLossesDo,
-             header="WithTrainingLossesDo(f=v->@info(v)), stop_if_true=false, "*
+             header="WithTrainingLossesDo(f=v->@info(\"training: \$v\"), "*
+             "stop_if_true=false, "*
              "stop_message=nothing)",
              example="WithTrainingLossesDo(v->put!(my_losses, last(v))",
              body="Call `f(training_losses)`, where "*
@@ -334,7 +337,10 @@ WithTrainingLossesDo(; f=v->@info(v), kwargs...) = WithTrainingLossesDo(f, kwarg
 
 EarlyStopping.needs_training_losses(::Type{<:WithTrainingLossesDo}) = true
 
-function update!(c::WithTrainingLossesDo, model, verbosity, state=(done=false, ))
+function update!(c::WithTrainingLossesDo,
+                 model,
+                 verbosity,
+                 state=(done=false, ))
     losses = IterationControl.training_losses(model)
     r = c.f(losses)
     done = (c.stop_if_true && r isa Bool && r) ? true : false
@@ -368,10 +374,11 @@ end
 WithNumberDo(f::Function;
      stop_if_true=false,
      stop_message=nothing) = WithNumberDo(f, stop_if_true, stop_message)
-WithNumberDo(; f=n->@info(n), kwargs...) = WithNumberDo(f, kwargs...)
+WithNumberDo(; f=n->@info("number: $n"), kwargs...) = WithNumberDo(f, kwargs...)
 
 @create_docs(WithNumberDo,
-             header="WithNumberDo(f=n->@info(n)), stop_if_true=false, "*
+             header="WithNumberDo(f=n->@info(\"number: \$n\"), "*
+             "stop_if_true=false, "*
              "stop_message=nothing)",
              example="WithNumberDo(n->put!(my_channel, n))",
              body="Call `f(n)`, where "*
