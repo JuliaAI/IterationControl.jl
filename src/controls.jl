@@ -307,24 +307,24 @@ function takedown(c::WithLossDo, verbosity, state)
 end
 
 
-# # TrainingWithLossDoes
+# # WithTrainingLossesDo
 
-struct TrainingWithLossDoes{F<:Function}
+struct WithTrainingLossesDo{F<:Function}
     f::F
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
 end
 
 # constructor:
-TrainingWithLossDoes(f::Function;
+WithTrainingLossesDo(f::Function;
      stop_if_true=false,
-     stop_message=nothing) = TrainingWithLossDoes(f, stop_if_true, stop_message)
-TrainingWithLossDoes(; f=v->@info(v), kwargs...) = TrainingWithLossDoes(f, kwargs...)
+     stop_message=nothing) = WithTrainingLossesDo(f, stop_if_true, stop_message)
+WithTrainingLossesDo(; f=v->@info(v), kwargs...) = WithTrainingLossesDo(f, kwargs...)
 
-@create_docs(TrainingWithLossDoes,
-             header="TrainingWithLossDoes(f=v->@info(v)), stop_if_true=false, "*
+@create_docs(WithTrainingLossesDo,
+             header="WithTrainingLossesDo(f=v->@info(v)), stop_if_true=false, "*
              "stop_message=nothing)",
-             example="TrainingWithLossDoes(v->put!(my_losses, last(v))",
+             example="WithTrainingLossesDo(v->put!(my_losses, last(v))",
              body="Call `f(training_losses)`, where "*
              "`training_losses` is the vector of most recent batch "*
              "of training losses.\n\n"*
@@ -332,21 +332,21 @@ TrainingWithLossDoes(; f=v->@info(v), kwargs...) = TrainingWithLossDoes(f, kwarg
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
 
-EarlyStopping.needs_training_losses(::Type{<:TrainingWithLossDoes}) = true
+EarlyStopping.needs_training_losses(::Type{<:WithTrainingLossesDo}) = true
 
-function update!(c::TrainingWithLossDoes, model, verbosity, state=(done=false, ))
+function update!(c::WithTrainingLossesDo, model, verbosity, state=(done=false, ))
     losses = IterationControl.training_losses(model)
     r = c.f(losses)
     done = (c.stop_if_true && r isa Bool && r) ? true : false
     return (done=done, )
 end
 
-done(c::TrainingWithLossDoes, state) = state.done
+done(c::WithTrainingLossesDo, state) = state.done
 
-function takedown(c::TrainingWithLossDoes, verbosity, state)
+function takedown(c::WithTrainingLossesDo, verbosity, state)
     if state.done
         message = c.stop_message === nothing ?
-            "Stop triggered by a `TrainingWithLossDoes` control. " :
+            "Stop triggered by a `WithTrainingLossesDo` control. " :
             c.stop_message
         verbosity > 0 && @info message
         return (done = true, log = message)

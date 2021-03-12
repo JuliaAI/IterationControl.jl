@@ -217,11 +217,11 @@ end
 
 end
 
-@testset "TrainingWithLossDoes" begin
+@testset "WithTrainingLossesDo" begin
 
     v = Float64[]
     f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
-    c = TrainingWithLossDoes(f)
+    c = WithTrainingLossesDo(f)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -235,7 +235,7 @@ end
 
     v = Float64[]
     f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
-    c = TrainingWithLossDoes(f, stop_if_true=true)
+    c = WithTrainingLossesDo(f, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -247,11 +247,11 @@ end
     @test v ≈ [1.5, 0.45]
     @test IC.takedown(c, 0, state) ==
         (done = true,
-         log="Stop triggered by a `TrainingWithLossDoes` control. ")
+         log="Stop triggered by a `WithTrainingLossesDo` control. ")
 
     v = Float64[]
     f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
-    c = TrainingWithLossDoes(f, stop_if_true=true, stop_message="foo")
+    c = WithTrainingLossesDo(f, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)

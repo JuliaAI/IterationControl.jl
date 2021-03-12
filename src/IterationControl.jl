@@ -14,7 +14,7 @@ const CONTROLS = [:Step,
                   :Error,
                   :Callback,
                   :WithLossDo,
-                  :TrainingWithLossDoes,
+                  :WithTrainingLossesDo,
                   :WithNumberDo,
                   :Data]
 for criterion in subtypes(StoppingCriterion)

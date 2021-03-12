@@ -169,7 +169,7 @@ control                 | description                                           
 `NumberLimit(n=100)`    | Stop after `n` control cycles                                                           |`train!`                           | yes   |
 `WithNumberDo(f=n->@info(n))`    | Call `f(n)` where `n` is the control cycle count                                |`train!`                           | yes   |
 `WithLossDo(f=x->@info(x))`   | Call `f(loss)` where `loss` is the current loss                              |`train!`, `loss`                   | yes   |
-`TrainingWithLossDoes(f=v->@info(v))`| Call `f(v)` where `v` is the current batch of training losses      |`train!`, `training_loss`          | yes   |
+`WithTrainingLossesDo(f=v->@info(v))`| Call `f(v)` where `v` is the current batch of training losses      |`train!`, `training_loss`          | yes   |
 `NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   | yes   |
 `Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   | yes   |
 `GL(alpha=2.0)`         | Stop after "Generalization WithLossDo" exceeds `alpha`                                        |`train!`, `loss`                   | yes   | ``GL_α``
@@ -182,7 +182,7 @@ control                 | description                                           
 **Stopping option.** All the following controls trigger a stop if the
 provided function `f` returns `true` and `stop_if_true=true` is
 specified in the constructor: `Callback`, `WithNumberDo`, `WithLossDo`,
-`TrainingWithLossDoes`.
+`WithTrainingLossesDo`.
 
 There are also three control wrappers to modify a control's behavior:
 
