@@ -43,49 +43,49 @@ _pred(predicate::Int) = t -> mod(t + 1, predicate) == 0
 
 An iteration control wrapper.
 
-If `predicate` is an **integer**, `n`: Apply `control` on every `n`
-calls to apply the wrapper, starting with the `n`th call.
+If `predicate` is an **integer**, `k`: Apply `control` on every `k`
+calls to apply the wrapper, starting with the `k`th call.
 
 If `predicate` is a **function**: Apply `control` as usual when
-`predicate(t + 1)` is `true` but otherwise skip. Here `t` is the
-number of calls to apply the wrapper so far.
+`predicate(n + 1)` is `true` but otherwise skip. Here `n` is the
+number of calls to apply the wrapped control so far.
 
 """
 skip(control; predicate::Int=1) = Skip(control, _pred(predicate))
 
-_state(s, model, verbosity, t) = if s.predicate(t)
+_state(s, model, verbosity, n) = if s.predicate(n)
     atomic_state = update!(s.control, model, verbosity + 1)
-    return (atomic_state = atomic_state, t = t + 1)
+    return (atomic_state = atomic_state, n = n + 1)
 else
     return nothing
 end
 
 function update!(s::Skip, model, verbosity)
     state_candidate = _state(s, model, verbosity, 0)
-    state_candidate isa Nothing && return (t = 1, )
+    state_candidate isa Nothing && return (n = 1, )
     return state_candidate
 end
 
 # in case atomic state is not initialized in first `update` call:
-function update!(s::Skip, model, verbosity, state::NamedTuple{(:t,)})
-    state_candidate = _state(s, model, verbosity, state.t)
-    state_candidate isa Nothing && return (t = state.t + 1, )
+function update!(s::Skip, model, verbosity, state::NamedTuple{(:n,)})
+    state_candidate = _state(s, model, verbosity, state.n)
+    state_candidate isa Nothing && return (n = state.n + 1, )
     return state_candidate
 end
 
 # regular update:
 function update!(s::Skip, model, verbosity, state)
-    state_candidate = _state(s, model, verbosity, state.t)
+    state_candidate = _state(s, model, verbosity, state.n)
     state_candidate isa Nothing &&
-        return (atomic_state = state.atomic_state, t = state.t + 1)
+        return (atomic_state = state.atomic_state, n = state.n + 1)
     return state_candidate
 end
 
 done(s::Skip, state) = done(s.control, state.atomic_state)
 
 # can't be done if atomic state never intialized:
-done(s::Skip, state::NamedTuple{(:t,)}) = false
+done(s::Skip, state::NamedTuple{(:n,)}) = false
 
 takedown(s::Skip, verbosity, state) =
     takedown(s.control, verbosity, state.atomic_state)
-takedown(::Skip, ::Any, ::NamedTuple{(:t,)}) = NamedTuple()
+takedown(::Skip, ::Any, ::NamedTuple{(:n,)}) = NamedTuple()
