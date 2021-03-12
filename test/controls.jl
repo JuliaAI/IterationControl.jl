@@ -371,14 +371,19 @@ end
 
     model = Particle(0.1)
     losses = Float64[]
-    report = IC.train!(model,
-                       Data(data, stop_when_exhausted=true),
-                       Step(5),
-                       Threshold(0.01),
-                       TimeLimit(0.0005),
-                       Info(loss),
-                       Callback(callback!),
-                       verbosity=-1)
+    noise = fill((:info, r""), 33)
+    report = @test_logs(noise...,
+                        IC.train!(model,
+                                  Data(data, stop_when_exhausted=true),
+                                  Step(5),
+                                  WithNumberDo(),
+                                  WithLossDo(),
+                                  WithTrainingLossesDo(),
+                                  Threshold(0.01),
+                                  TimeLimit(0.0005),
+                                  Info(loss),
+                                  Callback(callback!),
+                                  verbosity=-1))
     @test length(losses) == length(data) + 1
     @test loss(model) > 0.01
 end
