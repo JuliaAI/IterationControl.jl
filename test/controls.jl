@@ -167,11 +167,11 @@ end
 
 end
 
-@testset "Loss" begin
+@testset "WithLossDo" begin
 
     v = Float64[]
     f(loss) = (push!(v, loss); last(v) < 0.02)
-    c = Loss(f)
+    c = WithLossDo(f)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -185,7 +185,7 @@ end
 
     v = Float64[]
     f(loss) = (push!(v, loss); last(v) < 0.02)
-    c = Loss(f, stop_if_true=true)
+    c = WithLossDo(f, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -197,11 +197,11 @@ end
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
         (done = true,
-         log="Stop triggered by a `Loss` control. ")
+         log="Stop triggered by a `WithLossDo` control. ")
 
     v = Float64[]
     f(loss) = (push!(v, loss); last(v) < 0.02)
-    c = Loss(f, stop_if_true=true, stop_message="foo")
+    c = WithLossDo(f, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -217,11 +217,11 @@ end
 
 end
 
-@testset "TrainingLosses" begin
+@testset "WithTrainingLossesDo" begin
 
     v = Float64[]
     f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
-    c = TrainingLosses(f)
+    c = WithTrainingLossesDo(f)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -235,7 +235,7 @@ end
 
     v = Float64[]
     f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
-    c = TrainingLosses(f, stop_if_true=true)
+    c = WithTrainingLossesDo(f, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -247,11 +247,11 @@ end
     @test v ≈ [1.5, 0.45]
     @test IC.takedown(c, 0, state) ==
         (done = true,
-         log="Stop triggered by a `TrainingLosses` control. ")
+         log="Stop triggered by a `WithTrainingLossesDo` control. ")
 
     v = Float64[]
     f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
-    c = TrainingLosses(f, stop_if_true=true, stop_message="foo")
+    c = WithTrainingLossesDo(f, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -267,10 +267,10 @@ end
 end
 
 
-@testset "NumberCount" begin
+@testset "WithNumberDo" begin
     v = Int[]
     f(n) = (push!(v, n); last(n) > 1)
-    c = NumberCount(f)
+    c = WithNumberDo(f)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -284,7 +284,7 @@ end
 
     v = Int[]
     f(n) = (push!(v, n); last(n) > 1)
-    c = NumberCount(f, stop_if_true=true)
+    c = WithNumberDo(f, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
@@ -296,11 +296,11 @@ end
     @test v == [1, 2]
     @test IC.takedown(c, 0, state) ==
         (done = true,
-         log="Stop triggered by a `NumberCount` control. ")
+         log="Stop triggered by a `WithNumberDo` control. ")
 
     v = Int[]
     f(n) = (push!(v, n); last(n) > 1)
-    c = NumberCount(f, stop_if_true=true, stop_message="foo")
+    c = WithNumberDo(f, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 0)
