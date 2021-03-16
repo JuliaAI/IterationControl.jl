@@ -186,8 +186,9 @@ control                 | description                                           
 `Patience(n=5)`         | Stop after `n` consecutive loss increases                                               |`train!`, `loss`                   | yes   | ``UP_s``
 `PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                                       |`train!`, `loss`, `training_losses`| yes   | ``PQ_α``
 `Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                | yes   |
-&#42; `WithIterationsDo(f=x->@info("loss: $x")) | Call `f(i)`, where `i` is number of iterations                  | n/a                               | yes   |
-&#42; `Save(filename="machine.jlso")` |  Save current machine to `machine1.jlso`, etc                             | n/a                               | yes   |
+&#42; `WithIterationsDo(f=x->@info("loss: $x"))`    | Call `f(i)`, where `i` is number of iterations              | n/a                               | yes   |
+&#42; `WithEvaluationDo(f=e->@info(e.measurement))` | Call `f(e)`, where `e` is the latest performance evaluation object | n/a                        | yes   |
+&#42; `Save(filename="machine.jlso")`               |  Save current machine to `machine1.jlso`, etc               | n/a                               | yes   |
 
 > Table 1. Atomic controls
 
