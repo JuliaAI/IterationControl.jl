@@ -1,5 +1,5 @@
 ```@meta
-EditURL = "<unknown>/../../../../IterationControl/examples/particle/particle.jl"
+EditURL = "<unknown>/../examples/particle/particle.jl"
 ```
 
 Using IterationControl.jl to control a particle tracker

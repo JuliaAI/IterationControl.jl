@@ -1,19 +1,24 @@
 ```@meta
-EditURL = "<unknown>/../examples/square_rooter/square_rooter.jl"
+EditURL = "<unknown>/square_rooter.jl"
 ```
 
 Introductory demonstration of IterationControl.jl
 
-```@example square_rooter
+```julia
 using Pkg
 Pkg.activate(@__DIR__)
 Pkg.instantiate()
 ```
 
+```
+ Activating environment at `~/Dropbox/Julia7/MLJ/IterationControl/examples/square_rooter/Project.toml`
+
+```
+
 Here's a simple iterative mdel that computes Babylonian
 approximations to a square root:
 
-```@example square_rooter
+```julia
 mutable struct SquareRooter
     x::Float64     # input - number to be square rooted
     root::Float64  # current approximation of root
@@ -34,21 +39,37 @@ loss(m::SquareRooter) = abs(m.root^2 - m.x)
 training_losses(m::SquareRooter) = m.training_losses
 ```
 
+```
+training_losses (generic function with 1 method)
+```
+
 And here it in action:
 
-```@example square_rooter
+```julia
 model = SquareRooter(9)
 model.root
 ```
 
-```@example square_rooter
+```
+1.0
+```
+
+```julia
 train!(model, 2) # train for 2 iterations
 model.root
 ```
 
-```@example square_rooter
+```
+3.4
+```
+
+```julia
 train!(model, 1) # train for 1 more iteration
 model.root
+```
+
+```
+3.023529411764706
 ```
 
  Then we can replace the integer argument `n` in `train!(model, n)`
@@ -56,25 +77,41 @@ model.root
 `train!` to the `IterationControl.train!` method defined in this
 package:
 
-```@example square_rooter
+```julia
 using IterationControl
 IterationControl.train!(model::SquareRooter, n) =  train!(model, n)
 ```
 
 The lifted `train!` has the same functionality as the original one:
 
-```@example square_rooter
+```julia
 model = SquareRooter(9)
 IterationControl.train!(model, 2)
 
 model.root
 ```
 
+```
+3.4
+```
+
 But now we can also do this:
 
-```@example square_rooter
+```julia
 IterationControl.train!(model, Step(2), NumberLimit(3), Info(m->m.root));
 nothing #hide
+```
+
+```
+┌ Info: 3.00009155413138
+└ @ IterationControl /Users/anthony/.julia/packages/IterationControl/h3s8z/src/controls.jl:47
+┌ Info: 3.0
+└ @ IterationControl /Users/anthony/.julia/packages/IterationControl/h3s8z/src/controls.jl:47
+┌ Info: 3.0
+└ @ IterationControl /Users/anthony/.julia/packages/IterationControl/h3s8z/src/controls.jl:47
+┌ Info: Stop triggered by NumberLimit(3) stopping criterion. 
+└ @ IterationControl /Users/anthony/.julia/packages/IterationControl/h3s8z/src/stopping_controls.jl:75
+
 ```
 
 Here each control is repeatedly applied until one of them triggers a
@@ -89,13 +126,17 @@ that method to `IterationControl.loss` to enable control using
 loss-based stopping criteria, such as a loss threshold. In the
 demonstation below, we also include a callback:
 
-```@example square_rooter
+```julia
 model = SquareRooter(4)
 train!(model, 1)
 loss(model)
 ```
 
-```@example square_rooter
+```
+2.25
+```
+
+```julia
 IterationControl.loss(model::SquareRooter) = loss(model)
 
 losses = Float64[]
@@ -108,8 +149,21 @@ IterationControl.train!(model,
 nothing #hide
 ```
 
-```@example square_rooter
+```
+┌ Info: Stop triggered by Threshold(0.0001) stopping criterion. 
+└ @ IterationControl /Users/anthony/.julia/packages/IterationControl/h3s8z/src/stopping_controls.jl:75
+
+```
+
+```julia
 losses
+```
+
+```
+3-element Array{Float64,1}:
+ 0.20249999999999968
+ 0.002439396192741583
+ 3.716891878724482e-7
 ```
 
 If training `model` generates user-inspectable "training losses" (one
