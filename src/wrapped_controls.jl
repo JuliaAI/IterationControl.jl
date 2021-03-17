@@ -53,9 +53,9 @@ number of calls to apply the wrapped control so far.
 """
 skip(control; predicate::Int=1) = Skip(control, _pred(predicate))
 
-_state(s, model, verbosity, n) = if s.predicate(n)
-    atomic_state = update!(s.control, model, verbosity + 1)
-    return (atomic_state = atomic_state, n = n + 1)
+_state(s, model, verbosity, n, atomic_state...) = if s.predicate(n)
+    new_atomic_state = update!(s.control, model, verbosity + 1, atomic_state...)
+    return (atomic_state = new_atomic_state, n = n + 1)
 else
     return nothing
 end
@@ -75,7 +75,7 @@ end
 
 # regular update:
 function update!(s::Skip, model, verbosity, state)
-    state_candidate = _state(s, model, verbosity, state.n)
+    state_candidate = _state(s, model, verbosity, state.n, state.atomic_state)
     state_candidate isa Nothing &&
         return (atomic_state = state.atomic_state, n = state.n + 1)
     return state_candidate

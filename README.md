@@ -164,15 +164,15 @@ control                 | description                                           
 `Info(f=identity)`      | Log to `Info` the value of `f(model)`                                                   |`train!`                           | no    |
 `Warn(predicate, f="")` | Log to `Warn` the value of `f` or `f(model)` if `predicate(model)` holds                |`train!`                           | no    |
 `Error(predicate, f="")`| Log to `Error` the value of `f` or `f(model)` if `predicate(model)` holds and then stop |`train!`                           | yes   |
-`Callback(f=_->nothing)`| Call `f(model)`                                                     |`train!`                           | yes   |
+`Callback(f=_->nothing)`| Call `f(model)`                                                                         |`train!`                           | yes   |
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           | yes   |
 `NumberLimit(n=100)`    | Stop after `n` control cycles                                                           |`train!`                           | yes   |
-`WithNumberDo(f=n->@info(n))`    | Call `f(n)` where `n` is the control cycle count                                |`train!`                           | yes   |
-`WithLossDo(f=x->@info(x))`   | Call `f(loss)` where `loss` is the current loss                              |`train!`, `loss`                   | yes   |
-`WithTrainingLossesDo(f=v->@info(v))`| Call `f(v)` where `v` is the current batch of training losses      |`train!`, `training_loss`          | yes   |
+`WithNumberDo(f=n->@info(n))`    | Call `f(n + 1)` where `n` is number of previous calls                          |`train!`                           | yes   |
+`WithLossDo(f=x->@info(x))`   | Call `f(loss)` where `loss` is the current loss                                   |`train!`, `loss`                   | yes   |
+`WithTrainingLossesDo(f=v->@info(v))`| Call `f(v)` where `v` is the current batch of training losses              |`train!`, `training_loss`          | yes   |
 `NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   | yes   |
 `Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   | yes   |
-`GL(alpha=2.0)`         | Stop after "Generalization WithLossDo" exceeds `alpha`                                        |`train!`, `loss`                   | yes   | ``GL_α``
+`GL(alpha=2.0)`         | Stop after "Generalization WithLossDo" exceeds `alpha`                                  |`train!`, `loss`                   | yes   | ``GL_α``
 `Patience(n=5)`         | Stop after `n` consecutive loss increases                                               |`train!`, `loss`                   | yes   | ``UP_s``
 `PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                                       |`train!`, `loss`, `training_losses`| yes   | ``PQ_α``
 `Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                | yes   |
