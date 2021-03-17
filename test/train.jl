@@ -16,7 +16,10 @@
                (:info, r"Steping model for 2 iterations"),
                (:info, r"Steping model for 2 iterations"),
                (:info, r"Stop triggered by NumberLimit"),
-               IC.train!(m, Step(2), NotANumber(), NumberLimit(3); verbosity=2));
+               IC.train!(m, Step(2),
+                         NotANumber(),
+                         NumberLimit(3);
+                         verbosity=2));
 end
 
 struct WrappedSquareRooter
@@ -42,4 +45,15 @@ end
     IC.train!(wrapper, Step(1), c1, c2, NumberLimit(2), verbosity=0)
 
     @test map(w -> w.s.root, wrappers) ≈ roots
+end
+
+@testset "skip integration" begin
+    m = SquareRooter(4)
+    numbers = Int[]
+    IC.train!(m,
+              Step(1),
+              IterationControl.skip(
+                  WithNumberDo(x->push!(numbers, x)), predicate=3),
+              NumberLimit(10))
+    @test numbers == [1, 2, 3]
 end
