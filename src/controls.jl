@@ -14,7 +14,7 @@ Step(; n=5) = Step(n)
              "Will never trigger a stop. ")
 
 function update!(c::Step, model, verbosity, args...)
-    if verbosity > 0
+    if verbosity > 1
         @info "Steping model for $(c.n) iterations. "
     else
         nothing
@@ -44,7 +44,7 @@ Info(; f::Function=identity) = Info(f)
              "See also [`Warn`](@ref), [`Error`](@ref). ")
 
 function update!(c::Info, model, verbosity, args...)
-    verbosity < 0 || @info _log_eval(c.f, model)
+    verbosity < 1 || @info _log_eval(c.f, model)
     return nothing
 end
 
@@ -73,7 +73,7 @@ Warn(predicate; f="") = Warn(predicate, f)
              "See also [`Info`](@ref), [`Error`](@ref). ")
 
 function update!(c::Warn, model, verbosity, args...)
-    verbosity > 0 && c.predicate(model) &&
+    verbosity > 1 && c.predicate(model) &&
         @warn _log_eval(c.f, model)
     return nothing
 end
@@ -81,7 +81,7 @@ end
 function update!(c::Warn, model, verbosity, warnings=())
     if c.predicate(model)
         warning = _log_eval(c.f, model)
-        verbosity < 0 || @warn warning
+        verbosity < 1 || @warn warning
         state = tuple(warnings..., warning)
     else
         state = warnings
@@ -220,7 +220,7 @@ function update!(c::Data, model, verbosity)
         data_exhausted = false
         item, iter_state = next
     end
-    data_exhausted && verbosity > -1 && !c.stop_when_exhausted &&
+    data_exhausted && verbosity > 0 && !c.stop_when_exhausted &&
         @info DATA_EXHAUSTED
     data_exhausted || ingest!(model, item)
     done = data_exhausted && c.stop_when_exhausted
@@ -240,7 +240,7 @@ function update!(c::Data, model, verbosity, state)
             item, iter_state = next
         end
     end
-    data_exhausted && verbosity > -1 && !c.stop_when_exhausted &&
+    data_exhausted && verbosity > 0 && !c.stop_when_exhausted &&
         iter_state !== nothing && @info DATA_EXHAUSTED
     data_exhausted || ingest!(model, item)
     done = data_exhausted && c.stop_when_exhausted
