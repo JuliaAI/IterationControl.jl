@@ -8,8 +8,9 @@ A lightweight package for controlling iterative algorithms, with a
 view to training and optimizing machine learning models.
 
 Builds on
-[EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) and inspired
-by [LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl).
+[EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) and
+inspired by
+[LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl). 
 
 
 ## Installation
@@ -155,8 +156,8 @@ The `IterationControl.train!` method can be given the keyword argument
 ## Controls provided
 
 Controls are repeatedly applied in sequence until a control triggers a
-stop. Each control type has a detailed doc-string. Here is a short
-summary, with some advanced options omitted:
+stop. Each control type has a detailed doc-string. Below is a short
+summary, with some advanced options omitted. 
 
 control                 | description                                                                             | enabled if these are overloaded   | can trigger a stop | notation in Prechelt
 ------------------------|-----------------------------------------------------------------------------------------|-----------------------------------|-------|---------------
@@ -168,7 +169,7 @@ control                 | description                                           
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           | yes   |
 `NumberLimit(n=100)`    | Stop after `n` applications of the control                                              |`train!`                           | yes   |
 `NumberSinceBest(n=6)`  | Stop when best loss occurred `n` control applications ago                               |`train!`                           | yes   |
-`WithNumberDo(f=n->@info(n))`    | Call `f(n + 1)` where `n` is number of previous calls                          |`train!`                           | yes   |
+`WithNumberDo(f=n->@info(n))`    | Call `f(n + 1)` where `n` is number of previous applications of control        |`train!`                           | yes   |
 `WithLossDo(f=x->@info(x))`   | Call `f(loss)` where `loss` is the current loss                                   |`train!`, `loss`                   | yes   |
 `WithTrainingLossesDo(f=v->@info(v))`| Call `f(v)` where `v` is the current batch of training losses              |`train!`, `training_loss`          | yes   |
 `NotANumber()`          | Stop when `NaN` encountered                                                             |`train!`, `loss`                   | yes   |
@@ -194,6 +195,8 @@ wrapper                                            | description
 `IterationControl.composite(controls...)`          | Apply each `control` in `controls` in sequence; mostly for under-the-hood use
 
 > Table 2. Wrapped controls
+
+
 
 
 ## Access to model through a wrapper
