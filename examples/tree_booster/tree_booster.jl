@@ -1,4 +1,4 @@
-# # Using IterativeControl to train a tree-booster on the iris data set
+# # Using IterationControl.jl to train a tree-booster on the iris data set
 
 # In this demonstration we show how to the controls in
 # [IterationControl.jl](https://github.com/ablaom/IterationControl.jl)
