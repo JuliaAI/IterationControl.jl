@@ -15,7 +15,7 @@ Step(; n=5) = Step(n)
 
 function update!(c::Step, model, verbosity, args...)
     if verbosity > 1
-        @info "Steping model for $(c.n) iterations. "
+        @info "Stepping model for $(c.n) iterations. "
     else
         nothing
     end
