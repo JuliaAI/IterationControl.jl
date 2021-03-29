@@ -132,9 +132,9 @@ end
     @test IC.takedown(c, 0, state) == (done = false, log="")
 
     v = Float64[]
-    f(model) = (push!(v, IC.loss(model)); last(v) < 0.02)
+    f2(model) = (push!(v, IC.loss(model)); last(v) < 0.02)
 
-    c = Callback(f, stop_if_true=true)
+    c = Callback(f2, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 1)
@@ -149,9 +149,9 @@ end
          log="Stop triggered by a `Callback` control. ")
 
     v = Float64[]
-    f(model) = (push!(v, IC.loss(model)); last(v) < 0.02)
+    f3(model) = (push!(v, IC.loss(model)); last(v) < 0.02)
 
-    c = Callback(f, stop_if_true=true, stop_message="foo")
+    c = Callback(f3, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 1)
@@ -184,8 +184,8 @@ end
     @test IC.takedown(c, 0, state) == (done = false, log="")
 
     v = Float64[]
-    f(loss) = (push!(v, loss); last(v) < 0.02)
-    c = WithLossDo(f, stop_if_true=true)
+    f2(loss) = (push!(v, loss); last(v) < 0.02)
+    c = WithLossDo(f2, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 1)
@@ -200,8 +200,8 @@ end
          log="Stop triggered by a `WithLossDo` control. ")
 
     v = Float64[]
-    f(loss) = (push!(v, loss); last(v) < 0.02)
-    c = WithLossDo(f, stop_if_true=true, stop_message="foo")
+    f3(loss) = (push!(v, loss); last(v) < 0.02)
+    c = WithLossDo(f3, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 1)
@@ -234,8 +234,8 @@ end
     @test IC.takedown(c, 0, state) == (done = false, log="")
 
     v = Float64[]
-    f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
-    c = WithTrainingLossesDo(f, stop_if_true=true)
+    f1(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
+    c = WithTrainingLossesDo(f1, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 1)
@@ -250,8 +250,8 @@ end
          log="Stop triggered by a `WithTrainingLossesDo` control. ")
 
     v = Float64[]
-    f(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
-    c = WithTrainingLossesDo(f, stop_if_true=true, stop_message="foo")
+    f2(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
+    c = WithTrainingLossesDo(f2, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 1)
@@ -283,8 +283,8 @@ end
     @test IC.takedown(c, 0, state) == (done = false, log="")
 
     v = Int[]
-    f(n) = (push!(v, n); last(n) > 1)
-    c = WithNumberDo(f, stop_if_true=true)
+    f2(n) = (push!(v, n); last(n) > 1)
+    c = WithNumberDo(f2, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 1)
@@ -299,8 +299,8 @@ end
          log="Stop triggered by a `WithNumberDo` control. ")
 
     v = Int[]
-    f(n) = (push!(v, n); last(n) > 1)
-    c = WithNumberDo(f, stop_if_true=true, stop_message="foo")
+    f3(n) = (push!(v, n); last(n) > 1)
+    c = WithNumberDo(f3, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
     state = IC.update!(c, m, 1)

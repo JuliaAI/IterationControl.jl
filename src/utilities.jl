@@ -3,7 +3,7 @@
 function detailed_doc_string(M; header="", example="", body="")
     ret = "    $header"
     ret *= "\n\n"
-    ret *= "An iteration control, as in `$example`. "
+    ret *= "An iteration control, as in, `$example`. "
     ret *= "\n\n"
     ret *= body
     return ret
