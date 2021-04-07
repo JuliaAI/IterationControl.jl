@@ -12,6 +12,8 @@ Builds on
 inspired by
 [LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl). 
 
+Other related software:
+[DynamicIterators.jl](https://github.com/mschauer/DynamicIterators.jl).
 
 ## Installation
 
