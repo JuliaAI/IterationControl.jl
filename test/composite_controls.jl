@@ -1,7 +1,7 @@
 @testset "constructors, IC.flat" begin
     @test IC.composite() == Never()
     c1 = Patience(1)
-    c2 = NotANumber()
+    c2 = InvalidValue()
     c3 = Step(1)
 
     @test IC.composite(c1) == c1
@@ -19,7 +19,7 @@ end
 @testset "behaviour" begin
     a = Step(4)
     b = NumberLimit(2)
-    c = NotANumber()
+    c = InvalidValue()
     d = IC.composite(a, b, c)
 
     # separated:

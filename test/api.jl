@@ -1,4 +1,5 @@
 model = Particle()
+invalid = InvalidValue()
 
 @test_throws IC.ERR_TRAIN IterationControl.train!(model)
 @test_throws IC.err_train(model)  IterationControl.train!(model, 1)
@@ -6,13 +7,13 @@ model = Particle()
 # lifting train!:
 IC.train!(model::Particle, n) = train!(model, n)
 
-@test_throws(IC.err_getter(NotANumber(), :loss, model),
-             IC.train!(model, NotANumber(), NumberLimit(1)))
+@test_throws(IC.err_getter(invalid, :loss, model),
+             IC.train!(model, invalid, NumberLimit(1)))
 
 # lifting loss!:
 IterationControl.loss(m::Particle) = loss(m)
 
-IC.train!(model, NotANumber(), NumberLimit(1), verbosity=0)
+IC.train!(model, invalid, NumberLimit(1), verbosity=0)
 
 @test_throws(IC.err_getter(PQ(), :training_losses, model),
              IC.train!(model, PQ(), NumberLimit(1)))
