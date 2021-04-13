@@ -1,9 +1,9 @@
 @testset "loss getters" begin
     model=SquareRooter(4)
-    @test IterationControl.get_loss(NotANumber(), model) ==
+    @test IterationControl.get_loss(InvalidValue(), model) ==
         IterationControl.loss(model)
-    @test_throws(IterationControl.err_getter(NotANumber(), :loss, :junk),
-                 IterationControl.get_loss(NotANumber(), :junk))
+    @test_throws(IterationControl.err_getter(InvalidValue(), :loss, :junk),
+                 IterationControl.get_loss(InvalidValue(), :junk))
     IterationControl.train!(model, 2)
     @test IterationControl.get_training_losses(PQ(), model) ==
         IterationControl.training_losses(model)

@@ -1,10 +1,10 @@
 @testset "debug" begin
     m = SquareRooter(4)
-    test_controls = [Step(2), NotANumber(), GL(), Callback(println)]
+    test_controls = [Step(2), InvalidValue(), GL(), Callback(println)]
     _info = fill((:info, r""), 2*length(test_controls))
 
     @test_logs(_info...,
-               for c in [Step(2), NotANumber(), GL(), Callback()]
+               for c in [Step(2), InvalidValue(), GL(), Callback()]
                d = IC.debug(c)
                state = IC.update!(c, m, 1)
                @test state == IC.update!(d, m, 1)
@@ -17,11 +17,11 @@ end
 
 @testset "skip" begin
     m = SquareRooter(4)
-    test_controls = [Step(2), NotANumber(), GL(), Callback(println)]
+    test_controls = [Step(2), InvalidValue(), GL(), Callback(println)]
     _info = fill((:info, r""), 2)
 
     @test_logs(_info...,
-               for c in [Step(2), NotANumber(), GL(), Callback()]
+               for c in [Step(2), InvalidValue(), GL(), Callback()]
                s = IC.skip(c, predicate=2)
                @test !s.predicate(0)
                @test s.predicate(1)
