@@ -1,7 +1,7 @@
 @testset "basic integration" begin
     m = SquareRooter(4)
     report = IC.train!(m, Step(2),  InvalidValue(), NumberLimit(3); verbosity=0);
-    @test report[1] == (Step(2), NamedTuple())
+    @test report[1] == (Step(2), (n_iterations = 6,))
     @test report[2] == (InvalidValue(), (done=false, log=""))
     report[3] == (NumberLimit(3),
                   (done=true,
@@ -12,9 +12,9 @@
     @test_logs((:info, r"Stop triggered by Num"),
                IC.train!(m, Step(2),  InvalidValue(), NumberLimit(3)));
     @test_logs((:info, r"Using these controls"),
-               (:info, r"Stepping model for 2 iterations"),
-               (:info, r"Stepping model for 2 iterations"),
-               (:info, r"Stepping model for 2 iterations"),
+               (:info, r"Stepping model for 2 more iterations"),
+               (:info, r"Stepping model for 2 more iterations"),
+               (:info, r"Stepping model for 2 more iterations"),
                (:info, r"Stop triggered by NumberLimit"),
                IC.train!(m, Step(2),
                          InvalidValue(),

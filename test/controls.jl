@@ -6,12 +6,12 @@
     m = SquareRooter(4)
     c = Step(n=2)
     state = IC.update!(c, m, 0)
-    @test state === nothing
+    @test state === (n_iterations = 2,)
     @test m.training_losses == all_training_losses[1:2]
-    state = IC.update!(c, m, 0)
+    state = IC.update!(c, m, 0, state)
     @test m.training_losses == all_training_losses[3:4]
     @test !IC.done(c, state)
-    @test IC.takedown(c, 1, state) == NamedTuple()
+    @test IC.takedown(c, 1, state) == (n_iterations = 4,)
 end
 
 @testset "Info" begin
@@ -181,7 +181,8 @@ end
     state = IC.update!(c, m, 1, state)
     @test !state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
-    @test IC.takedown(c, 0, state) == (done = false, log="")
+    @test IC.takedown(c, 0, state) ==
+        (loss=v[end], done = false, log="")
 
     v = Float64[]
     f2(loss) = (push!(v, loss); last(v) < 0.02)
@@ -196,7 +197,8 @@ end
     @test state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
-        (done = true,
+        (loss = v[end],
+         done = true,
          log="Stop triggered by a `WithLossDo` control. ")
 
     v = Float64[]
@@ -212,7 +214,8 @@ end
     @test state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
-        (done = true,
+        (loss = v[end],
+         done = true,
          log="foo")
 
 end
@@ -231,7 +234,8 @@ end
     state = IC.update!(c, m, 1, state)
     @test !state.done
     @test v ≈ [1.5, 0.45]
-    @test IC.takedown(c, 0, state) == (done = false, log="")
+    @test IC.takedown(c, 0, state) ==
+        (latest_training_loss = v[end], done = false, log="")
 
     v = Float64[]
     f1(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
@@ -246,7 +250,8 @@ end
     @test state.done
     @test v ≈ [1.5, 0.45]
     @test IC.takedown(c, 0, state) ==
-        (done = true,
+        (latest_training_loss = v[end],
+         done = true,
          log="Stop triggered by a `WithTrainingLossesDo` control. ")
 
     v = Float64[]
@@ -262,7 +267,8 @@ end
     @test state.done
     @test v ≈ [1.5, 0.45]
     @test IC.takedown(c, 0, state) ==
-        (done = true,
+        (latest_training_loss = v[end],
+         done = true,
          log="foo")
 end
 
@@ -280,7 +286,7 @@ end
     state = IC.update!(c, m, 1, state)
     @test !state.done
     @test v == [1, 2]
-    @test IC.takedown(c, 0, state) == (done = false, log="")
+    @test IC.takedown(c, 0, state) == (done = false, n = 2, log="")
 
     v = Int[]
     f2(n) = (push!(v, n); last(n) > 1)
@@ -296,6 +302,7 @@ end
     @test v == [1, 2]
     @test IC.takedown(c, 0, state) ==
         (done = true,
+         n= 2,
          log="Stop triggered by a `WithNumberDo` control. ")
 
     v = Int[]
@@ -312,6 +319,7 @@ end
     @test v == [1, 2]
     @test IC.takedown(c, 0, state) ==
         (done = true,
+         n = 2,
          log="foo")
 end
 
