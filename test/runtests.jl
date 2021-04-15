@@ -4,6 +4,11 @@ using Test
 const IC = IterationControl
 
 include("_models_for_testing.jl")
+const SquareRooter = IC.SquareRooter
+
+@testset "square_rooter.jl" begin
+    include("square_rooter.jl")
+end
 
 @testset "utilities" begin
     include("utilities.jl")
