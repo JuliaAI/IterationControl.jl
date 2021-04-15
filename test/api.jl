@@ -2,7 +2,7 @@ model = Particle()
 invalid = InvalidValue()
 
 @test_throws IC.ERR_TRAIN IterationControl.train!(model)
-@test_throws IC.err_train(model)  IterationControl.train!(model, 1)
+@test_throws IC.err_train(model) IterationControl.train!(model, 1)
 
 # lifting train!:
 IC.train!(model::Particle, n) = train!(model, n)
