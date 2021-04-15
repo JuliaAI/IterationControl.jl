@@ -13,14 +13,16 @@ Step(; n=5) = Step(n)
              body="Train for `n` more iterations. "*
              "Will never trigger a stop. ")
 
-function update!(c::Step, model, verbosity, args...)
-    if verbosity > 1
-        @info "Stepping model for $(c.n) iterations. "
-    else
-        nothing
-    end
+function update!(c::Step, model, verbosity, state=(n_iterations = 0,))
+    n_iterations = state.n_iterations
+    verbosity > 1 &&
+        @info "Stepping model for $(c.n) more iterations. "
     train!(model, c.n)
+    state  = (n_iterations = n_iterations + c.n,)
+    return state
 end
+
+takedown(c::Step, verbosity, state) = state
 
 # # Info
 
@@ -286,11 +288,14 @@ WithLossDo(; f=x->@info("loss: $x"), kwargs...) = WithLossDo(f, kwargs...)
 
 EarlyStopping.needs_loss(::Type{<:WithLossDo}) = true
 
-function update!(c::WithLossDo, model, verbosity, state=(done=false, ))
+function update!(c::WithLossDo,
+                 model,
+                 verbosity,
+                 state=(loss=nothing, done=false))
     loss = IterationControl.loss(model)
     r = c.f(loss)
     done = (c.stop_if_true && r isa Bool && r) ? true : false
-    return (done=done,)
+    return (loss=loss, done=done)
 end
 
 done(c::WithLossDo, state) = state.done
@@ -301,9 +306,9 @@ function takedown(c::WithLossDo, verbosity, state)
             "Stop triggered by a `WithLossDo` control. " :
             c.stop_message
         verbosity > 0 && @info message
-        return (done = true, log = message)
+        return merge(state, (log = message,))
     else
-        return (done = false, log = "")
+        return merge(state, (log = "",))
     end
 end
 
@@ -340,11 +345,11 @@ EarlyStopping.needs_training_losses(::Type{<:WithTrainingLossesDo}) = true
 function update!(c::WithTrainingLossesDo,
                  model,
                  verbosity,
-                 state=(done=false, ))
+                 state=(latest_training_loss = nothing, done = false))
     losses = IterationControl.training_losses(model)
     r = c.f(losses)
     done = (c.stop_if_true && r isa Bool && r) ? true : false
-    return (done=done, )
+    return (latest_training_loss=losses[end], done=done)
 end
 
 done(c::WithTrainingLossesDo, state) = state.done
@@ -355,9 +360,9 @@ function takedown(c::WithTrainingLossesDo, verbosity, state)
             "Stop triggered by a `WithTrainingLossesDo` control. " :
             c.stop_message
         verbosity > 0 && @info message
-        return (done = true, log = message)
+        return merge(state, (log = message,))
     else
-        return (done = false, log = "")
+        return merge(state, (log = "",))
     end
 end
 
@@ -403,8 +408,8 @@ function takedown(c::WithNumberDo, verbosity, state)
             "Stop triggered by a `WithNumberDo` control. " :
             c.stop_message
         verbosity > 0 && @info message
-        return (done = true, log = message)
+        return merge(state, (log = message,))
     else
-        return (done = false, log = "")
+        return merge(state, (log = "",))
     end
 end
