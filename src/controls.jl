@@ -305,7 +305,7 @@ end
 done(c::WithLossDo, state) = state.done
 
 function takedown(c::WithLossDo, verbosity, state)
-    verbosity > 1 && @info "final loss: $state.loss. "
+    verbosity > 1 && @info "final loss: $(state.loss). "
     if state.done
         message = c.stop_message === nothing ?
             "Stop triggered by a `WithLossDo` control. " :

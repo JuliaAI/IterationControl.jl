@@ -1,3 +1,24 @@
+@testset "louder" begin
+    m = SquareRooter(4)
+    control = Warn(_->true, f="42")
+
+    c = IC.louder(control, by=0)
+    IC.train!(m, 1)
+    state = @test_logs IC.update!(c, m, -1)
+    IC.train!(m, 2)
+    state = @test_logs (:warn, r"42") IC.update!(c, m, 0, state)
+    @test_logs IC.takedown(c, 1, state)
+    @test_logs (:warn, r"A ") IC.takedown(c, 2, state)
+
+    c = IC.louder(control, by=1)
+    IC.train!(m, 1)
+    state = @test_logs IC.update!(c, m, -2)
+    IC.train!(m, 2)
+    state = @test_logs (:warn, r"42") IC.update!(c, m, -1, state)
+    @test_logs IC.takedown(c, 0, state)
+    @test_logs (:warn, r"A ") IC.takedown(c, 1, state)
+end
+
 @testset "debug" begin
     m = SquareRooter(4)
     test_controls = [Step(2), InvalidValue(), GL(), Callback(println)]

@@ -58,3 +58,13 @@ end
               NumberLimit(10))
     @test numbers == [1, 2, 3]
 end
+
+# @test "finish loudly" begin
+#     model = IterationControl.SquareRooter(4)
+#     IC.train!(model,
+#               Step(1),
+#               Threshold(2.1),
+#               WithNumberDo(),
+#               IterationControl.skip(WithLossDo(), predicate=1),
+#               IterationControl.finish_loudly(WithLossDo(_->nothing)))
+

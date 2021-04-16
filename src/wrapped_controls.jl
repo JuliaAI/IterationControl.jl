@@ -16,11 +16,11 @@ Wrap `control` to make in more (or less) verbose. The same as
 louder(c; by=1) = Louder(c, by)
 
 # api:
-done(::Louder, state) = state
+done(d::Louder, state) = done(d.control, state)
 update!(d::Louder, model, verbosity, args...) =
-    update!(d.control, model, verbosity + d.by)
-takedown(d::Louder, model, verbosity, state) =
-    takedown(d.control, model, verbosity + d.by, state)
+    update!(d.control, model, verbosity + d.by, args...)
+takedown(d::Louder, verbosity, state) =
+    takedown(d.control, verbosity + d.by, state)
 
 
 # # Debug
