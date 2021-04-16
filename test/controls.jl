@@ -6,12 +6,12 @@
     m = SquareRooter(4)
     c = Step(n=2)
     state = IC.update!(c, m, 0)
-    @test state === (n_iterations = 2,)
+    @test state === (new_iterations = 2,)
     @test m.training_losses == all_training_losses[1:2]
     state = IC.update!(c, m, 0, state)
     @test m.training_losses == all_training_losses[3:4]
     @test !IC.done(c, state)
-    @test IC.takedown(c, 1, state) == (n_iterations = 4,)
+    @test IC.takedown(c, 1, state) == (new_iterations = 4,)
 end
 
 @testset "Info" begin

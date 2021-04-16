@@ -13,12 +13,12 @@ Step(; n=5) = Step(n)
              body="Train for `n` more iterations. "*
              "Will never trigger a stop. ")
 
-function update!(c::Step, model, verbosity, state=(n_iterations = 0,))
-    n_iterations = state.n_iterations
+function update!(c::Step, model, verbosity, state=(new_iterations = 0,))
+    new_iterations = state.new_iterations
     verbosity > 1 &&
         @info "Stepping model for $(c.n) more iterations. "
     train!(model, c.n)
-    state  = (n_iterations = n_iterations + c.n,)
+    state  = (new_iterations = new_iterations + c.n,)
     return state
 end
 
