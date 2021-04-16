@@ -11,7 +11,8 @@
     state = IC.update!(c, m, 0, state)
     @test m.training_losses == all_training_losses[3:4]
     @test !IC.done(c, state)
-    @test IC.takedown(c, 1, state) == (new_iterations = 4,)
+    @test_logs((:info, r"A total of "),
+               @test IC.takedown(c, 2, state) == (new_iterations = 4,))
 end
 
 @testset "Info" begin
@@ -32,47 +33,50 @@ end
     c = Warn(m -> m.root > 2.4)
 
     IC.train!(m, 1)
-    @test_logs (:warn, "") IC.update!(c, m, 2)
     @test_logs (:warn, "") IC.update!(c, m, 1)
-    state = @test_logs IC.update!(c, m, 0)
-    @test state === ("", )
+    @test_logs (:warn, "") IC.update!(c, m, 0)
+    state = @test_logs IC.update!(c, m, -1)
+    @test state === (warnings=("", ),)
 
     IC.train!(m, 1)
-    @test_logs  IC.update!(c, m, 2)
     @test_logs  IC.update!(c, m, 1)
-    state = @test_logs IC.update!(c, m, 0)
-    @test state === ()
+    @test_logs  IC.update!(c, m, 0)
+    state = @test_logs IC.update!(c, m, -1)
+    @test state === (warnings=(),)
 
     m = SquareRooter(4)
     IC.train!(m, 1)
     state =  IC.update!(c, m, -1)
-    @test_logs (:warn, "") IC.update!(c, m, 2, state)
     @test_logs (:warn, "") IC.update!(c, m, 1, state)
-    state = @test_logs IC.update!(c, m, 0, state)
-    @test state === ("", "")
+    @test_logs (:warn, "") IC.update!(c, m, 0, state)
+    state = @test_logs IC.update!(c, m, -1, state)
+    @test state === (warnings=("", ""),)
 
     IC.train!(m, 1)
-    @test_logs  IC.update!(c, m, 2, state)
+    @test_logs  IC.update!(c, m, 1, state)
     @test_logs  IC.update!(c, m, 0, state)
     state = @test_logs IC.update!(c, m, -, state)
-    @test state === ("", "")
+    @test state === (warnings=("", ""),)
 
     m = SquareRooter(4)
     c = Warn(m -> m.root > 2.4, f = m->m.root)
 
     IC.train!(m, 1)
-    @test_logs (:warn, 2.5) IC.update!(c, m, 2)
     @test_logs (:warn, 2.5) IC.update!(c, m, 1)
-    state = @test_logs IC.update!(c, m, 0)
-    @test state === (2.5, )
+    @test_logs (:warn, 2.5) IC.update!(c, m, 0)
+    state = @test_logs IC.update!(c, m, -1)
+    @test state === (warnings=(2.5, ),)
 
-    @test_logs (:warn, 2.5) IC.update!(c, m, 2, state)
     @test_logs (:warn, 2.5) IC.update!(c, m, 1, state)
-    state = @test_logs IC.update!(c, m, 0, state)
-    @test state === (2.5, 2.5)
+    @test_logs (:warn, 2.5) IC.update!(c, m, 0, state)
+    state = @test_logs IC.update!(c, m, -1, state)
+    @test state === (warnings=(2.5, 2.5),)
 
     @test !IC.done(c, state)
-    @test IC.takedown(c, 10, state) == (warnings = (2.5, 2.5),)
+    @test_logs((:warn, r"A `Warn`"),
+               @test IC.takedown(c, 2, state) == (warnings = (2.5, 2.5),))
+    @test_logs @test IC.takedown(c, 1, state) == (warnings = (2.5, 2.5),)
+
 end
 
 @testset "Error" begin
@@ -181,8 +185,11 @@ end
     state = IC.update!(c, m, 1, state)
     @test !state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
-    @test IC.takedown(c, 0, state) ==
+    @test IC.takedown(c, 1, state) ==
         (loss=v[end], done = false, log="")
+    @test_logs((:info, r"final loss"),
+               @test IC.takedown(c, 2, state) ==
+               (loss=v[end], done = false, log=""))
 
     v = Float64[]
     f2(loss) = (push!(v, loss); last(v) < 0.02)
@@ -200,6 +207,17 @@ end
         (loss = v[end],
          done = true,
          log="Stop triggered by a `WithLossDo` control. ")
+    @test_logs((:info, r"Stop triggered"),
+               @test IC.takedown(c, 1, state) ==
+               (loss = v[end],
+                done = true,
+                log="Stop triggered by a `WithLossDo` control. "))
+    @test_logs((:info, r"final loss"),
+               (:info, r"Stop triggered"),
+               @test IC.takedown(c, 2, state) ==
+               (loss = v[end],
+                done = true,
+                log="Stop triggered by a `WithLossDo` control. "))
 
     v = Float64[]
     f3(loss) = (push!(v, loss); last(v) < 0.02)
@@ -236,6 +254,10 @@ end
     @test v ≈ [1.5, 0.45]
     @test IC.takedown(c, 0, state) ==
         (latest_training_loss = v[end], done = false, log="")
+    @test_logs((:info, r"final train"),
+               @test IC.takedown(c, 2, state) ==
+               (latest_training_loss=v[end], done = false, log=""))
+
 
     v = Float64[]
     f1(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
@@ -253,6 +275,17 @@ end
         (latest_training_loss = v[end],
          done = true,
          log="Stop triggered by a `WithTrainingLossesDo` control. ")
+    @test_logs((:info, r"Stop "),
+               @test IC.takedown(c, 1, state) ==
+               (latest_training_loss = v[end],
+                done = true,
+                log="Stop triggered by a `WithTrainingLossesDo` control. "))
+    @test_logs((:info, r"final train"),
+               (:info, r"Stop"),
+               @test IC.takedown(c, 2, state) ==
+               (latest_training_loss = v[end],
+                done = true,
+                log="Stop triggered by a `WithTrainingLossesDo` control. "))
 
     v = Float64[]
     f2(training_loss) = (push!(v, last(training_loss)); last(v) < 0.5)
@@ -287,6 +320,8 @@ end
     @test !state.done
     @test v == [1, 2]
     @test IC.takedown(c, 0, state) == (done = false, n = 2, log="")
+    @test_logs((:info, r"final number"),
+               @test IC.takedown(c, 2, state) == (done = false, n = 2, log=""))
 
     v = Int[]
     f2(n) = (push!(v, n); last(n) > 1)
@@ -304,6 +339,17 @@ end
         (done = true,
          n= 2,
          log="Stop triggered by a `WithNumberDo` control. ")
+    @test_logs((:info, r"Stop"),
+               @test IC.takedown(c, 1, state) ==
+               (done = true,
+                n= 2,
+                log="Stop triggered by a `WithNumberDo` control. "))
+    @test_logs((:info, r"final number"),
+               (:info, r"Stop"),
+               @test IC.takedown(c, 2, state) ==
+               (done = true,
+                n= 2,
+                log="Stop triggered by a `WithNumberDo` control. "))
 
     v = Int[]
     f3(n) = (push!(v, n); last(n) > 1)
