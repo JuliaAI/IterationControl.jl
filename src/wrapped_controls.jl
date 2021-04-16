@@ -1,3 +1,28 @@
+# # Louder
+
+struct Louder{C}
+    control::C
+    by::Int64
+end
+
+"""
+    IterationControl.louder(control, by=1)
+
+Wrap `control` to make in more (or less) verbose. The same as
+`control`, but as if the global `verbosity` were increased by the value
+`by`.
+
+"""
+louder(c; by=1) = Louder(c, by)
+
+# api:
+done(::Louder, state) = state
+update!(d::Louder, model, verbosity, args...) =
+    update!(d.control, model, verbosity + d.by)
+takedown(d::Louder, model, verbosity, state) =
+    takedown(d.control, model, verbosity + d.by, state)
+
+
 # # Debug
 
 struct Debug{C}
