@@ -235,11 +235,13 @@ with four methods. Only the first two are compulsory (the `done` and
 respectively.):
 
 ```julia
-update!(control, model, verbosity) -> state  # initialization
-update!(control, model, verbosity, state) -> state
+update!(control, model, verbosity, n) -> state  # initialization
+update!(control, model, verbosity, n, state) -> state
 done(control, state)::Bool
 takedown(control, verbosity, state) -> human_readable_named_tuple
 ```
+
+Here `n` is the number of completed control cylcles.
 
 Here's how `IterationControl.train!` calls these methods:
 
@@ -252,12 +254,14 @@ function train!(model, controls...; verbosity::Int=1)
     verbosity > 1 && @info "Using these controls: $(flat(control)). "
 
     # first training event:
-    state = update!(control, model, verbosity)
+    n = 1 # counts control cycles
+    state = update!(control, model, verbosity, n)
     finished = done(control, state)
 
     # subsequent training events:
     while !finished
-        state = update!(control, model, verbosity, state)
+        n += 1
+        state = update!(control, model, verbosity, n, state)
         finished = done(control, state)
     end
 
