@@ -193,6 +193,7 @@ There are also three control wrappers to modify a control's behavior:
 wrapper                                            | description
 ---------------------------------------------------|-------------------------------------------------------------------------
 `IterationControl.skip(control, predicate=1)`      | Apply `control` every `predicate` applications of the control wrapper (can also be a function; see doc-string)
+`IterationContorl.louder(control, by=1)`           | Increase the verbosity level of `control` by the specified value (negative values lower verbosity)
 `IterationControl.debug(control)`                  | Apply `control` but also log its state to `Info` (at any `verbosity` level)
 `IterationControl.composite(controls...)`          | Apply each `control` in `controls` in sequence; mostly for under-the-hood use
 
