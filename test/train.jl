@@ -19,6 +19,7 @@
                (:info, r"Stepping model for 2 more iterations"),
                (:info, r"final loss"),
                (:info, r"final training loss"),
+               (:info, r"total control cycles\: 3"),
                (:info, r"A total of 6 iterations added"),
                (:info, r"Stop triggered by NumberLimit"),
                IC.train!(m, Step(2),
@@ -60,7 +61,7 @@ end
               IterationControl.skip(
                   WithNumberDo(x->push!(numbers, x)), predicate=3),
               NumberLimit(10), verbosity=0)
-    @test numbers == [1, 2, 3]
+    @test numbers == [3, 6, 9]
 end
 
 @testset "integration test related to #38" begin

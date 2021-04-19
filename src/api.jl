@@ -55,10 +55,10 @@ expose(model, ::Val{false}) = expose(model)
 
 # called after first training event; returns initialized control
 # "state":
-update!(control, model, verbosity) = nothing
+update!(control, model, verbosity, n) = nothing
 
 # called after all subsequent training events; returns new "state":
-update!(control, model, verbosity, state) = state
+update!(control, model, verbosity, n, state) = state
 
 # should we stop?
 done(control, state) = false

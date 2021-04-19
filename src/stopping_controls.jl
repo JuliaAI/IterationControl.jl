@@ -35,8 +35,9 @@ end
 # ## API IMPLEMENTATION
 
 function update!(c::StoppingCriterion,
-                model,
-                verbosity)
+                 model,
+                 verbosity,
+                 n)
     _loss = get_loss(c, model)
     _training_losses = get_training_losses(c, model)
     if _training_losses === nothing || isempty(_training_losses)
@@ -53,9 +54,10 @@ end
 
 # regular update!:
 function update!(c::StoppingCriterion,
-                model,
-                verbosity,
-                state)
+                 model,
+                 verbosity,
+                 n,
+                 state)
     _loss = get_loss(c, model)
     _training_losses = get_training_losses(c, model)
     if _training_losses === nothing || isempty(_training_losses)
