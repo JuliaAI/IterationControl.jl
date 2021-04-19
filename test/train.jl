@@ -63,11 +63,16 @@ end
     @test numbers == [1, 2, 3]
 end
 
-# @test "finish loudly" begin
-#     model = IterationControl.SquareRooter(4)
-#     IC.train!(model,
-#               Step(1),
-#               Threshold(2.1),
-#               WithNumberDo(),
-#               IterationControl.skip(WithLossDo(), predicate=1),
-#               IterationControl.finish_loudly(WithLossDo(_->nothing)))
+@testset "integration test related to #38" begin
+    model = IterationControl.SquareRooter(4)
+    @test_logs((:info, r"number"),
+               (:info, r"number"),
+               (:info, r"final loss"),
+               (:info, r"final training loss"),
+               (:info, r"Stop triggered by"),
+               IC.train!(model,
+                         Step(1),
+                         Threshold(2.1),
+                         WithNumberDo(),
+                         IterationControl.skip(WithLossDo(), predicate=3)))
+end
