@@ -1,7 +1,7 @@
 @testset "basic integration" begin
     m = SquareRooter(4)
-    report = IC.train!(m, Step(2),  InvalidValue(), NumberLimit(3); verbosity=0);
-    @test report[1] == (Step(2), (n_iterations = 6,))
+    report = IC.train!(m, Step(2), InvalidValue(), NumberLimit(3); verbosity=0);
+    @test report[1] == (Step(2), (new_iterations = 6,))
     @test report[2] == (InvalidValue(), (done=false, log=""))
     report[3] == (NumberLimit(3),
                   (done=true,
@@ -9,12 +9,17 @@
                    "stopping criterion. "))
 
     m = SquareRooter(4)
-    @test_logs((:info, r"Stop triggered by Num"),
+    @test_logs((:info, r"final loss"),
+               (:info, r"final training loss"),
+               (:info, r"Stop triggered by Num"),
                IC.train!(m, Step(2),  InvalidValue(), NumberLimit(3)));
     @test_logs((:info, r"Using these controls"),
                (:info, r"Stepping model for 2 more iterations"),
                (:info, r"Stepping model for 2 more iterations"),
                (:info, r"Stepping model for 2 more iterations"),
+               (:info, r"final loss"),
+               (:info, r"final training loss"),
+               (:info, r"A total of 6 iterations added"),
                (:info, r"Stop triggered by NumberLimit"),
                IC.train!(m, Step(2),
                          InvalidValue(),
@@ -54,6 +59,20 @@ end
               Step(1),
               IterationControl.skip(
                   WithNumberDo(x->push!(numbers, x)), predicate=3),
-              NumberLimit(10))
+              NumberLimit(10), verbosity=0)
     @test numbers == [1, 2, 3]
+end
+
+@testset "integration test related to #38" begin
+    model = IterationControl.SquareRooter(4)
+    @test_logs((:info, r"number"),
+               (:info, r"number"),
+               (:info, r"final loss"),
+               (:info, r"final training loss"),
+               (:info, r"Stop triggered by"),
+               IC.train!(model,
+                         Step(1),
+                         Threshold(2.1),
+                         WithNumberDo(),
+                         IterationControl.skip(WithLossDo(), predicate=3)))
 end
