@@ -9,12 +9,16 @@
                    "stopping criterion. "))
 
     m = SquareRooter(4)
-    @test_logs((:info, r"Stop triggered by Num"),
+    @test_logs((:info, r"final loss"),
+               (:info, r"final training loss"),
+               (:info, r"Stop triggered by Num"),
                IC.train!(m, Step(2),  InvalidValue(), NumberLimit(3)));
     @test_logs((:info, r"Using these controls"),
                (:info, r"Stepping model for 2 more iterations"),
                (:info, r"Stepping model for 2 more iterations"),
                (:info, r"Stepping model for 2 more iterations"),
+               (:info, r"final loss"),
+               (:info, r"final training loss"),
                (:info, r"A total of 6 iterations added"),
                (:info, r"Stop triggered by NumberLimit"),
                IC.train!(m, Step(2),
@@ -55,7 +59,7 @@ end
               Step(1),
               IterationControl.skip(
                   WithNumberDo(x->push!(numbers, x)), predicate=3),
-              NumberLimit(10))
+              NumberLimit(10), verbosity=0)
     @test numbers == [1, 2, 3]
 end
 
@@ -67,4 +71,3 @@ end
 #               WithNumberDo(),
 #               IterationControl.skip(WithLossDo(), predicate=1),
 #               IterationControl.finish_loudly(WithLossDo(_->nothing)))
-
