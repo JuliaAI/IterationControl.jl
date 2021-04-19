@@ -61,7 +61,7 @@ struct Skip{C,F<:Function}
 end
 
 _pred(predicate) = predicate
-_pred(predicate::Int) = t -> mod(t + 1, predicate) == 0
+_pred(predicate::Int) = t -> mod(t, predicate) == 0
 
 """
     IterationControl.skip(control, predicate=1)
@@ -69,40 +69,41 @@ _pred(predicate::Int) = t -> mod(t + 1, predicate) == 0
 An iteration control wrapper.
 
 If `predicate` is an **integer**, `k`: Apply `control` on every `k`
-calls to apply the wrapper, starting with the `k`th call.
+calls to apply the wrapped control, starting with the `k`th call.
 
 If `predicate` is a **function**: Apply `control` as usual when
 `predicate(n + 1)` is `true` but otherwise skip. Here `n` is the
-number of calls to apply the wrapped control so far.
+number of control cycles applied so far.
 
 """
 skip(control; predicate::Int=1) = Skip(control, _pred(predicate))
 
 _state(s, model, verbosity, n, atomic_state...) = if s.predicate(n)
-    new_atomic_state = update!(s.control, model, verbosity + 1, atomic_state...)
-    return (atomic_state = new_atomic_state, n = n + 1)
+    new_atomic_state =
+        update!(s.control, model, verbosity + 1, n, atomic_state...)
+    return (atomic_state = new_atomic_state, n = n)
 else
     return nothing
 end
 
-function update!(s::Skip, model, verbosity)
-    state_candidate = _state(s, model, verbosity, 0)
-    state_candidate isa Nothing && return (n = 1, )
+function update!(s::Skip, model, verbosity, n)
+    state_candidate = _state(s, model, verbosity, n)
+    state_candidate isa Nothing && return (n = n, )
     return state_candidate
 end
 
 # in case atomic state is not initialized in first `update` call:
-function update!(s::Skip, model, verbosity, state::NamedTuple{(:n,)})
-    state_candidate = _state(s, model, verbosity, state.n)
-    state_candidate isa Nothing && return (n = state.n + 1, )
+function update!(s::Skip, model, verbosity, n, state::NamedTuple{(:n,)})
+    state_candidate = _state(s, model, verbosity, n)
+    state_candidate isa Nothing && return (n = n, )
     return state_candidate
 end
 
 # regular update:
-function update!(s::Skip, model, verbosity, state)
-    state_candidate = _state(s, model, verbosity, state.n, state.atomic_state)
+function update!(s::Skip, model, verbosity, n, state)
+    state_candidate = _state(s, model, verbosity, n, state.atomic_state)
     state_candidate isa Nothing &&
-        return (atomic_state = state.atomic_state, n = state.n + 1)
+        return (atomic_state = state.atomic_state, n = n)
     return state_candidate
 end
 

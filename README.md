@@ -171,8 +171,8 @@ control                 | description                                           
 `TimeLimit(t=0.5)`      | Stop after `t` hours                                                                    |`train!`                           | yes   |
 `NumberLimit(n=100)`    | Stop after `n` applications of the control                                              |`train!`                           | yes   |
 `NumberSinceBest(n=6)`  | Stop when best loss occurred `n` control applications ago                               |`train!`                           | yes   |
-`WithNumberDo(f=n->@info(n))`    | Call `f(n + 1)` where `n` is number of previous applications of control        |`train!`                           | yes   |
-`WithLossDo(f=x->@info("loss: $x"))`   | Call `f(loss)` where `loss` is the current loss                          |`train!`, `loss`                   | yes   |
+`WithNumberDo(f=n->@info(n))`        | Call `f(n + 1)` where `n` is the number of complete control cycles so far  |`train!`                           | yes   |
+`WithLossDo(f=x->@info("loss: $x"))` | Call `f(loss)` where `loss` is the current loss                            |`train!`, `loss`                   | yes   |
 `WithTrainingLossesDo(f=v->@info(v))`| Call `f(v)` where `v` is the current batch of training losses              |`train!`, `training_loss`          | yes   |
 `InvalidValue()`        | Stop when `NaN`, `Inf` or `-Inf` loss/training loss encountered                         |`train!`                           | yes   |
 `Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   | yes   |

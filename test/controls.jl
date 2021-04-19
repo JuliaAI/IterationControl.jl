@@ -5,10 +5,10 @@
 
     m = SquareRooter(4)
     c = Step(n=2)
-    state = IC.update!(c, m, 0)
+    state = IC.update!(c, m, 0, 1)
     @test state === (new_iterations = 2,)
     @test m.training_losses == all_training_losses[1:2]
-    state = IC.update!(c, m, 0, state)
+    state = IC.update!(c, m, 0, 2, state)
     @test m.training_losses == all_training_losses[3:4]
     @test !IC.done(c, state)
     @test_logs((:info, r"A total of "),
@@ -19,11 +19,11 @@ end
     m = SquareRooter(4)
     c = Info(m->m.root)
     IC.train!(m, 1)
-    @test_logs (:info, 2.5) IC.update!(c, m, 2)
-    @test_logs (:info, 2.5) IC.update!(c, m, 1)
-    state = @test_logs IC.update!(c, m, 0)
+    @test_logs (:info, 2.5) IC.update!(c, m, 2, 1)
+    @test_logs (:info, 2.5) IC.update!(c, m, 1, 1)
+    state = @test_logs IC.update!(c, m, 0, 1)
     @test state === nothing
-    @test_logs (:info, 2.5) IC.update!(c, m, 2, state)
+    @test_logs (:info, 2.5) IC.update!(c, m, 2, 2, state)
     @test !IC.done(c, state)
     @test IC.takedown(c, 10, state) == NamedTuple()
 end
@@ -33,43 +33,43 @@ end
     c = Warn(m -> m.root > 2.4)
 
     IC.train!(m, 1)
-    @test_logs (:warn, "") IC.update!(c, m, 1)
-    @test_logs (:warn, "") IC.update!(c, m, 0)
-    state = @test_logs IC.update!(c, m, -1)
+    @test_logs (:warn, "") IC.update!(c, m, 1, 1)
+    @test_logs (:warn, "") IC.update!(c, m, 0, 1)
+    state = @test_logs IC.update!(c, m, -1, 1)
     @test state === (warnings=("", ),)
 
     IC.train!(m, 1)
-    @test_logs  IC.update!(c, m, 1)
-    @test_logs  IC.update!(c, m, 0)
-    state = @test_logs IC.update!(c, m, -1)
+    @test_logs  IC.update!(c, m, 1, 1)
+    @test_logs  IC.update!(c, m, 0, 1)
+    state = @test_logs IC.update!(c, m, -1, 1)
     @test state === (warnings=(),)
 
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state =  IC.update!(c, m, -1)
-    @test_logs (:warn, "") IC.update!(c, m, 1, state)
-    @test_logs (:warn, "") IC.update!(c, m, 0, state)
-    state = @test_logs IC.update!(c, m, -1, state)
+    state =  IC.update!(c, m, -1, 1)
+    @test_logs (:warn, "") IC.update!(c, m, 1, 2, state)
+    @test_logs (:warn, "") IC.update!(c, m, 0, 2, state)
+    state = @test_logs IC.update!(c, m, -1, 2, state)
     @test state === (warnings=("", ""),)
 
     IC.train!(m, 1)
-    @test_logs  IC.update!(c, m, 1, state)
-    @test_logs  IC.update!(c, m, 0, state)
-    state = @test_logs IC.update!(c, m, -, state)
+    @test_logs  IC.update!(c, m, 1, 3, state)
+    @test_logs  IC.update!(c, m, 0, 3, state)
+    state = @test_logs IC.update!(c, m, -1, 3, state)
     @test state === (warnings=("", ""),)
 
     m = SquareRooter(4)
     c = Warn(m -> m.root > 2.4, f = m->m.root)
 
     IC.train!(m, 1)
-    @test_logs (:warn, 2.5) IC.update!(c, m, 1)
-    @test_logs (:warn, 2.5) IC.update!(c, m, 0)
-    state = @test_logs IC.update!(c, m, -1)
+    @test_logs (:warn, 2.5) IC.update!(c, m, 1, 1)
+    @test_logs (:warn, 2.5) IC.update!(c, m, 0, 1)
+    state = @test_logs IC.update!(c, m, -1, 1)
     @test state === (warnings=(2.5, ),)
 
-    @test_logs (:warn, 2.5) IC.update!(c, m, 1, state)
-    @test_logs (:warn, 2.5) IC.update!(c, m, 0, state)
-    state = @test_logs IC.update!(c, m, -1, state)
+    @test_logs (:warn, 2.5) IC.update!(c, m, 1, 2, state)
+    @test_logs (:warn, 2.5) IC.update!(c, m, 0, 2, state)
+    state = @test_logs IC.update!(c, m, -1, 2, state)
     @test state === (warnings=(2.5, 2.5),)
 
     @test !IC.done(c, state)
@@ -84,34 +84,34 @@ end
     c = Error(m -> m.root > 2.4)
 
     IC.train!(m, 1)
-    state = @test_logs (:error, "") IC.update!(c, m, 2)
+    state = @test_logs (:error, "") IC.update!(c, m, 2, 1)
     @test state === (done=true, error="")
 
     IC.train!(m, 1)
-    state = @test_logs  IC.update!(c, m, 2)
+    state = @test_logs  IC.update!(c, m, 2, 1)
     @test state === (done=false, error=())
 
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = @test_logs (:error, "") IC.update!(c, m, 2)
-    state = @test_logs (:error, "") IC.update!(c, m, 2, state)
+    state = @test_logs (:error, "") IC.update!(c, m, 2, 1)
+    state = @test_logs (:error, "") IC.update!(c, m, 2, 2, state)
     @test state === (done=true, error="")
 
     m = SquareRooter(4)
     c = Error(m -> m.root > 2.4, f = m->m.root)
 
     IC.train!(m, 1)
-    state = @test_logs (:error, 2.5) IC.update!(c, m, 2)
+    state = @test_logs (:error, 2.5) IC.update!(c, m, 2, 1)
     @test state === (done=true, error=2.5)
 
     IC.train!(m, 1)
-    state = @test_logs  IC.update!(c, m, 2)
+    state = @test_logs  IC.update!(c, m, 2, 1)
     @test state === (done=false, error=())
 
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = @test_logs (:error, 2.5) IC.update!(c, m, 2)
-    state = @test_logs (:error, 2.5) IC.update!(c, m, 2, state)
+    state = @test_logs (:error, 2.5) IC.update!(c, m, 2, 1)
+    state = @test_logs (:error, 2.5) IC.update!(c, m, 2, 2, state)
     @test state === (done=true, error=2.5)
 
     @test IC.done(c, state)
@@ -126,11 +126,11 @@ end
     c = Callback(f)
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [2.25, ]
     IC.train!(m, 2)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test !state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) == (done = false, log="")
@@ -141,11 +141,11 @@ end
     c = Callback(f2, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [2.25, ]
     IC.train!(m, 2)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
@@ -158,11 +158,11 @@ end
     c = Callback(f3, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [2.25, ]
     IC.train!(m, 2)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
@@ -178,11 +178,11 @@ end
     c = WithLossDo(f)
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [2.25, ]
     IC.train!(m, 2)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test !state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 1, state) ==
@@ -196,11 +196,11 @@ end
     c = WithLossDo(f2, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [2.25, ]
     IC.train!(m, 2)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
@@ -224,11 +224,11 @@ end
     c = WithLossDo(f3, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [2.25, ]
     IC.train!(m, 2)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test state.done
     @test v ≈ [2.25, (3281/1640)^2 - 4]
     @test IC.takedown(c, 0, state) ==
@@ -245,11 +245,11 @@ end
     c = WithTrainingLossesDo(f)
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v ≈ [1.5, ]
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test !state.done
     @test v ≈ [1.5, 0.45]
     @test IC.takedown(c, 0, state) ==
@@ -264,11 +264,11 @@ end
     c = WithTrainingLossesDo(f1, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [1.5, ]
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test state.done
     @test v ≈ [1.5, 0.45]
     @test IC.takedown(c, 0, state) ==
@@ -292,11 +292,11 @@ end
     c = WithTrainingLossesDo(f2, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [1.5, ]
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test state.done
     @test v ≈ [1.5, 0.45]
     @test IC.takedown(c, 0, state) ==
@@ -312,11 +312,11 @@ end
     c = WithNumberDo(f)
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [1, ]
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test !state.done
     @test v == [1, 2]
     @test IC.takedown(c, 0, state) == (done = false, n = 2, log="")
@@ -328,11 +328,11 @@ end
     c = WithNumberDo(f2, stop_if_true=true)
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [1, ]
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test state.done
     @test v == [1, 2]
     @test IC.takedown(c, 0, state) ==
@@ -356,11 +356,11 @@ end
     c = WithNumberDo(f3, stop_if_true=true, stop_message="foo")
     m = SquareRooter(4)
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1)
+    state = IC.update!(c, m, 1, 1)
     @test !state.done
     @test v == [1, ]
     IC.train!(m, 1)
-    state = IC.update!(c, m, 1, state)
+    state = IC.update!(c, m, 1, 2, state)
     @test state.done
     @test v == [1, 2]
     @test IC.takedown(c, 0, state) ==
@@ -376,27 +376,27 @@ end
         model = Particle(0.1)
         c = Data(data, stop_when_exhausted=option)
 
-        state = IC.update!(c, model, 0)
+        state = IC.update!(c, model, 0, 1)
         IC.train!(model, 1)
         @test loss(model) ≈ 0.9
 
-        state = IC.update!(c, model, 0, state)
+        state = IC.update!(c, model, 0, 2, state)
         IC.train!(model, 1)
         @test loss(model) ≈ 0.9
 
-        state = IC.update!(c, model, 0, state)
+        state = IC.update!(c, model, 0, 3, state)
         IC.train!(model, 1)
         @test loss(model) ≈ 0.0
 
         @test !IC.done(c, state)
 
         if option
-            state = IC.update!(c, model, 0, state)
+            state = IC.update!(c, model, 0, 4, state)
             @test IC.done(c, state)
             report = @test_logs (:info, IC.DATA_STOP) IC.takedown(c, 1, state)
             @test report == (done = true, log = IC.DATA_STOP)
         else
-            state = @test_logs IC.update!(c, model, 0, state)
+            state = @test_logs IC.update!(c, model, 0, 4, state)
             @test !IC.done(c, state)
             report = IC.takedown(c, 1, state)
             @test report == (done = false, log = "")
