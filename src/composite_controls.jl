@@ -1,4 +1,4 @@
-struct CompositeControl{A,B}
+struct CompositeControl{A,B} 
     a::A
     b::B
     function CompositeControl(a::A, b::B) where {A, B}
