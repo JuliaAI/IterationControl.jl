@@ -40,5 +40,6 @@ include("composite_controls.jl")
 include("wrapped_controls.jl")
 include("controls.jl")
 include("train.jl")
+include("square_rooter.jl")
 
 end # module

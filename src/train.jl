@@ -20,6 +20,15 @@ function train!(model, controls...; verbosity::Int=1)
         finished = done(control, state)
     end
 
+    # reporting final loss and training loss if available:
+    loss = IterationControl.loss(model)
+    training_losses = IterationControl.training_losses(model)
+    if verbosity > 0
+        loss isa Nothing || @info "final loss: $loss"
+        training_losses isa Nothing ||
+            @info "final training loss: $(training_losses[end])"
+    end
+
     # finalization:
     return takedown(control, verbosity, state)
 end
