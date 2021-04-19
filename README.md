@@ -241,7 +241,8 @@ done(control, state)::Bool
 takedown(control, verbosity, state) -> human_readable_named_tuple
 ```
 
-Here `n` is the number of completed control cylcles.
+Here `n` is the control cycle count, i.e., one more than the the
+number of completed control cylcles.
 
 Here's how `IterationControl.train!` calls these methods:
 
