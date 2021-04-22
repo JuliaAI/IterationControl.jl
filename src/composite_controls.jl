@@ -22,11 +22,11 @@ in sequence.
 """
 composite(controls...) = CompositeControl(controls...)
 
-update!(c::CompositeControl, m, v) =
-    (a = update!(c.a, m, v), b = update!(c.b, m, v))
-update!(c::CompositeControl, m, v, state) =
-    (a = update!(c.a, m, v, state.a),
-     b = update!(c.b, m, v, state.b))
+update!(c::CompositeControl, m, v, n) =
+    (a = update!(c.a, m, v, n), b = update!(c.b, m, v, n))
+update!(c::CompositeControl, m, v, n, state) =
+    (a = update!(c.a, m, v, n, state.a),
+     b = update!(c.b, m, v, n, state.b))
 
 
 ## RECURSION TO FLATTEN A CONTROL OR ITS STATE

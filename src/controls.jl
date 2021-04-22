@@ -13,7 +13,7 @@ Step(; n=5) = Step(n)
              body="Train for `n` more iterations. "*
              "Will never trigger a stop. ")
 
-function update!(c::Step, model, verbosity, state=(new_iterations = 0,))
+function update!(c::Step, model, verbosity, n, state=(new_iterations = 0,))
     new_iterations = state.new_iterations
     verbosity > 1 &&
         @info "Stepping model for $(c.n) more iterations. "
@@ -78,7 +78,7 @@ Warn(predicate; f="") = Warn(predicate, f)
              "sufficiently low.\n\n"*
              "See also [`Info`](@ref), [`Error`](@ref). ")
 
-function update!(c::Warn, model, verbosity, state=(warnings=(),))
+function update!(c::Warn, model, verbosity, n, state=(warnings=(),))
     warnings = state.warnings
     if c.predicate(model)
         warning = _log_eval(c.f, model)
@@ -126,6 +126,7 @@ Error(predicate; f="", exception=nothing) = Error(predicate, f, exception)
 function update!(c::Error,
                  model,
                  verbosity,
+                 n=1,
                  state=(done = false, error=()))
     if c.predicate(model)
         error = _log_eval(c.f, model)
@@ -169,7 +170,7 @@ Callback(; f=identity, kwargs...) = Callback(f, kwargs...)
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
 
-function update!(c::Callback, model, verbosity, state=(done=false, ))
+function update!(c::Callback, model, verbosity, n, state=(done=false, ))
     r = c.f(expose(model, c.raw))
     done = (c.stop_if_true && r isa Bool && r) ? true : false
     return (done=done,)
@@ -218,7 +219,7 @@ Base.show(io::IO, d::Data{S}) where S =
 const DATA_EXHAUSTED = "Data exhausted. "
 const DATA_STOP ="Stop triggered because data exhausted ."
 
-function update!(c::Data, model, verbosity)
+function update!(c::Data, model, verbosity, n)
     iter = c.data
     data_exhausted = true
     next = iter_state = iterate(iter)
@@ -233,7 +234,7 @@ function update!(c::Data, model, verbosity)
     return (iter_state = iter_state, done = done)
 end
 
-function update!(c::Data, model, verbosity, state)
+function update!(c::Data, model, verbosity, n, state)
     iter = c.data
     iter_state = state.iter_state
     data_exhausted = true
@@ -295,6 +296,7 @@ EarlyStopping.needs_loss(::Type{<:WithLossDo}) = true
 function update!(c::WithLossDo,
                  model,
                  verbosity,
+                 n,
                  state=(loss=nothing, done=false))
     loss = IterationControl.loss(model)
     r = c.f(loss)
@@ -350,6 +352,7 @@ EarlyStopping.needs_training_losses(::Type{<:WithTrainingLossesDo}) = true
 function update!(c::WithTrainingLossesDo,
                  model,
                  verbosity,
+                 n,
                  state=(latest_training_loss = nothing, done = false))
     losses = IterationControl.training_losses(model)
     r = c.f(losses)
@@ -393,18 +396,22 @@ WithNumberDo(; f=n->@info("number: $n"), kwargs...) = WithNumberDo(f, kwargs...)
              "stop_if_true=false, "*
              "stop_message=nothing)",
              example="WithNumberDo(n->put!(my_channel, n))",
-             body="Call `f(n)`, where "*
-             "`n` is one more than the number of previous applications "*
-             "of the control (so, `n = 1, 2, 3, ...`).\n\n"*
+             body="Call `f(n + 1)`, where "*
+             "`n` is the number of complete control cycles. "*
+             "of the control (so, `n = 1, 2, 3, ...`, unless control is "*
+             "wrapped in a [`IterationControl.skip`](@ref))`.\n\n"*
              "If `stop_if_true` is `true`, then trigger an early stop "*
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
 
-function update!(c::WithNumberDo, model, verbosity, state=(done = false, n = 0))
-    n = state.n
-    r = c.f(state.n + 1)
+function update!(c::WithNumberDo,
+                 model,
+                 verbosity,
+                 n,
+                 state=(done = false, n = n))
+    r = c.f(n)
     done = (c.stop_if_true && r isa Bool && r) ? true : false
-    return (done = done, n = n + 1)
+    return (done = done, n = n)
 end
 
 done(c::WithNumberDo, state) = state.done
