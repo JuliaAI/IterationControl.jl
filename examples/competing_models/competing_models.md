@@ -101,11 +101,11 @@ eaters = [Anteater(0.7), Anteater(0.8), Anteater(0.9), Anteater(1.0)]
 ```
 
 ```
-4-element Vector{Main.##333.Anteater}:
- Main.##333.Anteater(0.7, 0)
- Main.##333.Anteater(0.8, 0)
- Main.##333.Anteater(0.9, 0)
- Main.##333.Anteater(1.0, 0)
+4-element Vector{Main.##343.Anteater}:
+ Main.##343.Anteater(0.7, 0)
+ Main.##343.Anteater(0.8, 0)
+ Main.##343.Anteater(0.9, 0)
+ Main.##343.Anteater(1.0, 0)
 ```
 
 ```julia
@@ -145,9 +145,9 @@ controls = [Step(1),
 ```
 5-element Vector{Any}:
  Step(1)
- Callback{typeof(Main.##333.is_too_far_behind)}(Main.##333.is_too_far_behind, true, nothing, false)
- Callback{typeof(Main.##333.has_won)}(Main.##333.has_won, true, nothing, false)
- Callback{typeof(Main.##333.update_history)}(Main.##333.update_history, false, nothing, false)
+ Callback{typeof(Main.##343.is_too_far_behind)}(Main.##343.is_too_far_behind, true, nothing, false)
+ Callback{typeof(Main.##343.has_won)}(Main.##343.has_won, true, nothing, false)
+ Callback{typeof(Main.##343.update_history)}(Main.##343.update_history, false, nothing, false)
  NumberLimit(1000)
 ```
 
@@ -180,9 +180,9 @@ plot(history,
 ```
 ![](345148935.png)
 
-According to the plot, after about 120 food items have been drawn
-from the supply, only the healthiest anteater continues to draw on
-new food items.
+Generally, only the healthiest anteater is still drawing on food
+items at the end of the race (the use of multi-threading precludes
+reproducibility here).
 
 ---
 
