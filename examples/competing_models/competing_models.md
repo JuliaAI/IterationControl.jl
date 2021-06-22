@@ -21,15 +21,20 @@ early). An anteater also stops if he reaches the specified goal.
 
 Anteaters forage for food in parallel using Julia multi-threading.
 
-```@example competing_models
+```julia
 using Pkg
 Pkg.activate(@__DIR__)
 Pkg.instantiate()
 ```
 
+```
+  Activating environment at `~/Dropbox/Julia7/MLJ/IterationControl/examples/competing_models/Project.toml`
+
+```
+
 **Julia version** is assumed to be 1.6.*
 
-```@example competing_models
+```julia
 using IterationControl
 using .Threads
 using Random
@@ -38,9 +43,13 @@ using Plots
 pyplot(size = (600, 300*(sqrt(5) - 1)))
 ```
 
+```
+Plots.PyPlotBackend()
+```
+
 ## Create a channel to supply food
 
-```@example competing_models
+```julia
 N = 1_000_000
 food = Channel{String}() do ch
     foreach(i -> put!(ch, rand(["ant", "seed"])), 1:N)
@@ -49,9 +58,16 @@ end
 [take!(food) for i in 1:3]
 ```
 
+```
+3-element Vector{String}:
+ "seed"
+ "ant"
+ "ant"
+```
+
 ## Define anteaters and how to "train" them
 
-```@example competing_models
+```julia
 mutable struct Anteater
     health::Float64        # 0.0 = dead; 1.0 = excellent health
     n::Int                 # number of ants consumed
@@ -64,10 +80,14 @@ function eat!(eater::Anteater)
 end
 ```
 
+```
+eat! (generic function with 1 method)
+```
+
 "Training" for `n` iterations means take `n` items from the `food`
  source and try to catch and eat each item if it is an "ant":
 
-```@example competing_models
+```julia
 function IterationControl.train!(eater::Anteater, n)
     foreach(i->eat!(eater), 1:n)
     return eater
@@ -76,25 +96,33 @@ end
 
 ## Create a collection of competitors
 
-```@example competing_models
+```julia
 eaters = [Anteater(0.7), Anteater(0.8), Anteater(0.9), Anteater(1.0)]
 ```
 
-```@example competing_models
+```
+4-element Vector{Main.##333.Anteater}:
+ Main.##333.Anteater(0.7, 0)
+ Main.##333.Anteater(0.8, 0)
+ Main.##333.Anteater(0.9, 0)
+ Main.##333.Anteater(1.0, 0)
+```
+
+```julia
 n_eaters = length(eaters);
 nothing #hide
 ```
 
 For recording progress:
 
-```@example competing_models
+```julia
 history = Float64[];
 nothing #hide
 ```
 
 ## Define the controls that will define the rules of the competition
 
-```@example competing_models
+```julia
 const LEAD_TRIGGERING_DEFEAT = 5
 const ANTS_TO_WIN = 100
 
@@ -114,17 +142,34 @@ controls = [Step(1),
             NumberLimit(1000)]
 ```
 
+```
+5-element Vector{Any}:
+ Step(1)
+ Callback{typeof(Main.##333.is_too_far_behind)}(Main.##333.is_too_far_behind, true, nothing, false)
+ Callback{typeof(Main.##333.has_won)}(Main.##333.has_won, true, nothing, false)
+ Callback{typeof(Main.##333.update_history)}(Main.##333.update_history, false, nothing, false)
+ NumberLimit(1000)
+```
+
 ## Run the competition
 
-```@example competing_models
+```julia
 @sync for e in eaters
     Threads.@spawn IterationControl.train!(e, controls...)
 end
 ```
 
+```
+[ Info: Stop triggered by a `Callback` control. 
+[ Info: Stop triggered by a `Callback` control. 
+[ Info: Stop triggered by a `Callback` control. 
+[ Info: Stop triggered by a `Callback` control. 
+
+```
+
 ## Plot the results
 
-```@example competing_models
+```julia
 n_events = div(length(history), n_eaters)
 history = reshape(history, n_eaters, n_events)'
 
@@ -133,6 +178,11 @@ plot(history,
      ylab="num of ants consumed",
      xlab="num food items taken from source")
 ```
+![](345148935.png)
+
+According to the plot, after about 120 food items have been drawn
+from the supply, only the healthiest anteater continues to draw on
+new food items.
 
 ---
 

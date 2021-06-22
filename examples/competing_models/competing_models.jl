@@ -110,6 +110,11 @@ plot(history,
      ylab="num of ants consumed",
      xlab="num food items taken from source")
 
+# According to the plot, after about 120 food items have been drawn
+# from the supply, only the healthiest anteater continues to draw on
+# new food items.
+
+
 using Literate #src
-Literate.markdown(@__FILE__, @__DIR__, execute=false) #src
+Literate.markdown(@__FILE__, @__DIR__, execute=true) #src
 Literate.notebook(@__FILE__, @__DIR__, execute=true) #src
