@@ -39,3 +39,6 @@ end
     include("train.jl")
 end
 
+@testset "deprecated" begin
+    include("deprecated.jl")
+end

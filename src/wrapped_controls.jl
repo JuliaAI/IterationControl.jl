@@ -23,32 +23,39 @@ takedown(d::Louder, verbosity, state) =
     takedown(d.control, verbosity + d.by, state)
 
 
-# # Debug
-
-struct Debug{C}
-    control::C
-end
-
-"""
-    IterationControl.debug(control)
-
-Wrap `control` for debugging purposes. Acts exactly like `control`
-except that the internal state of `control` is logged to `Info` at
-every update.
-
-"""
-debug(c) = Debug(c)
+# # WithStateDo
 
 # helper:
-shout(control, state) = @info "`$(typeof(control))` state: $(flat(state))"
+shout(control, state) = @info "$(typeof(control)) state: $(flat(state))"
+
+struct WithStateDo{C,F}
+    control::C
+    f::F
+end
+
+"""
+    IterationControl.with_state_do(control,
+                                  f=x->@info "\$(typeof(control)) state: \$x")
+
+Wrap `control` to give access to it's internal state. Acts exactly
+like `control` except that `f` is called on the internal state of
+`control`. If `f` is not specified, the control type and state are
+logged to `Info` at every update (useful for debugging new controls).
+
+**Warning.** The internal state of a control is not yet considered
+part of the public interface and could change between in any pre 1.0
+release of IterationControl.jl.
+
+"""
+with_state_do(c; f=state->shout(c, state)) = WithStateDo(c, f)
 
 # api:
-for f in [:done, :takedown]
-    eval(:($f(d::Debug, args...) = $f(d.control, args...)))
+for op in [:done, :takedown]
+    eval(:($op(d::WithStateDo, args...) = $op(d.control, args...)))
 end
-@inline function update!(d::Debug, args...)
+@inline function update!(d::WithStateDo, args...)
     state = update!(d.control, args...)
-    shout(d.control, state)
+    d.f(state)
     return state
 end
 

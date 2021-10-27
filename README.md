@@ -1,4 +1,4 @@
-IterationControl.jl
+# IterationControl.jl
 
 | Linux | Coverage |
 | :-----------: | :------: |
@@ -189,7 +189,7 @@ control                 | description                                           
 `NumberSinceBest(n=6)`  | Stop when best loss occurred `n` control applications ago                               |`train!`                           | yes   |
 `WithNumberDo(f=n->@info(n))`        | Call `f(n + 1)` where `n` is the number of complete control cycles so far  |`train!`                           | yes   |
 `WithLossDo(f=x->@info("loss: $x"))` | Call `f(loss)` where `loss` is the current loss                            |`train!`, `loss`                   | yes   |
-`WithTrainingLossesDo(f=v->@info(v))`| Call `f(v)` where `v` is the current batch of training losses              |`train!`, `training_loss`          | yes   |
+`WithTrainingLossesDo(f=v->@info(v))`| Call `f(v)` where `v` is the current batch of training losses              |`train!`, `training_losses`          | yes   |
 `InvalidValue()`        | Stop when `NaN`, `Inf` or `-Inf` loss/training loss encountered                         |`train!`                           | yes   |
 `Threshold(value=0.0)`  | Stop when `loss < value`                                                                |`train!`, `loss`                   | yes   |
 `GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                                        |`train!`, `loss`                   | yes   | ``GL_α``
@@ -208,9 +208,9 @@ There are also three control wrappers to modify a control's behavior:
 
 wrapper                                            | description
 ---------------------------------------------------|-------------------------------------------------------------------------
-`IterationControl.skip(control, predicate=1)`      | Apply `control` every `predicate` applications of the control wrapper (can also be a function; see doc-string)
-`IterationControl.louder(control, by=1)`           | Increase the verbosity level of `control` by the specified value (negative values lower verbosity)
-`IterationControl.debug(control)`                  | Apply `control` but also log its state to `Info` (at any `verbosity` level)
+`IterationControl.skip(control; predicate=1)`      | Apply `control` every `predicate` applications of the control wrapper (can also be a function; see doc-string)
+`IterationControl.louder(control; by=1)`           | Increase the verbosity level of `control` by the specified value (negative values lower verbosity)
+`IterationControl.with_state_do(control; f=...)`   | Apply control *and* call `f(x)` where `x` is the internal state of control; useful for debugging. Default `f` logs state to `Info`. **Warning**: internal control state is not yet part of public API.
 `IterationControl.composite(controls...)`          | Apply each `control` in `controls` in sequence; mostly for under-the-hood use
 
 > Table 2. Wrapped controls
