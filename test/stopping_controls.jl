@@ -51,9 +51,7 @@ end
     state = IC.update!(c, m, 0, 2, state)
     train_losses = vcat(train_losses, m.training_losses) # length 2+3 = 5
 
-    # I believe this will be fixed by
-    # https://github.com/JuliaAI/EarlyStopping.jl/pull/29 
-    @test_broken reverse(state.training_losses) == train_losses
+    @test reverse(state.training_losses) == train_losses
     @test !IC.done(c, state)
     report = IC.takedown(c, 1, state)
     @test !report.done
