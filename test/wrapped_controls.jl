@@ -19,14 +19,14 @@
     @test_logs (:warn, r"A ") IC.takedown(c, 1, state)
 end
 
-@testset "debug" begin
+@testset "with_state_do" begin
     m = SquareRooter(4)
-    test_controls = [Step(2), InvalidValue(), GL(), Callback(println)]
+    test_controls = [Step(2), InvalidValue(), GL(), Callback()]
     _info = fill((:info, r""), 2*length(test_controls))
 
     @test_logs(_info...,
-               for c in [Step(2), InvalidValue(), GL(), Callback()]
-               d = IC.debug(c)
+               for c in test_controls
+               d = IC.with_state_do(c)
                state = IC.update!(c, m, 1, 1)
                @test state == IC.update!(d, m, 1, 1)
                state_c = IC.update!(c, m, 0, 2, state)
@@ -34,15 +34,22 @@ end
                @test state_c == state_c
                @test IC.done(c, state_c) == IC.done(d, state_d)
                end)
+
+    # integration test:
+    m = SquareRooter(4)
+    v = Any[]
+    f(state) = push!(v, state.new_iterations)
+    IC.train!(m, IC.with_state_do(Step(2), f=f), NumberLimit(10))
+    @test v == 2:2:20
 end
 
 @testset "skip" begin
     m = SquareRooter(4)
-    test_controls = [Step(2), InvalidValue(), GL(), Callback(println)]
+    test_controls = [Step(2), InvalidValue(), GL(), Callback()]
     _info = fill((:info, r""), 2)
 
     @test_logs(_info...,
-               for c in [Step(2), InvalidValue(), GL(), Callback()]
+               for c in test_controls
                s = IC.skip(c, predicate=2)
                @test !s.predicate(1)
                @test s.predicate(2)

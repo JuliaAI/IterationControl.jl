@@ -41,5 +41,6 @@ include("wrapped_controls.jl")
 include("controls.jl")
 include("train.jl")
 include("square_rooter.jl")
+include("deprecated.jl")
 
 end # module
