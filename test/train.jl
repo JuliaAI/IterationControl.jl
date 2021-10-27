@@ -77,3 +77,35 @@ end
                          WithNumberDo(),
                          IterationControl.skip(WithLossDo(), predicate=3)))
 end
+
+@testset "integration test with PQ" begin
+    # get complete training losses:
+    model = SquareRooter(1e40)
+    IC.train!(model, 70)
+    tlosses = IC.training_losses(model)
+
+    # get complete losses:
+    model = SquareRooter(1e40)
+    losses = map(1:70) do _
+        IC.train!(model, 1)
+        IC.loss(model)
+    end
+
+    # train with PQ criterion:
+    K = 5
+    model = SquareRooter(1e40)
+    pq = PQ(k=K)
+    states = Any[]
+    f(s) = push!(states, s)
+    controls = [Step(1), NumberLimit(70), IC.with_state_do(pq, f=f)]
+    IC.train!(model, controls..., verbosity=0)
+
+    # check internal state of PQ makes sense, as far as `loss` and
+    # `training_losses` are concerned:
+    @test map(s->s.loss, states) == losses
+    @test map(enumerate(states)) do (j, s)
+        L = min(K, j) # what length of PQ training_losses should be
+        t= s.loss == losses[j] &&
+            s.training_losses == reverse(tlosses[j-L+1:j])
+    end |> all
+end
