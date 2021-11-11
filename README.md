@@ -251,7 +251,8 @@ true` to take value true. Otherwise `control` is applied anyway, and
 A second trait `needs_training_losses(control)` serves an analogous
 purpose for training losses.
 
-Here's how `IterationControl.train!` calls these methods:
+Here's a simplified version of how `IterationControl.train!` calls
+these methods:
 
 ```julia
 function train!(model, controls...; verbosity::Int=1)
@@ -265,6 +266,14 @@ function train!(model, controls...; verbosity::Int=1)
 	n = 1 # counts control cycles
 	state = update!(control, model, verbosity, n)
 	finished = done(control, state)
+	
+    # checks that model supports control:
+    if needs_loss(control) && loss(model) === nothing
+        throw(ERR_NEEDS_LOSS)
+    end
+    if needs_training_losses(control) && training_losses(model) === nothing
+        throw(ERR_NEEDS_TRAINING_LOSSES)
+    end
 
 	# subsequent training events:
 	while !finished
