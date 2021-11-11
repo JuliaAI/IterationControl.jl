@@ -54,7 +54,7 @@ package:
 using IterationControl
 IterationControl.train!(model::SquareRooter, n) =  train!(model, n) # lifting
 ```
-By definitiion, the lifted `train!` has the same functionality as the original one:
+By definition, the lifted `train!` has the same functionality as the original one:
 
 ```julia
 model = SquareRooter(9)
@@ -76,7 +76,7 @@ julia> IterationControl.train!(model, Step(2), NumberLimit(3), Info(m->m.root));
 Here each control is repeatedly applied in sequence until one of them
 triggers a stop. The first control `Step(2)` says, "Train the model
 two more iterations"; the second asks, "Have I been applied 3 times
-yet?", signalling a stop (at the end of the current control cycle) if
+yet?", signaling a stop (at the end of the current control cycle) if
 so; and the third logs the value of the function `m -> m.root`,
 evaluated on `model`, to `Info`. In this example only the second
 control can terminate model iteration.
@@ -85,7 +85,7 @@ If `model` admits a method returning a loss (in this case the
 difference between `x` and the square of `root`) then we can lift
 that method to `IterationControl.loss` to enable control using
 loss-based stopping criteria, such as a loss threshold. In the
-demonstation below, we also include a callback:
+demonstration below, we also include a callback:
 
 ```julia
 model = SquareRooter(4)
@@ -100,9 +100,9 @@ losses = Float64[]
 callback(model) = push!(losses, loss(model))
 
 julia> IterationControl.train!(model,
-                               Step(1),
-                               Threshold(0.0001),
-                               Callback(callback));
+							   Step(1),
+							   Threshold(0.0001),
+							   Callback(callback));
 [ Info: Stop triggered by Threshold(0.0001) stopping criterion.
 
 julia> losses
@@ -111,7 +111,7 @@ julia> losses
  3.716891878724482e-7
 ```
 
-In many appliations to machine learning, "loss" will be an
+In many applications to machine learning, "loss" will be an
 out-of-sample loss, computed after some iterations. If `model`
 additionally generates user-inspectable "training losses" (one per
 iteration) then similarly lifting the appropriate access function to
@@ -169,12 +169,12 @@ julia> last(reports[2])
 julia> last(reports[2]).loss
   0.1417301038062284
 ```
-                                    
+
 
 ## Controls provided
 
 Controls are repeatedly applied in sequence until a control triggers a
-stop. Each control type has a detailed doc-string. sBelow is a short
+stop. Each control type has a detailed doc-string. Below is a short
 summary, with some advanced options omitted.
 
 control                 | description                                                                             | enabled if these are overloaded   | can trigger a stop | notation in Prechelt
@@ -216,8 +216,6 @@ wrapper                                            | description
 > Table 2. Wrapped controls
 
 
-
-
 ## Access to model through a wrapper
 
 Note that functions ordinarily applied to `model` by some control
@@ -229,10 +227,10 @@ appropriately overloaded.
 ## Implementing new controls
 
 There is no abstract control type; any object can be a
-control. Behaviour is implemented using a functional style interface
-with four methods. Only the first two are compulsory (the `done` and
-`takedown` fallbacks always return `false` and `NamedTuple()`
-respectively.):
+control. Behavior is implemented using a functional style interface
+with six methods. Only the first two are compulsory (the fallbacks for
+`done`, `takedown`, `needs_loss` and `needs_training_losses` always
+return `false` and `NamedTuple()` respectively.):
 
 ```julia
 update!(control, model, verbosity, n) -> state  # initialization
@@ -242,31 +240,40 @@ takedown(control, verbosity, state) -> human_readable_named_tuple
 ```
 
 Here `n` is the control cycle count, i.e., one more than the the
-number of completed control cylcles.
+number of completed control cycles.
+
+If it is nonsensical to apply `control` to any model for which
+`loss(model)` has not been overloaded, and we want an error thrown
+when this is attempted, then declare `needs_loss(control::MyControl) =
+true` to take value true. Otherwise `control` is applied anyway, and
+`loss`, if called, returns `nothing`.
+
+A second trait `needs_training_losses(control)` serves an analogous
+purpose for training losses.
 
 Here's how `IterationControl.train!` calls these methods:
 
 ```julia
 function train!(model, controls...; verbosity::Int=1)
 
-    control = composite(controls...)
+	control = composite(controls...)
 
-    # before training:
-    verbosity > 1 && @info "Using these controls: $(flat(control)). "
+	# before training:
+	verbosity > 1 && @info "Using these controls: $(flat(control)). "
 
-    # first training event:
-    n = 1 # counts control cycles
-    state = update!(control, model, verbosity, n)
-    finished = done(control, state)
+	# first training event:
+	n = 1 # counts control cycles
+	state = update!(control, model, verbosity, n)
+	finished = done(control, state)
 
-    # subsequent training events:
-    while !finished
-        n += 1
-        state = update!(control, model, verbosity, n, state)
-        finished = done(control, state)
-    end
+	# subsequent training events:
+	while !finished
+		n += 1
+		state = update!(control, model, verbosity, n, state)
+		finished = done(control, state)
+	end
 
-    # finalization:
-    return takedown(control, verbosity, state)
+	# finalization:
+	return takedown(control, verbosity, state)
 end
 ```

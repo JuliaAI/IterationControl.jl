@@ -47,7 +47,27 @@ end
     @test done_d == done_a || done_b || done_c
     report_d = IC.takedown(d, 0, state_d2)
     @test report_d == ((a, report_a), (b, report_b), (c, report_c))
+end
 
+@testset "traits" begin
+    needs_nothing = NumberLimit(4)
+    needs_loss = Threshold(0.01)
+    needs_training = WithTrainingLossesDo()
+    needs_both = PQ()
+
+    @test !IC.needs_loss(IC.composite(needs_nothing))
+    @test !IC.needs_loss(IC.composite(needs_nothing, needs_training))
+    @test IC.needs_loss(IC.composite(needs_nothing, needs_loss))
+    @test IC.needs_loss(IC.composite(needs_nothing, needs_both))
+    @test IC.needs_loss(IC.composite(needs_loss))
+    @test IC.needs_loss(IC.composite(needs_loss, needs_nothing))
+
+    @test !IC.needs_training_losses(IC.composite(needs_nothing))
+    @test IC.needs_training_losses(IC.composite(needs_nothing, needs_training))
+    @test !IC.needs_training_losses(IC.composite(needs_nothing, needs_loss))
+    @test IC.needs_training_losses(IC.composite(needs_nothing, needs_both))
+    @test IC.needs_training_losses(IC.composite(needs_training))
+    @test !IC.needs_training_losses(IC.composite(needs_loss, needs_nothing))
 end
 
 true

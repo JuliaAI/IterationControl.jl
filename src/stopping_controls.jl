@@ -2,72 +2,49 @@
 
 # `StoppingCriterion`objects are defined in EarlyStopping.jl
 
+# non-wrapping stopping criteria that are nonsensical to apply if
+# `IterationControl.training_losses(model)` is not overloaded:
+const ATOMIC_CRIITERIA_NEEDING_TRAINING_LOSSES = [:PQ, ]
+const ATOMIC_CRIITERIA_NEEDING_LOSS = [:Threshold, :GL, :PQ, :Patience]
 
-# ## LOSS GETTERS
+# stopping criterion that wrap a single stopping criterion (must have
+# `:criterion` as a field):
+const EARLY_STOPPING_WRAPPERS = [:Warmup, ]
 
-# `get_loss(control, model)` throws an error if control needs
-# `IC.loss` overloaded for `type(model)` and it has not been so
-# overloaded. If `control` does not need `IC.loss`, then `nothing` is
-# returned. In the other cases, the sought after loss is
-# returned. `get_training_losses` is similarly defined.
 
-err_getter(c, f, model) =
-    ArgumentError("Use of `$c` control here requires that "*
-                  "`IterationControl.$f(model)` be "*
-                  "overloaded for `typeof(model)=$(typeof(model))`. ")
-
-for f in [:loss, :training_losses]
-    g = Symbol(string(:get_, f))
-    t = Symbol(string(:needs_, f))
-    fstr = string(f)
-    eval(quote
-         $g(c, model) = $g(c, model, Val(ES.$t(c)))
-         $g(c, model, ::Val{false}) = nothing
-         @inline function $g(c, model, ::Val{true})
-             it = $f(model)
-             it isa Nothing && throw(err_getter(c, $fstr, model))
-             return it
-         end
-         end)
+for ex in ATOMIC_CRIITERIA_NEEDING_LOSS
+    quote
+        needs_loss(::$ex) = true
+    end |> eval
 end
 
+for ex in ATOMIC_CRIITERIA_NEEDING_TRAINING_LOSSES
+    quote
+        needs_training_losses(::$ex) = true
+    end |> eval
+end
 
-# ## API IMPLEMENTATION
+for ex in EARLY_STOPPING_WRAPPERS
+    quote
+        needs_loss(wrapper::$ex) =
+            needs_loss(wrapper.criterion)
+        needs_training_losses(wrapper::$ex) =
+            needs_training(wrapper.criterion)
+    end |> eval
+end
 
 function update!(c::StoppingCriterion,
                  model,
                  verbosity,
-                 n)
-    _loss = get_loss(c, model)
-    _training_losses = get_training_losses(c, model)
-    if _training_losses === nothing || isempty(_training_losses)
-        state = ES.update(c, _loss)
-    else # first consume all training losses, then update! loss:
-        state = ES.update_training(c, first(_training_losses))
-        for tloss in _training_losses[2:end]
-            state = ES.update_training(c, tloss, state)
-        end
-        state = ES.update(c, _loss, state)
-    end
-    return state
-end
-
-# regular update!:
-function update!(c::StoppingCriterion,
-                 model,
-                 verbosity,
-                 n,
-                 state)
-    _loss = get_loss(c, model)
-    _training_losses = get_training_losses(c, model)
-    if _training_losses === nothing || isempty(_training_losses)
-        state = ES.update(c, _loss, state)
-    else # first consume all training losses, then update! loss:
+                 n, state=nothing)
+    _loss = loss(model)
+    _training_losses = training_losses(model)
+    if _training_losses !== nothing && !isempty(_training_losses)
         for tloss in _training_losses
             state = ES.update_training(c, tloss, state)
         end
-        state = ES.update(c, _loss, state)
     end
+    state = ES.update(c, _loss, state)
     return state
 end
 
@@ -80,5 +57,3 @@ function takedown(c::StoppingCriterion, verbosity, state)
         return (done = false, log = "")
     end
 end
-
-

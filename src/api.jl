@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------
-# # MACHINE METHODS
+# # MODEL METHODS
 
 # *models* are externally defined objects with certain functionality
 # that is exposed by overloading these methods:
@@ -21,7 +21,7 @@ err_ingest(model) =
 train!(model, Δn) = throw(err_train(model))
 
 
-# ## REQUIRED FOR SOME CONTROL
+# ## REQUIRED FOR SOME CONTROLS
 
 # extract a single numerical estimate of `models`'s performance such
 # as an out-of-sample loss; smaller is understood to be better:
@@ -51,7 +51,7 @@ expose(model, ::Val{false}) = expose(model)
 # # CONTROL METHODS
 
 # compulsory: `update!`
-# optional: `done`, `takedown`
+# optional: `done`, `takedown`, `needs_training_losses`
 
 # called after first training event; returns initialized control
 # "state":
@@ -63,10 +63,23 @@ update!(control, model, verbosity, n, state) = state
 # should we stop?
 done(control, state) = false
 
-# What to do after this control, or some other control, has triggered
+# What to do after `control`, or some other control, has triggered
 # a stop. Returns user-inspectable outcomes associated with the
 # control's applications (separate from logging). This should be a
 # named tuple, except for composite controls which return a tuple of
 # named tuples (see composite_controls.jl):
 takedown(control, verbosity, state) = NamedTuple()
 
+# If it is nonsensical to apply `control` to any model for which
+# `training_losses(model)` has not been overloaded and we want an
+# error thrown when this is attempted, then overload this trait to
+# take the value `true`. Otherwise `control` is applied anyway, and
+# `training_losses`, if called, returns `nothing`.
+needs_training_losses(control) = false
+
+# If it is nonsensical to apply `control` to any model for which
+# `loss(model)` has not been overloaded and we want an error thrown
+# when this is attempted, then overload this trait to take the value
+# `true`. Otherwise `control` is applied anyway, and
+# `loss`, if called, returns `nothing`.
+needs_loss(control) = false
