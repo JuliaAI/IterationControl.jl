@@ -299,6 +299,7 @@ function update!(c::WithLossDo,
                  n,
                  state=(loss=nothing, done=false))
     loss = IterationControl.loss(model)
+    loss === nothing && throw(ERR_NEEDS_LOSS)
     r = c.f(loss)
     done = (c.stop_if_true && r isa Bool && r) ? true : false
     return (loss=loss, done=done)
@@ -355,6 +356,7 @@ function update!(c::WithTrainingLossesDo,
                  n,
                  state=(latest_training_loss = nothing, done = false))
     losses = IterationControl.training_losses(model)
+    losses === nothing && throw(ERR_NEEDS_TRAINING_LOSSES)
     r = c.f(losses)
     done = (c.stop_if_true && r isa Bool && r) ? true : false
     return (latest_training_loss=losses[end], done=done)
