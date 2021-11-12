@@ -1,4 +1,4 @@
-struct CompositeControl{A,B} 
+struct CompositeControl{A,B}
     a::A
     b::B
     function CompositeControl(a::A, b::B) where {A, B}
@@ -29,7 +29,7 @@ update!(c::CompositeControl, m, v, n, state) =
      b = update!(c.b, m, v, n, state.b))
 
 
-## RECURSION TO FLATTEN A CONTROL OR ITS STATE
+# # RECURSION TO FLATTEN A CONTROL OR ITS STATE
 
 flat(state) = (state,)
 flat(state::NamedTuple{(:a,:b)}) = tuple(flat(state.a)..., flat(state.b)...)
@@ -42,7 +42,7 @@ _in(c::Any, d::CompositeControl) = c in flat(d)
 _in(::CompositeControl, ::Any) = false
 
 
-## DISPLAY
+# # DISPLAY
 
 function Base.show(io::IO, c::CompositeControl)
     list = join(string.(flat(c)), ", ")
@@ -50,11 +50,11 @@ function Base.show(io::IO, c::CompositeControl)
 end
 
 
-## RECURSION TO DEFINE `done`
+# # RECURSION TO DEFINE `done`
 
 # fallback for atomic controls:
 _done(control, state, old_done) = old_done || done(control, state)
-
+%
 # composite:
 _done(c::CompositeControl, state, old_done) =
     _done(c.a, state.a, _done(c.b, state.b, old_done))
@@ -62,7 +62,7 @@ _done(c::CompositeControl, state, old_done) =
 done(c::CompositeControl, state) = _done(c, state, false)
 
 
-## RECURSION TO DEFINE `takedown`
+# # RECURSION TO DEFINE `takedown`
 
 # fallback for atomic controls:
 function _takedown(control, v, state, old_takedown)
@@ -76,3 +76,12 @@ _takedown(c::CompositeControl, v, state, old_takedown) =
               _takedown(c.a, v, state.a, old_takedown))
 
 takedown(c::CompositeControl, v, state) = _takedown(c, v, state, ())
+
+
+# # TRAITS
+
+for ex in [:needs_loss, :needs_training_losses]
+    quote
+        $ex(c::CompositeControl) = any($ex, flat(c))
+    end |> eval
+end
