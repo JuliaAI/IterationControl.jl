@@ -109,3 +109,12 @@ end
             s.training_losses == reverse(tlosses[j-L+1:j])
     end |> all
 end
+
+# https://github.com/JuliaAI/MLJIteration.jl/issues/36
+@testset "integration test related to MLJIteration.jl #36" begin
+    model = SquareRooter(NaN)
+    report =
+        IC.train!(model, Step(1), InvalidValue(), NumberLimit(3), verbosity=0)
+    @test report[1][2].new_iterations == 1
+    @test occursin("Stopping", report[2][2].log)
+end

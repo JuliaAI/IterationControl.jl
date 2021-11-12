@@ -291,7 +291,7 @@ WithLossDo(; f=x->@info("loss: $x"), kwargs...) = WithLossDo(f, kwargs...)
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
 
-EarlyStopping.needs_loss(::Type{<:WithLossDo}) = true
+needs_loss(::WithLossDo) = true
 
 function update!(c::WithLossDo,
                  model,
@@ -347,7 +347,7 @@ WithTrainingLossesDo(; f=v->@info("training: $v"), kwargs...) =
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
 
-EarlyStopping.needs_training_losses(::Type{<:WithTrainingLossesDo}) = true
+needs_training_losses(::WithTrainingLossesDo) = true
 
 function update!(c::WithTrainingLossesDo,
                  model,

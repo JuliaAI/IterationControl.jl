@@ -1,20 +1,6 @@
-@testset "loss getters" begin
-    model=SquareRooter(4)
-    @test IterationControl.get_loss(InvalidValue(), model) ==
-        IterationControl.loss(model)
-    @test_throws(IterationControl.err_getter(InvalidValue(), :loss, :junk),
-                 IterationControl.get_loss(InvalidValue(), :junk))
-    IterationControl.train!(model, 2)
-    @test IterationControl.get_training_losses(PQ(), model) ==
-        IterationControl.training_losses(model)
-    @test_throws(
-        IterationControl.err_getter(PQ(), :training_losses, :junk),
-        IterationControl.get_training_losses(PQ(), :junk))
-end
-
 @testset "stopping criteria as controls" begin
 
-    # A stopping criterion than ignores training losses:
+    # A stopping criterion that ignores training losses:
 
     m = SquareRooter(4)
     c = NumberLimit(2)
@@ -56,5 +42,4 @@ end
     report = IC.takedown(c, 1, state)
     @test !report.done
     @test report.log == ""
-
 end
