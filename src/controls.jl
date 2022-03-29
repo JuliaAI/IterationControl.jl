@@ -152,11 +152,11 @@ struct Callback{F<:Function}
 end
 
 # constructor:
-Callback(f::Function;
+Callback(; f=identity,
          stop_if_true=false,
          stop_message=nothing,
          raw=false) = Callback(f, stop_if_true, stop_message, raw)
-Callback(; f=identity, kwargs...) = Callback(f, kwargs...)
+Callback(f; kwargs...) = Callback(; f=f, kwargs...)
 
 @create_docs(Callback,
              header="Callback(f=_->nothing, stop_if_true=false, "*
@@ -275,10 +275,10 @@ struct WithLossDo{F<:Function}
 end
 
 # constructor:
-WithLossDo(f::Function;
-     stop_if_true=false,
-     stop_message=nothing) = WithLossDo(f, stop_if_true, stop_message)
-WithLossDo(; f=x->@info("loss: $x"), kwargs...) = WithLossDo(f, kwargs...)
+WithLossDo(; f=x->@info("loss: $x"),
+           stop_if_true=false,
+           stop_message=nothing) = WithLossDo(f, stop_if_true, stop_message)
+WithLossDo(f; kwargs...) = WithLossDo(; f=f, kwargs...)
 
 @create_docs(WithLossDo,
              header="WithLossDo(f=x->@info(\"loss: \$x\"), "*
@@ -330,11 +330,12 @@ struct WithTrainingLossesDo{F<:Function}
 end
 
 # constructor:
-WithTrainingLossesDo(f::Function;
-     stop_if_true=false,
-     stop_message=nothing) = WithTrainingLossesDo(f, stop_if_true, stop_message)
-WithTrainingLossesDo(; f=v->@info("training: $v"), kwargs...) =
-    WithTrainingLossesDo(f, kwargs...)
+WithTrainingLossesDo(; f=v->@info("training: $v"),
+                     stop_if_true=false,
+                     stop_message=nothing) =
+                         WithTrainingLossesDo(f, stop_if_true, stop_message)
+WithTrainingLossesDo(f; kwargs...) =
+    WithTrainingLossesDo(; f=f, kwargs...)
 
 @create_docs(WithTrainingLossesDo,
              header="WithTrainingLossesDo(f=v->@info(\"training: \$v\"), "*
@@ -388,10 +389,10 @@ struct WithNumberDo{F<:Function}
 end
 
 # constructor:
-WithNumberDo(f::Function;
-     stop_if_true=false,
-     stop_message=nothing) = WithNumberDo(f, stop_if_true, stop_message)
-WithNumberDo(; f=n->@info("number: $n"), kwargs...) = WithNumberDo(f, kwargs...)
+WithNumberDo(; f=n->@info("number: $n"),
+             stop_if_true=false,
+             stop_message=nothing) = WithNumberDo(f, stop_if_true, stop_message)
+WithNumberDo(f; kwargs...) = WithNumberDo(; f=f, kwargs...)
 
 @create_docs(WithNumberDo,
              header="WithNumberDo(f=n->@info(\"number: \$n\"), "*

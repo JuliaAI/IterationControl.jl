@@ -441,3 +441,28 @@ end
     @test length(losses) == length(data) + 1
     @test loss(model) > 0.01
 end
+
+@testset "constructors #55" begin
+    for Control in [WithTrainingLossesDo,
+                    Callback,
+                    WithLossDo,
+                    WithNumberDo]
+        g(x) = true
+
+        c = Control(g)
+        @test c.f == g
+        @test !c.stop_if_true
+
+        c= Control(g, stop_if_true=true)
+        @test c.f == g
+        @test c.stop_if_true
+
+        c= Control(f=g)
+        @test c.f == g
+        @test !c.stop_if_true
+
+        c= Control(f=g, stop_if_true=true)
+        @test c.f == g
+        @test c.stop_if_true
+    end
+end
