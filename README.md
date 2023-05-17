@@ -99,10 +99,7 @@ IterationControl.loss(model::SquareRooter) = loss(model) # lifting
 losses = Float64[]
 callback(model) = push!(losses, loss(model))
 
-julia> IterationControl.train!(model,
-							   Step(1),
-							   Threshold(0.0001),
-							   Callback(callback));
+julia> IterationControl.train!(model, Step(1), Threshold(0.0001), Callback(callback));
 [ Info: Stop triggered by Threshold(0.0001) stopping criterion.
 
 julia> losses
