@@ -29,7 +29,7 @@ for ex in EARLY_STOPPING_WRAPPERS
         needs_loss(wrapper::$ex) =
             needs_loss(wrapper.criterion)
         needs_training_losses(wrapper::$ex) =
-            needs_training(wrapper.criterion)
+            needs_training_losses(wrapper.criterion)
     end |> eval
 end
 

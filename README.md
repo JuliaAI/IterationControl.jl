@@ -99,10 +99,7 @@ IterationControl.loss(model::SquareRooter) = loss(model) # lifting
 losses = Float64[]
 callback(model) = push!(losses, loss(model))
 
-julia> IterationControl.train!(model,
-							   Step(1),
-							   Threshold(0.0001),
-							   Callback(callback));
+julia> IterationControl.train!(model, Step(1), Threshold(0.0001), Callback(callback));
 [ Info: Stop triggered by Threshold(0.0001) stopping criterion.
 
 julia> losses
@@ -195,6 +192,7 @@ control                 | description                                           
 `GL(alpha=2.0)`         | Stop after "Generalization Loss" exceeds `alpha`                                        |`train!`, `loss`                   | yes   | ``GL_α``
 `Patience(n=5)`         | Stop after `n` consecutive loss increases                                               |`train!`, `loss`                   | yes   | ``UP_s``
 `PQ(alpha=0.75, k=5)`   | Stop after "Progress-modified GL" exceeds `alpha`                                       |`train!`, `loss`, `training_losses`| yes   | ``PQ_α``
+`Warmup(c; n=1)`        | Wait for `n` loss updates before checking criteria `c`                                  |`train!`                           | no    |
 `Data(data)`            | Call `ingest!(model, item)` on the next `item` in the iterable `data`.                  |`train!`, `ingest!`                | yes   |
 
 > Table 1. Atomic controls
