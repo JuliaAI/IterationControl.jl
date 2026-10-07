@@ -4,6 +4,7 @@ import Base.*
 import EarlyStopping: done, StoppingCriterion, StoppingCriterion
 using InteractiveUtils
 using EarlyStopping
+using REPL
 
 const ES = EarlyStopping
 
