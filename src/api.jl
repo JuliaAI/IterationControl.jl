@@ -11,7 +11,7 @@ err_train(model) =
 
 err_ingest(model) =
     ArgumentError("Cannot use `Data` control here, as "*
-                  "`IterationControl.ingest!(model)` "*
+                  "`IterationControl.ingest!(model, datum)` "*
                   "not overloaded "*
                   "for `typeof(model) = $(typeof(model))`. ")
 
@@ -60,26 +60,23 @@ update!(control, model, verbosity, n) = nothing
 # called after all subsequent training events; returns new "state":
 update!(control, model, verbosity, n, state) = state
 
-# should we stop?
-done(control, state) = false
+# should we stop? This method is imported from EarlyStopping with this default:
+# done(control, state) = false
 
-# What to do after `control`, or some other control, has triggered
-# a stop. Returns user-inspectable outcomes associated with the
-# control's applications (separate from logging). This should be a
-# named tuple, except for composite controls which return a tuple of
-# named tuples (see composite_controls.jl):
-takedown(control, verbosity, state) = NamedTuple()
+# What to do after `control`, or some other control, has triggered a stop. Returns a short
+# (possible empty) message string, which it should log to `:info` if it's non-empty and
+# `verbosity > 0`. Ideally the message should fit on one line. (Detailed information can
+# be accessed with `EarlyStopping.public_state(control, final_state)`.)
+takedown(control, verbosity, state) = ""
 
-# If it is nonsensical to apply `control` to any model for which
-# `training_losses(model)` has not been overloaded and we want an
-# error thrown when this is attempted, then overload this trait to
-# take the value `true`. Otherwise `control` is applied anyway, and
+# If it is nonsensical to apply `control` to any model for which `training_losses(model)`
+# has not been overloaded and we want an error thrown when this is attempted, then
+# overload this trait to take the value `true`. Otherwise `control` is applied anyway, and
 # `training_losses`, if called, returns `nothing`.
 needs_training_losses(control) = false
 
-# If it is nonsensical to apply `control` to any model for which
-# `loss(model)` has not been overloaded and we want an error thrown
-# when this is attempted, then overload this trait to take the value
-# `true`. Otherwise `control` is applied anyway, and
-# `loss`, if called, returns `nothing`.
+# If it is nonsensical to apply `control` to any model for which `loss(model)` has not
+# been overloaded and we want an error thrown when this is attempted, then overload this
+# trait to take the value `true`. Otherwise `control` is applied anyway, and `loss`, if
+# called, returns `nothing`.
 needs_loss(control) = false

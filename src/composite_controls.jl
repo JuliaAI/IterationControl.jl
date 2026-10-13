@@ -49,6 +49,17 @@ function Base.show(io::IO, c::CompositeControl)
     print(io, "CompositeControl($list)")
 end
 
+# # PUBLIC_STATE
+
+# fallback for atomic state:
+function public_state(c::CompositeControl, state)
+    controls = flat(c)
+    states = flat(state)
+    return map(zip(controls, states)) do (c, s)
+       public_state(c, s)
+    end
+end
+
 
 # # RECURSION TO DEFINE `done`
 
@@ -65,17 +76,24 @@ done(c::CompositeControl, state) = _done(c, state, false)
 # # RECURSION TO DEFINE `takedown`
 
 # fallback for atomic controls:
-function _takedown(control, v, state, old_takedown)
-    new_takedown = (control, takedown(control, v, state))
-    return tuple(old_takedown..., new_takedown)
-end
+_takedown(control, verbosity, state, old_takedown) =
+    (old_takedown..., takedown(control, verbosity, state))
 
 # composite:
-_takedown(c::CompositeControl, v, state, old_takedown) =
-    _takedown(c.b, v, state.b,
-              _takedown(c.a, v, state.a, old_takedown))
+_takedown(c::CompositeControl, verbosity, state, old_takedown) =
+    _takedown(
+        c.b,
+        verbosity,
+        state.b,
+        _takedown(
+            c.a,
+            verbosity,
+            state.a,
+            old_takedown,
+        ),
+    )
 
-takedown(c::CompositeControl, v, state) = _takedown(c, v, state, ())
+takedown(c::CompositeControl, verbosity, state) = _takedown(c, verbosity, state, ())
 
 
 # # TRAITS

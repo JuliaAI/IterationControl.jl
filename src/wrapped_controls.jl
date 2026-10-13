@@ -8,9 +8,8 @@ end
 """
     IterationControl.louder(control, by=1)
 
-Wrap `control` to make in more (or less) verbose. The same as
-`control`, but as if the global `verbosity` were increased by the value
-`by`.
+Wrap `control` to make in more (or less) verbose. The same as `control`, but as if the
+global `verbosity` were increased by the value `by`.
 
 """
 louder(c; by=1) = Louder(c, by)
@@ -21,12 +20,13 @@ update!(d::Louder, model, verbosity, args...) =
     update!(d.control, model, verbosity + d.by, args...)
 takedown(d::Louder, verbosity, state) =
     takedown(d.control, verbosity + d.by, state)
-
+public_state(d::Louder, state) = public_state(d.control, state)
 
 # # WithStateDo
 
 # helper:
-shout(control, state) = @info "$(typeof(control)) state: $(flat(state))"
+shout(control, public_state) =
+    (@info "`$(typeof(control))` state: $(public_state)"; public_state)
 
 struct WithStateDo{C,F}
     control::C
@@ -34,17 +34,13 @@ struct WithStateDo{C,F}
 end
 
 """
-    IterationControl.with_state_do(control,
-                                  f=x->@info "\$(typeof(control)) state: \$x")
+    IterationControl.with_state_do(control,f=x->(@info "`\$(typeof(control))` state: \$x; x)")
 
-Wrap `control` to give access to it's internal state. Acts exactly
-like `control` except that `f` is called on the internal state of
-`control`. If `f` is not specified, the control type and state are
-logged to `Info` at every update (useful for debugging new controls).
-
-**Warning.** The internal state of a control is not yet considered
-part of the public interface and could change between in any pre 1.0
-release of IterationControl.jl.
+Wrap `control` to give access to the public form of its internal state (which is also the
+object accumulated by the corresponding `ControlTrace` returned by `train!`). Acts exactly
+like `control` except that `f` is called on current state. If `f` is not specified, the
+control type and state are logged to `Info` at every update. Useful for debugging custom
+controls.
 
 """
 with_state_do(c; f=state->shout(c, state)) = WithStateDo(c, f)
@@ -55,20 +51,27 @@ for op in [:done, :takedown]
 end
 @inline function update!(d::WithStateDo, args...)
     state = update!(d.control, args...)
-    d.f(state)
+    d.f(public_state(d.control, state))
     return state
 end
+
+public_state(d::WithStateDo, state) = public_state(d.control, state)
 
 
 # ## Skip
 
-struct Skip{C,F<:Function}
+struct Skip{C,F}
     control::C
     predicate::F
+    step::Int
 end
 
-_pred(predicate) = predicate
-_pred(predicate::Int) = t -> mod(t, predicate) == 0
+Base.show(io::IO, s::Skip) = s.step == 0 ?
+    print(io, "skip($(s.control), …)") :
+    print(io, "skip($(s.control), predicate=$(s.step))")
+Base.show(io::IO, ::MIME"text/plain", s::Skip) = show(io, s)
+
+accept(predicate) = t -> mod(t, predicate) == 0
 
 """
     IterationControl.skip(control, predicate=1)
@@ -78,12 +81,46 @@ An iteration control wrapper.
 If `predicate` is an **integer**, `k`: Apply `control` on every `k`
 calls to apply the wrapped control, starting with the `k`th call.
 
-If `predicate` is a **function**: Apply `control` as usual when
+If `predicate` is a **callable**: Apply `control` as usual when
 `predicate(n + 1)` is `true` but otherwise skip. Here `n` is the
 number of control cycles applied so far.
 
+While the application of the underlying control gets skipped, the (unchanged) internal
+state is nevertheless recorded to the corresponding `ControlTrace`, but this trace does
+not start recording until the first application of `control`:
+
+```julia-repl
+using IterationControl
+model = IterationControl.SquareRooter(4)
+
+julia> traces = IC.train!(
+    m,
+    Step(1),
+    IterationControl.skip(WithNumberDo(x->(@info(x); x)), predicate=2),
+    NumberLimit(5),
+)
+[ Info: 2
+[ Info: 4
+[ Info: final loss: 0.0
+[ Info: final training loss: 0.0
+[ Info: Stop triggered by NumberLimit(5) stopping criterion.
+3-element Vector{Any}:
+ ControlTrace{<:Step}, ending (new_iterations = 5, new_steps = 5)
+ ControlTrace{<:Skip}, ending (number = 4, called_back = 4)
+ ControlTrace{<:NumberLimit}, ending (number = 5,)
+
+julia> traces[2].number
+4-element Vector{Int64}:
+ 2
+ 2
+ 4
+ 4
+```
 """
-skip(control; predicate::Int=1) = Skip(control, _pred(predicate))
+function skip(control; predicate=1)
+    predicate isa Integer && return Skip(control, accept(predicate), predicate)
+    return Skip(control, predicate, 0)
+end
 
 _state(s, model, verbosity, n, atomic_state...) = if s.predicate(n)
     new_atomic_state =
@@ -114,11 +151,14 @@ function update!(s::Skip, model, verbosity, n, state)
     return state_candidate
 end
 
+public_state(::Skip, ::NamedTuple{(:n,)}) = nothing
+public_state(s::Skip, state) = public_state(s.control, state.atomic_state)
+
 done(s::Skip, state) = done(s.control, state.atomic_state)
 
-# can't be done if atomic state never intialized:
+# can't be done if atomic state never initialized:
 done(s::Skip, state::NamedTuple{(:n,)}) = false
 
 takedown(s::Skip, verbosity, state) =
     takedown(s.control, verbosity, state.atomic_state)
-takedown(::Skip, ::Any, ::NamedTuple{(:n,)}) = NamedTuple()
+takedown(::Skip, ::Any, ::NamedTuple{(:n,)}) = ""

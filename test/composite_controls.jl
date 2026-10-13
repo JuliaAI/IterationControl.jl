@@ -33,9 +33,9 @@ end
     done_a = IC.done(a, state_a2)
     done_b = IC.done(b, state_b2)
     done_c = IC.done(c, state_c2)
-    report_a = IC.takedown(a, 0, state_a2)
-    report_b = IC.takedown(b, 0, state_b2)
-    report_c = IC.takedown(c, 0, state_c2)
+    message_a = IC.takedown(a, 0, state_a2)
+    message_b = IC.takedown(b, 0, state_b2)
+    message_c = IC.takedown(c, 0, state_c2)
 
     # composed:
     m = SquareRooter(4)
@@ -45,8 +45,8 @@ end
     @test IC.flat(state_d2) == (state_a2, state_b2, state_c2)
     done_d = IC.done(d, state_d2)
     @test done_d == done_a || done_b || done_c
-    report_d = IC.takedown(d, 0, state_d2)
-    @test report_d == ((a, report_a), (b, report_b), (c, report_c))
+    message_d = IC.takedown(d, 0, state_d2)
+    @test message_d == (message_a, message_b, message_c)
 end
 
 @testset "traits" begin
