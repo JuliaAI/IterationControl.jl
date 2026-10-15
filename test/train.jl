@@ -53,7 +53,7 @@ struct WrappedSquareRooter
     s::IC.SquareRooter
 end
 
-IC.train!(w::WrappedSquareRooter, n) = IC.train!(w.s, n)
+IC.train!(w::WrappedSquareRooter, n::Int) = IC.train!(w.s, n)
 IC.loss(w::WrappedSquareRooter) = IC.loss(w.s)
 IC.expose(w::WrappedSquareRooter) = w.s
 
