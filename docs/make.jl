@@ -11,7 +11,7 @@ makedocs(
         prettyurls = true,
         collapselevel = 1,
     ),
-#    plugins = [CodeBlocks(),],
+    plugins = [CodeBlocks(),],
     pages=[
         "Home" => "index.md",
         "Controls" => "controls.md",
