@@ -16,7 +16,7 @@ TablesExt = "Tables"
 
 [compat]
 Dates = "1"
-EarlyStopping = "0.4"
+EarlyStopping = "1"
 REPL = "1"
 Tables = "1.6"
 julia = "1.10"
@@ -24,6 +24,7 @@ julia = "1.10"
 [extras]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 
 [targets]
-test = ["Dates", "Test"]
+test = ["Dates", "Tables", "Test"]
