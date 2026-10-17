@@ -52,7 +52,7 @@ package:
 
 ```julia
 using IterationControl
-IterationControl.train!(model::SquareRooter, n) =  train!(model, n) # lifting
+IterationControl.train!(model::SquareRooter, n::Int) =  train!(model, n) # lifting
 ```
 By definition, the lifted `train!` has the same functionality as the original one:
 

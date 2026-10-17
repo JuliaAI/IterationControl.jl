@@ -16,9 +16,10 @@ const ERR_TRACES_NEED_INITIALIZING = ArgumentError(
 """
     train!(model, controls...; verbosity=1, compact=false, traces=[])
 
-Train the iterative `model`, applying the provided `controls`, which must include the
-`Step(k)` control, for some integer `k` that specifies the number of training iterations
-between control cycles.
+Train the iterative `model`, repeatedly applying the provided `controls` until one of the
+controls triggers a stop. The first control must be `Step(k)`, for some integer `k`
+specifying the number of training iterations between control cycles; `Step()` is the same
+as `Step(1)`.
 
 Returns a vector of traces, one for each control. A trace records
 the evolving internal state of each control, unless `compact=false`, in which case only
@@ -55,10 +56,11 @@ julia> traces[2].loss
  8.881784197001252e-15
 ```
 
-It is assumed that `IterationControl.train!(model, n::Int)` has been implemented, and that
-this trains the model for `n` iterations. Specific controls may require implementations of
-`IterationControl.loss`, `IterationControl.training_losses` and/or
-`IterationControl.ingest!`. Refer to documentation for details.
+It is assumed that `IterationControl.train!(model, n::Int)` has been implemented (be sure
+to include the `Int` annotation here!) and that this trains the model for `n` more
+iterations. Specific controls may require implementations of
+[`IterationControl.loss(model)`](@ref), [`IterationControl.training_losses(model)`](@ref),
+or [`IterationControl.ingest!(model, datum)`](@ref). Refer to documentation for details.
 
 # Extended help
 

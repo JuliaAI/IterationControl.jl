@@ -17,7 +17,7 @@ CompositeControl(a, b, c...) = CompositeControl(CompositeControl(a,b), c...)
     composite(controls...)
 
 Construct an iteration control that applies the specified `controls`
-in sequence.
+in sequence. Mainly intended for internal use by IterationControls.jl.
 
 """
 composite(controls...) = CompositeControl(controls...)

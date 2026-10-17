@@ -19,6 +19,74 @@ _last(columntable) =
 # NOTE. because of `skip` controls, we have to allow for the possiblity that
 # `public_state(control, state) = `nothing`, so that construction of the table is delayed.
 
+"""
+    ControlTrace{C}
+
+Type of object recording a trace for a control of type `C`.
+
+All instances have the following public properties (accessed with dot syntax):
+
+- `control`
+
+- `table`: a named-tuple of vectors recording a history of the internal state of the
+  control as iteration proceeded
+
+- `triggered_stop`: `true` if `control` was responsible for stopping training
+
+- `message`: The message that was logged to `Info` or `Warn` when
+  [`IterationControl.train!`](@ref) completed (available even if a small `verbosity` level
+  supressed the logging)
+
+Additional properties forward to the `table` property to access a particular component of
+state. Note here "state" means public state (i.e, what is returned by
+[`IterationControl.public_state(control, rawstate)`](@ref), where `rawstate` is the raw
+internal state).
+
+A `ControlTrace` object implements the Tables.jl interface, so it can be converted to a
+dataframe, for example:
+
+```julia-repl
+using IterationControl
+import IterationControl.SquareRooter
+using DataFrames
+
+model = SquareRooter(9)
+
+julia> traces = IterationControl.train!(
+    model,
+    Step(),
+    Threshold(0.01),
+    WithLossDo(x->x<0.01),
+)
+[ Info: final loss: 0.0005493331704400362
+[ Info: final training loss: 0.02343785763332562
+[ Info: Stop triggered by Threshold(0.01) stopping criterion.
+3-element Vector{Any}:
+ ControlTrace{<:Step}, ending (new_iterations = 4, new_steps = 4)
+ ControlTrace{<:Threshold}, ending (loss = 0.0005493331704400362, excess = -0.009450666829559964)
+ ControlTrace{<:WithLossDo}, ending (loss = 0.0005493331704400362, called_back = true)
+
+trace = traces[end]
+
+julia> trace.loss
+4-element Vector{Float64}:
+ 16.0
+  2.5599999999999987
+  0.1417301038062284
+  0.0005493331704400362
+
+julia> DataFrame(trace)
+4×2 DataFrame
+ Row │ loss          called_back
+     │ Float64       Bool
+─────┼───────────────────────────
+   1 │ 16.0                false
+   2 │  2.56               false
+   3 │  0.14173            false
+   4 │  0.000549333         true
+```
+
+"""
 mutable struct ControlTrace{C}
     control::C
     triggered_stop::Bool

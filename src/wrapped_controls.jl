@@ -37,10 +37,10 @@ end
     IterationControl.with_state_do(control,f=x->(@info "`\$(typeof(control))` state: \$x; x)")
 
 Wrap `control` to give access to the public form of its internal state (which is also the
-object accumulated by the corresponding `ControlTrace` returned by `train!`). Acts exactly
-like `control` except that `f` is called on current state. If `f` is not specified, the
-control type and state are logged to `Info` at every update. Useful for debugging custom
-controls.
+object accumulated by the corresponding [`ControlTrace`](@ref) returned by
+[`IterationControl.train!`](@ref)). Acts exactly like `control` except that `f` is called
+on current state. If `f` is not specified, the control type and state are logged to `Info`
+at every update. Useful for debugging custom controls.
 
 """
 with_state_do(c; f=state->shout(c, state)) = WithStateDo(c, f)
@@ -86,8 +86,8 @@ If `predicate` is a **callable**: Apply `control` as usual when
 number of control cycles applied so far.
 
 While the application of the underlying control gets skipped, the (unchanged) internal
-state is nevertheless recorded to the corresponding `ControlTrace`, but this trace does
-not start recording until the first application of `control`:
+state is nevertheless recorded to the corresponding [`ControlTrace`](@ref), but this trace
+does not start recording until the first application of `control`:
 
 ```julia-repl
 using IterationControl

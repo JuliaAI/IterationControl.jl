@@ -213,7 +213,7 @@ Base.show(io::IO, d::Data{S}) where S =
              body="In each application of this control a new `item` from the "*
              "iterable, `data`, is retrieved (using `iterate`) and "*
              "`IterationControl.ingest!(m, item)` is called. Here "*
-             "`m` is the object being iterated. \n\n"*
+             "`m` is the object being iteratively trained. \n\n"*
              "The control becomes passive once the `data` iterable is done. "*
              "To trigger "*
              "a stop *after one passive application of the control*, set "*
@@ -268,6 +268,8 @@ function takedown(c::Data, verbosity, state)
     end
     return ""
 end
+
+needs_ingest(::Data) = true
 
 
 # # WithLossDo
@@ -410,9 +412,9 @@ WithNumberDo(f; kwargs...) = WithNumberDo(; f=f, kwargs...)
              "stop_message=nothing)",
              example="WithNumberDo(n->put!(my_channel, n))",
              body="Call `f(n + 1)`, where "*
-             "`n` is the number of complete control cycles. "*
-             "of the control (so, `n = 1, 2, 3, ...`, unless control is "*
-             "wrapped in a [`IterationControl.skip`](@ref))`.\n\n"*
+             "`n` is the number of already completed control cycles "*
+             "(so, `n = 1, 2, 3, ...`, unless control is "*
+             "wrapped in a [`IterationControl.skip`](@ref)).\n\n"*
              "If `stop_if_true` is `true`, then trigger an early stop "*
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
