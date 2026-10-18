@@ -16,7 +16,7 @@ end
 _last(columntable) =
     NamedTuple{keys(columntable)}(last.(values(columntable)))
 
-# NOTE. because of `skip` controls, we have to allow for the possiblity that
+# NOTE. because of `skip` controls, we have to allow for the possibility that
 # `public_state(control, state) = `nothing`, so that construction of the table is delayed.
 
 """
@@ -35,7 +35,7 @@ All instances have the following public properties (accessed with dot syntax):
 
 - `message`: The message that was logged to `Info` or `Warn` when
   [`IterationControl.train!`](@ref) completed (available even if a small `verbosity` level
-  supressed the logging)
+  suppressed the logging)
 
 Additional properties forward to the `table` property to access a particular component of
 state. Note here "state" means public state (i.e, what is returned by
@@ -95,7 +95,7 @@ mutable struct ControlTrace{C}
     function ControlTrace(control::C, state) where C
         triggered_stop = done(control, state)
         public_state = IterationControl.public_state(control, state)
-        # if public state available, create tabel with one row:
+        # if public state available, create table with one row:
         table = isnothing(public_state) ? nothing :
             columntable((public_state,))
         return new{C}(control, triggered_stop, table)

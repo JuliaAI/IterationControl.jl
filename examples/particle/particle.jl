@@ -101,7 +101,7 @@ scatter!(particle_positions, label="particle", ms=6)
 loss(model)
 
 # Switching the target just once more to the -1 position and
-# continuing training until the particle and target are withing 0.01:
+# continuing training until the particle and target are within 0.01:
 
 data = [-1,]
 

@@ -102,7 +102,7 @@ const DOC_UPDATE = """
 """
     IterationControl.update!(control, model, verbosity, n)
 
-Return intialized internal state for `control`, when controlling `model`. Here `n` is the
+Return initialized internal state for `control`, when controlling `model`. Here `n` is the
 current number of training iterations that have have been applied to `model` so far.  (This
 needn't be one, as a previously applied `Step(k)` control may have `k > 1`).
 
