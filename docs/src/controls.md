@@ -1,4 +1,4 @@
-## Controls
+# Controls
 
 Controls are repeatedly applied in sequence until a control triggers a
 stop. Each control type has a detailed doc-string. Below is a short

@@ -20,7 +20,7 @@ Pkg.add("IterationControl")
 Pkg.add("Tables") # optional
 ```
 
-## Quick start
+## Quick Start
 
 Suppose you have some kind of object `SquareRooter(x)`, for iteratively computing
 approximations to the square root of `x`:
@@ -84,7 +84,7 @@ In this example only the `NumberLimit(3)` control can terminate model iteration.
 	To try out the example above, you can use a built-in version of `SquareRooter`. Before
     executing the code above, run `using IterationControl.SquareRooterExample`.
 
-The [Controls](ref) section documents all the controls provided by IterationControl.jl,
+The [Controls](@ref) section documents all the controls provided by IterationControl.jl,
 including those from EarlyStopping.jl.
 
 
@@ -179,8 +179,8 @@ enabled when `IterationControl.loss` is overloaded as above.
  But When?", in *Neural Networks: Tricks of the Trade*, ed. G. Orr, Springer.
 
 The interface just described is sufficient for controlling conventional machine learning
-models with an iteration parameter, as [this](/examples/tree_booster/) tree boosting
-example shows.
+models with an iteration parameter (see [Early Stopping for a Tree Booster](@ref) for a
+demo).
 
 
 ## Online and incremental training
@@ -192,7 +192,7 @@ the control). By default, the [`Data`](@ref) control becomes passive after `data
 exhausted. See [Access to model through a wrapper](@ref) below on dealing with any model
 wrapping necessary to implement data ingestion.
 
-A simple particle tracking example is given [here](/examples/particle/).
+For a demonstration, see [Controlling a Particle Tracker](@ref).
 
 
 ## Access to model through a wrapper
