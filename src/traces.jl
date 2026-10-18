@@ -66,7 +66,13 @@ julia> traces = IterationControl.train!(
  ControlTrace{<:Threshold}, ending (loss = 0.0005493331704400362, excess = -0.009450666829559964)
  ControlTrace{<:WithLossDo}, ending (loss = 0.0005493331704400362, called_back = true)
 
-trace = traces[end]
+julia> trace = traces[end]
+ControlTrace
+  control: WithLossDo{var"#86#87"}(var"#86#87"(), false, nothing)
+  loss: [ …, 2.5599999999999987, 0.1417301038062284, 0.0005493331704400362]
+  called_back: [ …, ool[0, 0, 1]
+  table: (loss = …, called_back = …)
+  triggered_stop: false
 
 julia> trace.loss
 4-element Vector{Float64}:
