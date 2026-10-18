@@ -130,7 +130,7 @@ traces = IterationControl.train!(
  ControlTrace{<:Callback}, ending (called_back = 1.0,)
  ControlTrace{<:Callback}, ending (called_back = 0.9934860451342596,)
  ControlTrace{<:Threshold}, ending (loss = 0.006513954865740357, excess = -0.0034860451342596434)
- ControlTrace{<:TimeLimit}, ending (time = Dates.DateTime("2026-10-19T08:49:38.334"),)
+ ControlTrace{<:TimeLimit}, ending (time = Dates.DateTime("2026-10-19T09:25:05.875"),)
 ````
 
 ````@julia
@@ -169,7 +169,7 @@ losses = traces[5].loss
 ````
 
 Switching the target just once more to the -1 position and
-continuing training until the particle and target are withing 0.01:
+continuing training until the particle and target are within 0.01:
 
 ````@julia
 data = [-1,]
