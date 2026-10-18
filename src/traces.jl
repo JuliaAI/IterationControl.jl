@@ -68,9 +68,9 @@ julia> traces = IterationControl.train!(
 
 julia> trace = traces[end]
 ControlTrace
-  control: WithLossDo{var"#86#87"}(var"#86#87"(), false, nothing)
+  control: WithLossDo{var"#2#3"}(var"#2#3"(), false, nothing)
   loss: [ …, 2.5599999999999987, 0.1417301038062284, 0.0005493331704400362]
-  called_back: [ …, ool[0, 0, 1]
+  called_back: Bool[ …, 0, 0, 1]
   table: (loss = …, called_back = …)
   triggered_stop: false
 
@@ -157,7 +157,9 @@ _repr(x) = OMITTED
 const Displayable = Union{Number,AbstractString,Char,Symbol}
 function _repr(v::Vector{<:Displayable})
     length(v) ≤ 3 && return repr(v)
-    return "[ …, "*repr(last(v, 3))[2:end]
+    r = repr(last(v, 3))
+    idx = findfirst(==('['), r)
+    return r[1:idx]*" …, "*r[idx+1:end]
 end
 _repr(T::DataType) = "<:$(nameof(T))"
 
