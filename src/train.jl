@@ -8,10 +8,14 @@ const ERR_NEEDS_TRAINING_LOSSES = ArgumentError(
     "Encountered a control that needs training losses but no training "*
     "losses found. ")
 
-const ERR_TRACES_NEED_INITIALIZING = ArgumentError(
-    "The keyword argument `traces` must point to an *empty* vector `[]`. "*
-        "Perhaps you populated `traces` with a previous `train!` run. "
+const ERR_INCOMPATIBLE_TRACES = ArgumentError(
+    "The value of the keyword argument `traces` is incompatible with "*
+        "the specified controls. "
 )
+
+iscompatible(traces, controls) = all(zip(traces, controls)) do (trace, control)
+    trace isa ControlTrace{typeof(control)}
+end
 
 """
     train!(model, controls...; verbosity=1, compact=false, traces=[])
@@ -64,7 +68,7 @@ or [`IterationControl.ingest!(model, datum)`](@ref). Refer to documentation for 
 
 # Extended help
 
-# Control traces and live tracking
+# Appending to traces and live tracking
 
 For "live" access to the traces, while `train!` is running as an
 asynchronous task, specify `traces=v`, where `v` is bound to some copy of `Any[]` to be
@@ -73,25 +77,61 @@ iteration proceeds:
 
 ```julia-repl
 model = IterationControl.SquareRooter(4)
-controls = [Step(1), Threshold(1e-7), Callback(_->sleep(0.5))]
-traces=[]
+controls = [Step(1), Threshold(0.01), Callback(_->sleep(0.5))]
+traces = []
 Threads.@spawn IterationControl.train!(model, controls...; verbosity=0, traces=traces)
 length(traces) # 0
-sleep(3)
+sleep(2)
 length(traces) # 3
 
 julia> traces
 3-element Vector{Any}:
- ControlTrace{<:Step}, ending (new_iterations = 5, new_steps = 5)
- ControlTrace{<:Threshold}, ending (loss = 8.881784197001252e-15, excess = -9.99999911182158e-8)
+ ControlTrace{<:Step}, ending (new_iterations = 3, new_steps = 3)
+ ControlTrace{<:Threshold}, ending (loss = 0.002439396192741583, excess = -0.007560603807258417)
  ControlTrace{<:Callback}, ending (called_back = nothing,)
+
+julia> traces[2].loss
+3-element Vector{Float64}:
+ 2.25
+ 0.20249999999999968
+ 0.002439396192741583
 ```
+
+Alternatively, one may specify `traces=v`, where `v` is the vector of traces returned by a
+previous call to `train!` with the same control types. In that `v` is extended, and
+matches the vector returned by the second call to `train!`. Continuing the above
+example:
+
+```julia-repl
+controls[2] = Threshold(1e-100)
+IterationControl.train!(model, controls...; traces=traces)
+
+julia> traces[2].loss
+6-element Vector{Float64}:
+ 2.25
+ 0.20249999999999968
+ 0.002439396192741583
+ 3.716891878724482e-7
+ 8.881784197001252e-15
+ 0.0
+
+julia> traces[1].new_iterations
+6-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 1
+ 2
+ 3
+```
+
 
 """
 function train!(model, controls...; verbosity::Int=1, compact=false, traces=[])
 
-    isempty(traces) || throw(ERR_TRACES_NEED_INITIALIZING)
     isempty(controls) && throw(ERR_TRAIN)
+
+    traces == [] || iscompatible(traces, controls) || throw(ERR_INCOMPATIBLE_TRACES)
 
     control = composite(controls...)
 
@@ -101,7 +141,17 @@ function train!(model, controls...; verbosity::Int=1, compact=false, traces=[])
     # first training event:
     n = 1 # counts control cycles
     state = update!(control, model, verbosity, n)
-    append!(traces, broadcast(ControlTrace, flat(control), flat(state)))
+    first_traces = broadcast(ControlTrace, flat(control), flat(state))
+    if isempty(traces)
+        append!(traces, first_traces)
+    else
+        broadcast(reset!, traces, controls)
+        if compact
+            broadcast(update!, traces, flat(state))
+        else
+            broadcast(push!, traces, flat(state))
+        end
+    end
     finished = done(control, state)
 
     # checks that model supports control:
@@ -138,3 +188,5 @@ function train!(model, controls...; verbosity::Int=1, compact=false, traces=[])
     broadcast(takedown!, traces, Ref(verbosity), flat(state))
     return collect(traces)
 end
+
+    

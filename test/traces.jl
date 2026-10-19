@@ -81,6 +81,14 @@ IC.takedown!(trace, verbosity, state)
         "excess = -0.09756060380725842)"
 end
 
+@testset "reset!" begin
+    t = deepcopy(trace.table)
+    IC.reset!(trace, Threshold(10.0))
+    @test trace.control == Threshold(10.0)
+    @test !trace.triggered_stop
+    @test trace.message == ""
+    @test trace.table == t
+end
 
 @testset "delayed addition of trace table (skip control)" begin
     model = SquareRooter(4)

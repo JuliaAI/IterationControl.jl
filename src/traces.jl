@@ -109,6 +109,15 @@ mutable struct ControlTrace{C}
 end
 
 Base.isempty(trace::ControlTrace) = isnothing(trace.table)
+function reset!(trace::ControlTrace)
+    trace.message = ""
+    trace.triggered_stop = false
+    return trace
+end
+function reset!(trace::ControlTrace, control)
+    trace.control = control
+    reset!(trace)
+end
 
 const TRACE_FIELDS = (:control, :table, :message, :triggered_stop)
 

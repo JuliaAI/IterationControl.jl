@@ -18,8 +18,6 @@ import IterationControl as IC
     @test trace3.table == (; number = [1, 2, 3])
     @test trace3.triggered_stop
 
-    @test_throws IC.ERR_TRACES_NEED_INITIALIZING IC.train!(m, controls; traces)
-
     m = IC.SquareRooter(4)
     @test_logs((:info, r"final loss"),
                (:info, r"final training loss"),
@@ -47,6 +45,30 @@ import IterationControl as IC
     @test trace1.new_iterations == [6,]
     @test trace2.encountered == [nothing,]
     @test trace3.number == [3,]
+
+    controls[2] = Threshold()
+    @test_throws IC.ERR_INCOMPATIBLE_TRACES IC.train!(m, controls; traces)
+end
+
+@testset "`traces` as kwarg" begin
+    model = IterationControl.SquareRooter(4)
+    controls = [Step(1), Threshold(0.01), Callback(_->sleep(0.1))]
+    traces = []
+    Threads.@spawn IterationControl.train!(model, controls...; verbosity=0, traces=traces)
+    @test length(traces) == 0
+    sleep(1)
+    @test length(traces) == 3
+    losses = deepcopy(traces[2].loss)
+    @test length(losses) == 3
+    @test losses[end] < 0.01 && losses[end] > 0.001
+
+    # change a control and continue on with `traces=traces`:
+    controls[2] = Threshold(1e-100)
+    IterationControl.train!(model, controls...; verbosity=0, traces=traces)
+    newlosses = traces[2].loss
+    @test newlosses[1:3] == losses
+    @test newlosses[end] < 1e-100
+    @test traces[1].new_iterations == [1, 2, 3, 1, 2, 3]
 end
 
 struct WrappedSquareRooter
