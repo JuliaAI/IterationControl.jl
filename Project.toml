@@ -10,6 +10,7 @@ REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [compat]
 EarlyStopping = "0.3"
+InteractiveUtils = "<0.0.1, 1"
 REPL = "1.11.0"
 julia = "1"
 
