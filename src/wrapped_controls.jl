@@ -28,9 +28,9 @@ public_state(d::Louder, state) = public_state(d.control, state)
 shout(control, public_state) =
     (@info "`$(typeof(control))` state: $(public_state)"; public_state)
 
-struct WithStateDo{C,F}
+struct WithStateDo{C}
     control::C
-    f::F
+    f
 end
 
 """
@@ -60,9 +60,9 @@ public_state(d::WithStateDo, state) = public_state(d.control, state)
 
 # ## Skip
 
-struct Skip{C,F}
+struct Skip{C}
     control::C
-    predicate::F
+    predicate
     step::Int
 end
 

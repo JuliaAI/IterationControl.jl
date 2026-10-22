@@ -26,12 +26,12 @@ public_state(c::Step, state) = (; state..., new_steps=div(state.new_iterations, 
 
 # # Info
 
-struct Info{F<:Function}
-    f::F
+struct Info
+    f
 end
 
 # constructor:
-Info(; f::Function=identity) = Info(f)
+Info(; f=identity) = Info(f)
 
 @create_docs(Info,
              header="Info(f=identity)",
@@ -55,9 +55,9 @@ public_state(::Info, state) = (; called_back=state)
 
 # # Warn
 
-struct Warn{P<:Function,F<:Union{Function,String}}
-    predicate::P
-    f::F
+struct Warn
+    predicate
+    f
 end
 
 # constructor:
@@ -100,10 +100,10 @@ end
 
 # # Error
 
-struct Error{P<:Function,F<:Union{Function,String}}
-    predicate::P
-    f::F
-    exception::Union{Exception, Nothing}
+struct Error
+    predicate
+    f
+    exception
 end
 
 # constructor:
@@ -146,8 +146,8 @@ takedown(c::Error, verbosity, state) = string(state.error)
 
 # # CALLBACK
 
-struct Callback{F<:Function}
-    f::F
+struct Callback
+    f
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
     raw::Bool
@@ -274,8 +274,8 @@ needs_ingest(::Data) = true
 
 # # WithLossDo
 
-struct WithLossDo{F<:Function}
-    f::F
+struct WithLossDo
+    f
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
 end
@@ -333,8 +333,8 @@ end
 
 # # WithTrainingLossesDo
 
-struct WithTrainingLossesDo{F<:Function}
-    f::F
+struct WithTrainingLossesDo
+    f
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
 end
@@ -392,8 +392,8 @@ end
 
 # # WithNumberDo
 
-struct WithNumberDo{F<:Function}
-    f::F
+struct WithNumberDo
+    f
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
 end
