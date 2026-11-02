@@ -47,6 +47,11 @@ end
     @test done_d == done_a || done_b || done_c
     message_d = IC.takedown(d, 0, state_d2)
     @test message_d == (message_a, message_b, message_c)
+    @test IC.public_state(d, state_d2) == [
+        (new_iterations = 8, new_steps = 2),
+        (number = 2,),
+        (encountered = nothing,),
+    ]
 end
 
 @testset "traits" begin

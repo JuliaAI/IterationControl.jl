@@ -51,7 +51,6 @@ end
 
 # # PUBLIC_STATE
 
-# fallback for atomic state:
 function public_state(c::CompositeControl, state)
     controls = flat(c)
     states = flat(state)
