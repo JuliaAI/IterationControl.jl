@@ -1,7 +1,7 @@
 module IterationControl
 
 import Base.*
-import EarlyStopping: done, StoppingCriterion, StoppingCriterion
+import EarlyStopping: done, public_state, StoppingCriterion, StoppingCriterion
 using InteractiveUtils
 using EarlyStopping
 using REPL
@@ -40,6 +40,7 @@ include("stopping_controls.jl")
 include("composite_controls.jl")
 include("wrapped_controls.jl")
 include("controls.jl")
+include("traces.jl")
 include("train.jl")
 include("square_rooter.jl")
 include("deprecated.jl")

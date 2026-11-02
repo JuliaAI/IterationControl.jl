@@ -5,7 +5,7 @@ struct Step
 end
 
 # constructor:
-Step(; n=5) = Step(n)
+Step(; n=1) = Step(n)
 
 @create_docs(Step,
              header="Step(; n=1)",
@@ -21,21 +21,17 @@ function update!(c::Step, model, verbosity, n, state=(new_iterations = 0,))
     state  = (new_iterations = new_iterations + c.n,)
     return state
 end
+public_state(c::Step, state) = (; state..., new_steps=div(state.new_iterations, c.n))
 
-@inline function takedown(c::Step, verbosity, state)
-    verbosity > 1 &&
-        @info "A total of $(state.new_iterations) iterations added. "
-    return state
-end
 
 # # Info
 
-struct Info{F<:Function}
-    f::F
+struct Info
+    f
 end
 
 # constructor:
-Info(; f::Function=identity) = Info(f)
+Info(; f=identity) = Info(f)
 
 @create_docs(Info,
              header="Info(f=identity)",
@@ -50,16 +46,18 @@ Info(; f::Function=identity) = Info(f)
              "See also [`Warn`](@ref), [`Error`](@ref). ")
 
 function update!(c::Info, model, verbosity, args...)
-    verbosity > 0 && @info _log_eval(c.f, model)
-    return nothing
+    state = _log_eval(c.f, model)
+    verbosity > 0 && @info state
+    return state
 end
+public_state(::Info, state) = (; called_back=state)
 
 
 # # Warn
 
-struct Warn{P<:Function,F<:Union{Function,String}}
-    predicate::P
-    f::F
+struct Warn
+    predicate
+    f
 end
 
 # constructor:
@@ -89,21 +87,23 @@ function update!(c::Warn, model, verbosity, n, state=(warnings=(),))
     end
     return newstate
 end
-
+public_state(c::Warn, state) = (;)
+_warnings(n) = n > 1 ? "warnings" : "warning"
 function takedown(c::Warn, verbosity, state)
-    warnings = join(state.warnings, "\n")
-    verbosity > 1 && !isempty(warnings) &&
-        @warn "A `Warn` control issued these warnings:\n$warnings"
-    return state
+    n_warn = length(state.warnings)
+    message = isempty(state.warnings) ? "" :
+        "A `Warn` control issued $n_warn $(_warnings(n_warn))."
+    verbosity > -1  && !isempty(message) && @warn message
+    return message
 end
 
 
 # # Error
 
-struct Error{P<:Function,F<:Union{Function,String}}
-    predicate::P
-    f::F
-    exception::Union{Exception, Nothing}
+struct Error
+    predicate
+    f
+    exception
 end
 
 # constructor:
@@ -119,15 +119,17 @@ Error(predicate; f="", exception=nothing) = Error(predicate, f, exception)
              "Here `m` "*
              "is the object being iterated.\n\n"*
              "Specify `exception=...` to throw an immediate "*
-             "execption, without "*
+             "exception, without "*
              "waiting to the end of the control cycle.\n\n"*
              "See also [`Info`](@ref), [`Warn`](@ref). ")
 
-function update!(c::Error,
-                 model,
-                 verbosity,
-                 n=1,
-                 state=(done = false, error=()))
+function update!(
+    c::Error,
+    model,
+    verbosity,
+    n=1,
+    state=(done = false, error=nothing),
+    )
     if c.predicate(model)
         error = _log_eval(c.f, model)
         @error error
@@ -136,58 +138,60 @@ function update!(c::Error,
     end
     return state
 end
-
+public_state(::Error, state) = (; error=state.error)
 done(c::Error, state) = state.done
 
-takedown(c::Error, verbosity, state) = state
+takedown(c::Error, verbosity, state) = string(state.error)
 
 
 # # CALLBACK
 
-struct Callback{F<:Function}
-    f::F
+struct Callback
+    f
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
     raw::Bool
 end
 
 # constructor:
-Callback(; f=identity,
-         stop_if_true=false,
-         stop_message=nothing,
-         raw=false) = Callback(f, stop_if_true, stop_message, raw)
+Callback(
+    ; f=identity,
+    stop_if_true=false,
+    stop_message=nothing,
+    raw=false,
+) = Callback(f, stop_if_true, stop_message, raw)
 Callback(f; kwargs...) = Callback(; f=f, kwargs...)
 
-@create_docs(Callback,
-             header="Callback(f=_->nothing, stop_if_true=false, "*
-             "stop_message=nothing, raw=false)",
-             example="Callback(m->put!(v, my_loss_function(m))",
-             body="Call `f(IterationControl.expose(m))`, where "*
-             "`m` is the object being iterated, unless `raw=true`, in "*
-             "which case call `f(m)` (guaranteed if `expose` has not been "*
-             "overloaded.) "*
-             "If `stop_if_true` is `true`, then trigger an early stop "*
-             "if the value returned by `f` is `true`, logging the "*
-             "`stop_message` if specified. ")
+@create_docs(
+    Callback,
+    header="Callback(f=_->nothing, stop_if_true=false, "*
+        "stop_message=nothing, raw=false)",
+    example="Callback(m->put!(v, my_loss_function(m))",
+    body="Call `f(IterationControl.expose(m))`, where "*
+        "`m` is the object being iterated, unless `raw=true`, in "*
+        "which case call `f(m)` (guaranteed if `expose` has not been "*
+        "overloaded.) "*
+        "If `stop_if_true` is `true`, then trigger an early stop "*
+        "if the value returned by `f` is `true`, logging the "*
+        "`stop_message` if specified.\n\n"*
+        "When using with MLJIteration.jl, `Callback(f)` is the same as `WithMachineDo(f)`.",
+)
 
-function update!(c::Callback, model, verbosity, n, state=(done=false, ))
-    r = c.f(expose(model, c.raw))
-    done = (c.stop_if_true && r isa Bool && r) ? true : false
-    return (done=done,)
-end
-
-done(c::Callback, state) = state.done
+update!(c::Callback, model, verbosity, n, state=nothing) = c.f(expose(model, c.raw))
+public_state(::Callback, state) = (; called_back=state)
+done(c::Callback, state) = c.stop_if_true && state isa Bool && state
 
 function takedown(c::Callback, verbosity, state)
-    if state.done
-        message = c.stop_message === nothing ?
+    if done(c, state)
+        message = isnothing(c.stop_message) ?
             "Stop triggered by a `Callback` control. " :
             c.stop_message
         verbosity > 0 && @info message
-        return (done = true, log = message)
+        return message
     else
-        return (done = false, log = "")
+        message = ""
     end
+    return ""
 end
 
 
@@ -210,14 +214,14 @@ Base.show(io::IO, d::Data{S}) where S =
              body="In each application of this control a new `item` from the "*
              "iterable, `data`, is retrieved (using `iterate`) and "*
              "`IterationControl.ingest!(m, item)` is called. Here "*
-             "`m` is the object being iterated. \n\n"*
-             "A control becomes passive once the `data` iterable is done. "*
+             "`m` is the object being iteratively trained. \n\n"*
+             "The control becomes passive once the `data` iterable is done. "*
              "To trigger "*
              "a stop *after one passive application of the control*, set "*
              "`stop_when_exhausted=true`. ")
 
-const DATA_EXHAUSTED = "Data exhausted. "
-const DATA_STOP ="Stop triggered because data exhausted ."
+const DATA_EXHAUSTED = "Data exhausted."
+const DATA_STOP ="Stop triggered because data exhausted."
 
 function update!(c::Data, model, verbosity, n)
     iter = c.data
@@ -254,34 +258,39 @@ function update!(c::Data, model, verbosity, n, state)
     return (iter_state = iter_state, done = done)
 end
 
+public_state(::Data, state) = (;)
+
 done(c::Data, state) = state.done
 
 function takedown(c::Data, verbosity, state)
     if state.done
         verbosity > 0 && @info DATA_STOP
-        return (done = true, log = DATA_STOP)
-    else
-        return (done = false, log = "")
+        return DATA_STOP
     end
+    return ""
 end
+
+needs_ingest(::Data) = true
 
 
 # # WithLossDo
 
-struct WithLossDo{F<:Function}
-    f::F
+struct WithLossDo
+    f
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
 end
 
 # constructor:
-WithLossDo(; f=x->@info("loss: $x"),
-           stop_if_true=false,
-           stop_message=nothing) = WithLossDo(f, stop_if_true, stop_message)
+WithLossDo(
+    ; f=identity,
+    stop_if_true=false,
+    stop_message=nothing,
+     ) = WithLossDo(f, stop_if_true, stop_message)
 WithLossDo(f; kwargs...) = WithLossDo(; f=f, kwargs...)
 
 @create_docs(WithLossDo,
-             header="WithLossDo(f=x->@info(\"loss: \$x\"), "*
+             header="WithLossDo(f=identity, "*
              "stop_if_true=false, "*
              "stop_message=nothing)",
              example="WithLossDo(x->put!(my_losses, x))",
@@ -293,52 +302,55 @@ WithLossDo(f; kwargs...) = WithLossDo(; f=f, kwargs...)
 
 needs_loss(::WithLossDo) = true
 
-function update!(c::WithLossDo,
-                 model,
-                 verbosity,
-                 n,
-                 state=(loss=nothing, done=false))
+function update!(
+    c::WithLossDo,
+    model,
+    verbosity,
+    n,
+    state=(; loss=nothing, called_back=nothing),
+    )
     loss = IterationControl.loss(model)
     loss === nothing && throw(ERR_NEEDS_LOSS)
-    r = c.f(loss)
-    done = (c.stop_if_true && r isa Bool && r) ? true : false
-    return (loss=loss, done=done)
+    called_back = c.f(loss)
+    return (; loss, called_back)
 end
 
-done(c::WithLossDo, state) = state.done
+function done(c::WithLossDo, state)
+    called_back = state.called_back
+    return c.stop_if_true && called_back isa Bool && called_back
+end
 
 function takedown(c::WithLossDo, verbosity, state)
-    verbosity > 1 && @info "final loss: $(state.loss). "
-    if state.done
+    if done(c, state)
         message = c.stop_message === nothing ?
             "Stop triggered by a `WithLossDo` control. " :
             c.stop_message
         verbosity > 0 && @info message
-        return merge(state, (log = message,))
-    else
-        return merge(state, (log = "",))
+        return message
     end
+    return ""
 end
 
 
 # # WithTrainingLossesDo
 
-struct WithTrainingLossesDo{F<:Function}
-    f::F
+struct WithTrainingLossesDo
+    f
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
 end
 
 # constructor:
-WithTrainingLossesDo(; f=v->@info("training: $v"),
-                     stop_if_true=false,
-                     stop_message=nothing) =
-                         WithTrainingLossesDo(f, stop_if_true, stop_message)
+WithTrainingLossesDo(
+    ; f=identity,
+    stop_if_true=false,
+    stop_message=nothing,
+) = WithTrainingLossesDo(f, stop_if_true, stop_message)
 WithTrainingLossesDo(f; kwargs...) =
     WithTrainingLossesDo(; f=f, kwargs...)
 
 @create_docs(WithTrainingLossesDo,
-             header="WithTrainingLossesDo(f=v->@info(\"training: \$v\"), "*
+             header="WithTrainingLossesDo(f=identity, "*
              "stop_if_true=false, "*
              "stop_message=nothing)",
              example="WithTrainingLossesDo(v->put!(my_losses, last(v))",
@@ -355,79 +367,82 @@ function update!(c::WithTrainingLossesDo,
                  model,
                  verbosity,
                  n,
-                 state=(latest_training_loss = nothing, done = false))
+                 state=(latest_training_loss = nothing, called_back=nothing))
     losses = IterationControl.training_losses(model)
     losses === nothing && throw(ERR_NEEDS_TRAINING_LOSSES)
-    r = c.f(losses)
-    done = (c.stop_if_true && r isa Bool && r) ? true : false
-    return (latest_training_loss=losses[end], done=done)
+    called_back = c.f(losses)
+    return (; training_loss=losses[end], called_back)
 end
 
-done(c::WithTrainingLossesDo, state) = state.done
+function done(c::WithTrainingLossesDo, state)
+    called_back = state.called_back
+    return c.stop_if_true && called_back isa Bool && called_back
+end
 
 function takedown(c::WithTrainingLossesDo, verbosity, state)
-    verbosity > 1 &&
-        @info "final training loss: $(state.latest_training_loss). "
-    if state.done
+    if done(c, state)
         message = c.stop_message === nothing ?
             "Stop triggered by a `WithTrainingLossesDo` control. " :
             c.stop_message
         verbosity > 0 && @info message
-        return merge(state, (log = message,))
-    else
-        return merge(state, (log = "",))
+        return message
     end
+    return ""
 end
 
 
 # # WithNumberDo
 
-struct WithNumberDo{F<:Function}
-    f::F
+struct WithNumberDo
+    f
     stop_if_true::Bool
     stop_message::Union{String,Nothing}
 end
 
 # constructor:
-WithNumberDo(; f=n->@info("number: $n"),
-             stop_if_true=false,
-             stop_message=nothing) = WithNumberDo(f, stop_if_true, stop_message)
+WithNumberDo(
+    ; f=identity,
+    stop_if_true=false,
+    stop_message=nothing,
+) = WithNumberDo(f, stop_if_true, stop_message)
 WithNumberDo(f; kwargs...) = WithNumberDo(; f=f, kwargs...)
 
 @create_docs(WithNumberDo,
-             header="WithNumberDo(f=n->@info(\"number: \$n\"), "*
+             header="WithNumberDo(f=identity, "*
              "stop_if_true=false, "*
              "stop_message=nothing)",
              example="WithNumberDo(n->put!(my_channel, n))",
              body="Call `f(n + 1)`, where "*
-             "`n` is the number of complete control cycles. "*
-             "of the control (so, `n = 1, 2, 3, ...`, unless control is "*
-             "wrapped in a [`IterationControl.skip`](@ref))`.\n\n"*
+             "`n` is the number of already completed control cycles "*
+             "(so, `n = 1, 2, 3, ...`, unless control is "*
+             "wrapped in a [`IterationControl.skip`](@ref)).\n\n"*
              "If `stop_if_true` is `true`, then trigger an early stop "*
              "if the value returned by `f` is `true`, logging the "*
              "`stop_message` if specified. ")
 
-function update!(c::WithNumberDo,
-                 model,
-                 verbosity,
-                 n,
-                 state=(done = false, n = n))
-    r = c.f(n)
-    done = (c.stop_if_true && r isa Bool && r) ? true : false
-    return (done = done, n = n)
+function update!(
+    c::WithNumberDo,
+    model,
+    verbosity,
+    n,
+    state=(number=n, called_back=nothing),
+    )
+    called_back = c.f(n)
+    return (; number = n, called_back)
 end
 
-done(c::WithNumberDo, state) = state.done
+function done(c::WithNumberDo, state)
+    called_back = state.called_back
+    return c.stop_if_true && called_back isa Bool && called_back
+end
 
 function takedown(c::WithNumberDo, verbosity, state)
-    verbosity > 1 && @info "final number: $(state.n). "
-    if state.done
+    if done(c, state)
         message = c.stop_message === nothing ?
             "Stop triggered by a `WithNumberDo` control. " :
             c.stop_message
         verbosity > 0 && @info message
-        return merge(state, (log = message,))
-    else
-        return merge(state, (log = "",))
+        return message
     end
+    return ""
 end
