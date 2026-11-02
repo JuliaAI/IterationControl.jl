@@ -173,7 +173,8 @@ Callback(f; kwargs...) = Callback(; f=f, kwargs...)
         "overloaded.) "*
         "If `stop_if_true` is `true`, then trigger an early stop "*
         "if the value returned by `f` is `true`, logging the "*
-        "`stop_message` if specified. ",
+        "`stop_message` if specified.\n\n"*
+        "When using with MLJIteration.jl, `Callback(f)` is the same as `WithMachineDo(f)`.",
 )
 
 update!(c::Callback, model, verbosity, n, state=nothing) = c.f(expose(model, c.raw))
