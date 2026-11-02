@@ -17,6 +17,8 @@ import IterationControl.SquareRooter
     @test Tables.columnindex(trace, :new_iterations) == 1
     @test Tables.columnindex(trace, "new_iterations") == 1
     @test Tables.getcolumn(trace, 1) == [1, 2]
+    @test Tables.getcolumn(trace, :new_iterations) == [1, 2]
+    @test Tables.schema(trace) == Tables.schema(trace.table)
     @test Tables.subset(trace, 1:2) == Tables.subset(trace.table, 1:2)
 end
 
