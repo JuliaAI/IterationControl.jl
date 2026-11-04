@@ -124,7 +124,7 @@ If `model` admits a method returning a loss (for example, the
 difference between `x` and the square of `root`), then we can lift
 that method to `IterationControl.loss` to enable control using
 loss-based stopping criteria, such as a loss threshold. In the
-demonstation below, we also include a callback:
+demonstration below, we also include a callback:
 
 ```julia
 model = SquareRooter(4)
