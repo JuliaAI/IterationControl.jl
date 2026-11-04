@@ -25,16 +25,21 @@ public_state(d::Louder, state) = public_state(d.control, state)
 # # WithStateDo
 
 # helper:
-shout(control, public_state) =
-    (@info "`$(typeof(control))` state: $(public_state)"; public_state)
+shout(control, state) =
+    (@info "`$(typeof(control))` state: $(state)"; state)
 
 struct WithStateDo{C}
     control::C
     f
+    raw_state::Bool
 end
 
 """
-    IterationControl.with_state_do(control,f=x->(@info "`\$(typeof(control))` state: \$x; x)")
+    IterationControl.with_state_do(
+        control,
+        f=x->(@info "`\$(typeof(control))` state: \$x; x)",
+        raw_state=false,
+    )
 
 Wrap `control` to give access to the public form of its internal state (which is also the
 object accumulated by the corresponding [`ControlTrace`](@ref) returned by
@@ -42,8 +47,11 @@ object accumulated by the corresponding [`ControlTrace`](@ref) returned by
 on current state. If `f` is not specified, the control type and state are logged to `Info`
 at every update. Useful for debugging custom controls.
 
+If `raw_state=true`, then the raw internal state is accessed instead. **Warning:** The
+form of the raw state can change in any new release of IterationControls.jl.
+
 """
-with_state_do(c; f=state->shout(c, state)) = WithStateDo(c, f)
+with_state_do(c; f=state->shout(c, state), raw_state=false) = WithStateDo(c, f, raw_state)
 
 # api:
 for op in [:done, :takedown]
@@ -51,7 +59,11 @@ for op in [:done, :takedown]
 end
 @inline function update!(d::WithStateDo, args...)
     state = update!(d.control, args...)
-    d.f(public_state(d.control, state))
+    if d.raw_state
+        d.f(state)
+    else
+        d.f(public_state(d.control, state))
+    end
     return state
 end
 
