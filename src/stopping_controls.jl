@@ -33,10 +33,13 @@ for ex in EARLY_STOPPING_WRAPPERS
     end |> eval
 end
 
-function update!(c::StoppingCriterion,
-                 model,
-                 verbosity,
-                 n, state=nothing)
+function update!(
+    c::StoppingCriterion,
+    model,
+    verbosity,
+    n,
+    state=nothing,
+    )
     _loss = loss(model)
     _training_losses = training_losses(model)
     if _training_losses !== nothing && !isempty(_training_losses)
@@ -49,11 +52,7 @@ function update!(c::StoppingCriterion,
 end
 
 function takedown(c::StoppingCriterion, verbosity, state)
-    if done(c, state)
-        message =  ES.message(c, state)
-        verbosity > 0 && @info message
-        return (done = true, log = message)
-    else
-        return (done = false, log = "")
-    end
+    message = done(c, state) ? ES.message(c, state) : ""
+    verbosity > 0 && !isempty(message) && @info message
+    return message
 end

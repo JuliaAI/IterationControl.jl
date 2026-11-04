@@ -1,20 +1,33 @@
 name = "IterationControl"
 uuid = "b3c1a2ee-3fec-4384-bf48-272ea71de57c"
-version = "0.5.4"
+version = "0.6.0"
 authors = ["Anthony D. Blaom <anthony.blaom@gmail.com>"]
+
+[workspace]
+projects = ["docs", "NotebookManagementTools"]
 
 [deps]
 EarlyStopping = "792122b4-ca99-40de-a6bc-6742525f08b6"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
+[weakdeps]
+Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
+
+[extensions]
+TablesExt = "Tables"
+
 [compat]
-EarlyStopping = "0.3"
-REPL = "1.11.0"
-julia = "1"
+Dates = "1"
+EarlyStopping = "1"
+REPL = "1"
+Tables = "1.6"
+julia = "1.10"
 
 [extras]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 
 [targets]
-test = ["Test"]
+test = ["Dates", "Tables", "Test"]

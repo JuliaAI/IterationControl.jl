@@ -7,7 +7,7 @@ step = Step(1)
 @test_throws IC.err_train(model) IterationControl.train!(model, 1)
 
 # lifting train!:
-IC.train!(model::Particle, n) = train!(model, n)
+IC.train!(model::Particle, n::Int) = train!(model, n)
 
 @test_throws(IC.ERR_NEEDS_LOSS,
              IC.train!(model, step, withloss, NumberLimit(1)))

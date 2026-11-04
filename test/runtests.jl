@@ -6,39 +6,26 @@ const IC = IterationControl
 include("_models_for_testing.jl")
 const SquareRooter = IC.SquareRooter
 
-@testset "square_rooter.jl" begin
-    include("square_rooter.jl")
+test_files = [
+    "square_rooter.jl",
+    "utilities.jl",
+    "api.jl",
+    "controls.jl",
+    "stopping_controls.jl",
+    "composite_controls.jl",
+    "wrapped_controls.jl",
+    "train.jl",
+    "TablesExt.jl",
+    "deprecated.jl",
+]
+
+files = isempty(ARGS) ? test_files : ARGS
+
+for file in files
+    quote
+        @testset $file begin
+            include($file)
+        end
+    end |> eval
 end
 
-@testset "utilities" begin
-    include("utilities.jl")
-end
-
-# this test must happen before test of controls.jl:
-@testset "api" begin
-     include("api.jl")
-end
-
-@testset "controls" begin
-    include("controls.jl")
-end
-
-@testset "stopping_controls" begin
-    include("stopping_controls.jl")
-end
-
-@testset "composite_controls" begin
-    include("composite_controls.jl")
-end
-
-@testset "wrapped_controls" begin
-    include("wrapped_controls.jl")
-end
-
-@testset "train!" begin
-    include("train.jl")
-end
-
-@testset "deprecated" begin
-    include("deprecated.jl")
-end

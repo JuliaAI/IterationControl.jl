@@ -2,6 +2,9 @@
 
 # ## PARTICLE TRACKER (without methods lifted)
 
+# The methods get lifted in /test/api.jl, after testing error messages for trying to
+# proceed without the lifts.
+
 # Consider an object that tracks a particle in one dimension, moving,
 # in discrete time, at a speed proportional to the distance away from
 # some moving target. The particle is initially at rest at the origin,
@@ -55,8 +58,3 @@ end
 # ingest!(model, -0.9)
 # train!(model, 1)
 # @assert loss(model) ≈ 0.9
-
-# model = Particle()
-# ingest!(model, 1)
-# train!(model, 2)
-# @assert training_losses(model) ≈ [0.9, 0.81]
