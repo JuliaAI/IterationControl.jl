@@ -1,4 +1,4 @@
-# # Controlling A Particle Tracker
+# # Controlling a Particle Tracker
 
 # > A demonstration of the `Data` control for online training, with callbacks
 
