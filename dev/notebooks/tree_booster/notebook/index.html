@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tree Booster · IterationControl.jl</title><meta name="title" content="Tree Booster · IterationControl.jl"/><meta property="og:title" content="Tree Booster · IterationControl.jl"/><meta property="twitter:title" content="Tree Booster · IterationControl.jl"/><meta name="description" content="Documentation for IterationControl.jl."/><meta property="og:description" content="Documentation for IterationControl.jl."/><meta property="twitter:description" content="Documentation for IterationControl.jl."/><script data-outdated-warner src="../../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.63.2/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../search_index.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/documentercodeblocks/juliasyntax-tokens.css" rel="stylesheet" type="text/css"/><link href="../../../assets/documentercodeblocks/line-numbers.css" rel="stylesheet" type="text/css"/><script src="../../../assets/documentercodeblocks/line-numbers.js"></script><link href="../../../assets/documentercodeblocks/ref-popup.css" rel="stylesheet" type="text/css"/><script src="../../../assets/documentercodeblocks/ref-popup.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">IterationControl.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../../">Overview</a></li><li><a class="tocitem" href="../../../controls/">Controls</a></li><li><a class="tocitem" href="../../../adding_new_controls/">Adding New Controls</a></li><li><input class="collapse-toggle" id="menuitem-4" type="checkbox" checked/><label class="tocitem" for="menuitem-4"><span class="docs-label">Demos</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../particle/notebook/">Particle Tracker</a></li><li class="is-active"><a class="tocitem" href>Tree Booster</a></li><li><a class="tocitem" href="../../anteaters/notebook/">Anteaters</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Demos</a></li><li class="is-active"><a href>Tree Booster</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tree Booster</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaAI/IterationControl.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaAI/IterationControl.jl/blob/dev/docs/src/notebooks/tree_booster/notebook.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Early-Stopping-for-a-Tree-Booster"><a class="docs-heading-anchor" href="#Early-Stopping-for-a-Tree-Booster">Early Stopping for a Tree Booster</a><a id="Early-Stopping-for-a-Tree-Booster-1"></a><a class="docs-heading-anchor-permalink" href="#Early-Stopping-for-a-Tree-Booster" title="Permalink"></a></h1><blockquote><p>Implementing early stopping for an iterative <a href="https://juliaml.ai">MLJ</a> model.</p></blockquote><p>In actual practice, an MLJ user will use <a href="https://juliaai.github.io/MLJ.jl/stable/controlling_iterative_models/"><code>IteratedModel</code></a> wrapper, which is built on top of IterationControl.jl, because this is more convenient and compositional.</p><p>The source for this demonstration can be found <a href="https://github.com/JuliaAI/IterationControl.jl/tree/dev/docs/src/notebooks/tree_booster/">here</a>.</p><pre><code class="language- hljs">import MLJBase
+import EvoTrees.EvoTreeClassifier
+using IterationControl
+import StatisticalMeasures.log_loss
+
+using Statistics
+using Random
+Random.seed!(123)</code></pre><pre><code class="nohighlight hljs">Random.TaskLocalRNG()</code></pre><p>Loading some data and splitting observation indices into test/train:</p><pre><code class="language- hljs">X, y = MLJBase.@load_iris; # a table and a vector
+train, test = MLJBase.partition(eachindex(y), 0.7, shuffle=true);</code></pre><p>Instantiate an MLJ model:</p><pre><code class="language- hljs">booster = EvoTreeClassifier(nrounds=1)
+Booster = typeof(booster);</code></pre><p>Note that in MLJ a &quot;model&quot; is just a container for hyper-parameters. The objects we will iteratively train here are MLJ <a href="https://JuliaAI.github.io/MLJBase.jl/dev/machines/"><em>machines</em></a>; these bind the model to train/test data and, in the case of iterative models, can be trained using a warm-restart.</p><p>Creating a machine:</p><pre><code class="language- hljs">mach = MLJBase.machine(booster, X, y);</code></pre><p>Lifting MLJ&#39;s <code>fit!(::Machine)</code> method to <code>IterativeControl.train!</code>:</p><pre><code class="language- hljs">function IterationControl.train!(mach::MLJBase.Machine{&lt;:Booster}, n::Int)
+    mlj_model = mach.model
+    mlj_model.nrounds = mlj_model.nrounds + n
+    MLJBase.fit!(mach, rows=train, verbosity=0)
+end;</code></pre><p>Lifting the out-of-sample loss:</p><pre><code class="language- hljs">function IterationControl.loss(mach::MLJBase.Machine{&lt;:Booster})
+    mlj_model = mach.model
+    yhat = MLJBase.predict(mach, rows=test)
+    return log_loss(yhat, y[test])
+end;</code></pre><p>Iterating with controls:</p><pre><code class="language- hljs">IterationControl.train!(
+    mach,
+    Step(5),
+    GL(),
+    Info(IterationControl.loss),
+);</code></pre><pre><code class="nohighlight hljs">[ Info: 0.39655590607605007
+[ Info: 0.25803830912951475
+[ Info: 0.20369477186348553
+[ Info: 0.17930965646052324
+[ Info: 0.15988563045516432
+[ Info: 0.14971082736701255
+[ Info: 0.1419051277333237
+[ Info: 0.13624241869102463
+[ Info: 0.12996659052675014
+[ Info: 0.12758077552017272
+[ Info: 0.1241560953359005
+[ Info: 0.12118229064975733
+[ Info: 0.11805805490577778
+[ Info: 0.12337760263694478
+[ Info: final loss: 0.12337760263694478
+[ Info: Stop triggered by EarlyStopping.GL(2.0) stopping criterion. 
+</code></pre><p>Continuing iteration with a different stopping criterion:</p><pre><code class="language- hljs">IterationControl.train!(
+    mach,
+    Step(5),
+    NumberLimit(10),
+    Info(IterationControl.loss),
+);</code></pre><pre><code class="nohighlight hljs">[ Info: 0.1284682197583394
+[ Info: 0.1333389660968577
+[ Info: 0.13635253372234196
+[ Info: 0.14081266985093113
+[ Info: 0.14362910766700177
+[ Info: 0.1463502830758916
+[ Info: 0.14873864305645823
+[ Info: 0.15129491860311206
+[ Info: 0.154195294592051
+[ Info: 0.15754958515966186
+[ Info: final loss: 0.15754958515966186
+[ Info: Stop triggered by EarlyStopping.NumberLimit(10) stopping criterion. 
+</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../particle/notebook/">« Particle Tracker</a><a class="docs-footer-nextpage" href="../../anteaters/notebook/">Anteaters »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Wednesday 4 November 2026 00:44">Wednesday 4 November 2026</span>. Using Julia version 1.13.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
