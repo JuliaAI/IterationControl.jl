@@ -1,7 +1,7 @@
 # IterationControl.jl
 
 A lightweight package for controlling iterative algorithms, with a
-view to training and optimizing machine learning models.
+view to training and optimizing machine learning models. 
 
 Builds on
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) and
