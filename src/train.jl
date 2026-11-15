@@ -98,9 +98,8 @@ julia> traces[2].loss
 ```
 
 Alternatively, one may specify `traces=v`, where `v` is the vector of traces returned by a
-previous call to `train!` with the same control types. In that `v` is extended, and
-matches the vector returned by the second call to `train!`. Continuing the above
-example:
+previous call to `train!` with the same control types. In that case `v` is extended, and
+matches the vector returned by the second call to `train!`. Continuing the above example:
 
 ```julia-repl
 controls[2] = Threshold(1e-100)

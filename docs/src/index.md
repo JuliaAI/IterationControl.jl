@@ -1,12 +1,16 @@
 # IterationControl.jl
 
 A lightweight package for controlling iterative algorithms, with a
-view to training and optimizing machine learning models.
+view to training and optimizing machine learning models. 
 
 Builds on
 [EarlyStopping.jl](https://github.com/ablaom/EarlyStopping.jl) and
 inspired by
 [LearningStrategies.jl](https://github.com/JuliaML/LearningStrategies.jl).
+
+The foundation for MLJ's
+[`IteratedModel`](https://juliaai.github.io/MLJ.jl/stable/controlling_iterative_models/)
+(provided by [MLJIteration.jl](https://github.com/JuliaAI/MLJIteration.jl)).
 
 Other related software:
 [DynamicIterators.jl](https://github.com/mschauer/DynamicIterators.jl).
