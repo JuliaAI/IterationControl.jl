@@ -13,6 +13,7 @@ global `verbosity` were increased by the value `by`.
 
 """
 louder(c; by=1) = Louder(c, by)
+louder(c, by) = Louder(c, by)
 
 # api:
 done(d::Louder, state) = done(d.control, state)
@@ -52,6 +53,7 @@ form of the raw state can change in any new release of IterationControls.jl.
 
 """
 with_state_do(c; f=state->shout(c, state), raw_state=false) = WithStateDo(c, f, raw_state)
+with_state_do(c, f; kwargs...) = with_state_do(c; f, kwargs...)
 
 # api:
 for op in [:done, :takedown]
@@ -133,6 +135,7 @@ function skip(control; predicate=1)
     predicate isa Integer && return Skip(control, accept(predicate), predicate)
     return Skip(control, predicate, 0)
 end
+skip(control, predicate) = skip(control; predicate)
 
 _state(s, model, verbosity, n, atomic_state...) = if s.predicate(n)
     new_atomic_state =
