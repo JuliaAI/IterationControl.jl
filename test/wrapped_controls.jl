@@ -101,3 +101,10 @@ end
         @test IC.takedown(c, 0, atomic_state) == IC.takedown(s, 0, state)
     end
 end
+
+@testset "alternative constructors" begin
+    @test IC.louder(Info(), 1) == IC.louder(Info(), by=1)
+    @test IC.skip(Threshold(0.01), 4) == IC.skip(Threshold(0.01), predicate=4)
+    @test IC.with_state_do(Threshold(), identity, raw_state=false) ==
+        IC.with_state_do(Threshold(), f=identity, raw_state=false)
+end
