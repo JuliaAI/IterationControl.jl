@@ -1,6 +1,6 @@
 name = "IterationControl"
 uuid = "b3c1a2ee-3fec-4384-bf48-272ea71de57c"
-version = "0.6.0"
+version = "0.6.1"
 authors = ["Anthony D. Blaom <anthony.blaom@gmail.com>"]
 
 [workspace]
