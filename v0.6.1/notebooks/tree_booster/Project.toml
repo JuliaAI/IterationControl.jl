@@ -1,0 +1,14 @@
+[deps]
+EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
+IterationControl = "b3c1a2ee-3fec-4384-bf48-272ea71de57c"
+MLJBase = "a7f614a8-145f-11e9-1d2a-a57a1082229d"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StatisticalMeasures = "a19d573c-0a75-4610-95b3-7071388c7541"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[compat]
+EvoTrees = "0.19"
+MLJBase = "1.14"
+Random = "1"
+StatisticalMeasures = "0.3"
+Statistics = "1"
