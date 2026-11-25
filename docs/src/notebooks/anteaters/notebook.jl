@@ -3,7 +3,7 @@
 # > A demonstration of controlling multiple agents using IterationControl.jl
 
 # The source for this demonstration can be found
-# [here](https://github.com/JuliaAI/IterationControl.jl/tree/dev/docs/src/notebooks/eaters/.).
+# [here](https://github.com/JuliaAI/IterationControl.jl/tree/dev/docs/src/notebooks/anteaters/.).
 
 # Controlling competing iterative models in parallel is useful in optimization. For
 # example, one might try several different optimization strategies in parallel, and divert
